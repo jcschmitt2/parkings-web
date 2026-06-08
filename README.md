@@ -2,18 +2,19 @@
 
 Application web pour trouver le parking le plus proche à Paris et comparer voirie vs parking.
 
-## Site en ligne
+## Site en ligne (GitHub Pages)
 
-- Page principale : `/appli/findparking.html`
+**URL** : https://jcschmitt2.github.io/parkings-web/
+
+Activation (une seule fois) :
+
+1. Repo [parkings-web](https://github.com/jcschmitt2/parkings-web) → **Settings** → **Pages**
+2. **Source** : Deploy from a branch
+3. **Branch** : `main` → dossier `/ (root)` → **Save**
+4. Attendre 1–3 min, puis ouvrir l’URL ci-dessus
+
+- Page principale : `/appli/findparking.html` (ou `/` via redirection)
 - Données : `donnée/app_parkings.json`, `donnée/tarifs_paris_arrondissements.json`, `donnée/images/`
-
-## Déploiement Vercel
-
-1. Pousser ce dépôt sur GitHub
-2. [vercel.com](https://vercel.com) → **Add New Project** → importer le repo
-3. Framework Preset : **Other** (site statique, pas de build)
-4. Root Directory : laisser vide (racine du repo)
-5. **Deploy**
 
 ## Mise à jour locale
 
