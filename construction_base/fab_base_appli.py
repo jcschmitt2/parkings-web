@@ -19,7 +19,7 @@ from chemins_projet import DATA_DIR
 
 CSV_SEP = ";"
 SCENE_PRIORITY = ("plaque_bleu", "tarif", "interieur", "paysage")
-APP_PHOTO_PREFIX = "../donnée/"
+APP_PHOTO_PREFIX = "donnée/"
 
 TARIFF_CSV_COLUMNS = (
     ("price15mnEur", "tarif_15mn_eur"),

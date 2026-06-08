@@ -15,7 +15,7 @@ fi
 echo "Démarrage du serveur sur http://127.0.0.1:$PORT ..."
 python3 -m http.server "$PORT" >/tmp/parking-http-$PORT.log 2>&1 &
 sleep 1
-URL="http://127.0.0.1:$PORT/appli/findparking.html"
+URL="http://127.0.0.1:$PORT/"
 open -a Safari "$URL" 2>/dev/null || open "$URL"
 echo "Ouvert : $URL"
 echo "Laissez ce terminal ouvert (ou le serveur en arrière-plan)."

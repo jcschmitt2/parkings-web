@@ -1,9 +1,9 @@
 {
   "redirects": [
     {
-      "source": "/",
-      "destination": "/appli/findparking.html",
-      "permanent": false
+      "source": "/appli/findparking.html",
+      "destination": "/",
+      "permanent": true
     }
   ]
 }

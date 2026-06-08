@@ -4,16 +4,10 @@ Application web pour trouver le parking le plus proche à Paris et comparer voir
 
 ## Site en ligne (GitHub Pages)
 
-**URL** : https://jcschmitt2.github.io/parkings-web/
+**URL** : https://parkeco.fr/
 
-Activation (une seule fois) :
-
-1. Repo [parkings-web](https://github.com/jcschmitt2/parkings-web) → **Settings** → **Pages**
-2. **Source** : Deploy from a branch
-3. **Branch** : `main` → dossier `/ (root)` → **Save**
-4. Attendre 1–3 min, puis ouvrir l’URL ci-dessus
-
-- Page principale : `/appli/findparking.html` (ou `/` via redirection)
+- Page principale : `/` (`index.html` à la racine)
+- Ancienne URL `/appli/findparking.html` → redirige vers `/`
 - Données : `donnée/app_parkings.json`, `donnée/tarifs_paris_arrondissements.json`, `donnée/images/`
 
 ## Mise à jour locale

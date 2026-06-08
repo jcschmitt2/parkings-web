@@ -2,11 +2,1990 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8" />
-  <meta http-equiv="refresh" content="0; url=appli/findparking.html" />
-  <title>FindParking Paris</title>
-  <script>location.replace("appli/findparking.html");</script>
+  <title>Se garer à Paris — parking public sécurisé</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <style>
+    :root { --bg:#0b1020; --card:#121733; --muted:#8ea0ff; --accent:#7dd3fc; --text:#e7eaff; }
+    * { box-sizing: border-box; }
+    html, body { height:100%; overflow:hidden; }
+    body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; color:var(--text); background:linear-gradient(180deg,#0b1020,#0e153a); display:flex; flex-direction:column; }
+    header { flex-shrink:0; padding:18px 22px; border-bottom:1px solid #263069; background:rgba(11,16,32,.95); backdrop-filter:saturate(140%) blur(8px); }
+    h1 { margin:0 0 6px; font-size:1.1rem; font-weight:700; letter-spacing:-0.3px; color:#fff; line-height:1.35; max-width:920px; }
+    .tagline { margin:0 0 6px; font-size:1.1rem; font-weight:700; letter-spacing:-0.3px; color:#c7d2fe; line-height:1.35; max-width:920px; }
+    .tagline-note { margin:6px 0 0; font-size:.9rem; color:#9aa9ff; line-height:1.4; max-width:520px; }
+    .app-main { flex:1; min-height:0; display:grid; grid-template-columns:380px 1fr; gap:14px; padding:14px; }
+    .panel { background:var(--card); border:1px solid #263069; border-radius:16px; padding:16px; box-shadow:0 10px 30px rgba(0,0,0,.25); }
+    .sidebar { display:flex; flex-direction:column; min-height:0; overflow:visible; position:relative; }
+    .sidebar-fixed { flex-shrink:0; }
+    .results-area {
+      flex:1;
+      min-height:0;
+      position:relative;
+      display:flex;
+      flex-direction:column;
+      margin-top:14px;
+    }
+    .results-scroll { flex:1; min-height:0; overflow-y:auto; padding-right:4px; }
+    .results-scroll.is-hidden { visibility:hidden; pointer-events:none; }
+    .item-clickable {
+      cursor:pointer;
+      transition:border-color .15s, background .15s, box-shadow .15s;
+    }
+    .item-clickable:hover {
+      border-color:#5b72c9;
+      background:#111845;
+      box-shadow:0 0 0 1px rgba(120, 150, 255, 0.28);
+    }
+    .item.is-selected {
+      border-color:#FF9F1A;
+      box-shadow:0 0 0 1px rgba(255, 159, 26, 0.35);
+    }
+    .item-hint { font-size:.75rem; color:#7d8fd6; margin-top:6px; }
+    .detail-stack {
+      display:none;
+      position:absolute;
+      inset:0;
+      z-index:20;
+    }
+    .detail-stack.open { display:block; }
+    .parking-detail-panel,
+    .parking-gain-panel {
+      display:none;
+      position:absolute;
+      inset:0;
+      flex-direction:column;
+      background:var(--card);
+      border-radius:12px;
+      border:1px solid #3d508f;
+      box-shadow:0 10px 30px rgba(0,0,0,.35);
+      overflow:hidden;
+    }
+    .detail-stack.view-detail .parking-detail-panel { display:flex; }
+    .detail-stack.view-gain .parking-gain-panel { display:flex; }
+    .gain-header {
+      flex-shrink:0;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      padding:6px 10px;
+      border-bottom:1px solid #263069;
+      background:rgba(11,16,32,.55);
+      font-size:.82rem;
+      font-weight:700;
+      color:#e7eaff;
+    }
+    .gain-body {
+      flex:1;
+      min-height:0;
+      overflow-y:auto;
+      padding:12px;
+    }
+    .detail-header {
+      flex-shrink:0;
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      padding:4px 6px;
+      border-bottom:1px solid #263069;
+      background:rgba(11,16,32,.55);
+    }
+    .detail-close {
+      display:inline-grid;
+      place-items:center;
+      width:28px;
+      height:28px;
+      padding:0;
+      border-radius:8px;
+      border:1px solid #2b376f;
+      background:#1a2253;
+      color:#c7d2fe;
+      font-size:1.15rem;
+      line-height:1;
+      font-weight:400;
+      cursor:pointer;
+    }
+    .detail-close:hover { background:#243067; border-color:#3b82f6; color:#fff; }
+    .detail-body {
+      flex:1;
+      min-height:0;
+      overflow-y:auto;
+      padding:12px 14px 8px;
+    }
+    .detail-footer {
+      flex-shrink:0;
+      padding:10px 14px 12px;
+      border-top:1px solid #263069;
+      background:rgba(11,16,32,.45);
+    }
+    .detail-footer .go-actions { margin-top:0; flex-wrap:nowrap; align-items:center; }
+    .detail-footer-bar {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      flex-wrap:nowrap;
+    }
+    .detail-footer-bar .go-actions { min-width:0; flex:1; }
+    .detail-footer-bar .go-label { flex-shrink:0; line-height:1; }
+    .detail-footer-bar .go-btn {
+      width:34px;
+      height:34px;
+      padding:0;
+      flex-shrink:0;
+    }
+    .detail-footer-bar .go-btn svg {
+      width:20px;
+      height:20px;
+    }
+    .btn-gain-open {
+      flex-shrink:0;
+      height:34px;
+      padding:0 10px;
+      border-radius:10px;
+      border:1px solid #3b82f6;
+      background:#1a2253;
+      color:#bfdbfe;
+      font-size:.74rem;
+      font-weight:600;
+      white-space:nowrap;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      line-height:1;
+    }
+    .btn-gain-open:hover { background:#243067; }
+    .gain-panel label { margin:0 0 5px; font-size:.8rem; }
+    .gain-field { margin-bottom:10px; }
+    .gain-panel select {
+      width:100%;
+      padding:8px 10px;
+      border-radius:10px;
+      border:1px solid #2b376f;
+      background:#0b1020;
+      color:#e7eaff;
+      font-size:.82rem;
+    }
+    .btn-gain-calc {
+      width:100%;
+      margin-top:4px;
+      padding:9px 12px;
+      border-radius:10px;
+      border:1px solid #22c55e;
+      background:#14532d;
+      color:#dcfce7;
+      font-size:.82rem;
+      font-weight:600;
+      cursor:pointer;
+    }
+    .btn-gain-calc:hover { background:#166534; }
+    .gain-results {
+      margin-top:12px;
+      display:grid;
+      gap:8px;
+      padding-top:10px;
+      border-top:1px solid #263069;
+    }
+    .gain-result-row {
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+    }
+    .gain-result-label { font-size:.76rem; color:#9aa9ff; }
+    .gain-result-value { font-size:.9rem; font-weight:700; color:#e7eaff; }
+    .gain-result-muted { font-size:.88rem; font-weight:600; color:#9aa9ff; font-style:italic; }
+    .gain-result-note { font-size:.72rem; color:#9aa9ff; line-height:1.4; margin-top:3px; }
+    .gain-result-gain { font-size:.95rem; font-weight:800; }
+    .gain-result-gain.is-positive { color:#4ade80; }
+    .gain-result-gain.is-negative { color:#f87171; }
+    .detail-name { font-size:1.02rem; font-weight:700; color:#fff; margin-bottom:4px; }
+    .detail-meta { margin-bottom:8px; }
+    .detail-entrance { font-size:.8rem; color:#7d8fd6; margin-top:4px; }
+    .detail-website {
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      margin-top:8px;
+      font-size:.82rem;
+      font-weight:600;
+      color:#7dd3fc;
+      text-decoration:none;
+    }
+    .detail-website:hover { text-decoration:underline; color:#bae6fd; }
+    .detail-tariffs {
+      margin-top:10px;
+      border:1px solid #2b376f;
+      border-radius:10px;
+      overflow:hidden;
+      background:#0f1530;
+    }
+    .detail-tariffs-title {
+      padding:6px 10px;
+      font-size:.74rem;
+      font-weight:700;
+      color:#9aa9ff;
+      border-bottom:1px solid #2b376f;
+      background:#121a3a;
+    }
+    .detail-tariffs-grid {
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+      gap:0;
+    }
+    .detail-tariff-item {
+      display:flex;
+      justify-content:space-between;
+      gap:8px;
+      padding:5px 10px;
+      font-size:.76rem;
+      border-bottom:1px solid #1c254f;
+    }
+    .detail-tariff-item:nth-child(odd) { border-right:1px solid #1c254f; }
+    .detail-tariff-label { color:#8ea0ff; }
+    .detail-tariff-value { color:#e7eaff; font-weight:600; }
+    .detail-photo {
+      width:100%;
+      max-height:155px;
+      object-fit:cover;
+      border-radius:12px;
+      margin-top:8px;
+      border:1px solid #2b376f;
+      background:#0b1020;
+    }
+    .detail-dist {
+      font-size:.85rem;
+      color:#9aa9ff;
+      margin-bottom:6px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    label { font-size:.85rem; color:#c7d2fe; display:block; margin:8px 0 6px; }
+    .address-row { display:flex; align-items:center; justify-content:space-between; gap:8px; margin:8px 0 6px; }
+    .address-row label { margin:0; }
+    .btn-locate {
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      flex-shrink:0;
+      padding:6px 10px;
+      font-size:.78rem;
+      border-radius:999px;
+      background:#1a2253;
+      border:1px solid #3b82f6;
+      color:#bfdbfe;
+      cursor:pointer;
+    }
+    .btn-locate svg { width:15px; height:15px; flex-shrink:0; stroke:currentColor; }
+    .marker-origin svg { width:16px; height:16px; stroke:#fff; }
+    .btn-locate:hover { background:#243067; }
+    .btn-locate:disabled { opacity:.6; cursor:wait; }
+    .address-wrap { position:relative; }
+    input[type="text"] { width:100%; padding:10px 12px; border-radius:12px; border:1px solid #2b376f; background:#0e1440; color:var(--text); font-size:.85rem; line-height:1.35; outline:none; }
+    input[type="text"]:focus { border-color:#3b82f6; box-shadow:0 0 0 2px rgba(59,130,246,.25); }
+    #address-suggestions {
+      display:none;
+      position:absolute;
+      left:0; right:0; top:calc(100% + 4px);
+      z-index:1000;
+      max-height:220px;
+      overflow:auto;
+      background:#0e1440;
+      border:1px solid #3b82f6;
+      border-radius:12px;
+      box-shadow:0 12px 28px rgba(0,0,0,.35);
+    }
+    #address-suggestions.open { display:block; }
+    .suggestion-item {
+      padding:10px 12px;
+      cursor:pointer;
+      font-size:.85rem;
+      line-height:1.35;
+      border-bottom:1px solid #243067;
+    }
+    .suggestion-item:last-child { border-bottom:none; }
+    .suggestion-item:hover,
+    .suggestion-item.active { background:#1a2253; color:#e7eaff; }
+    .suggestion-item .suggestion-main { color:#c7d2fe; }
+    .suggestion-item .suggestion-sub { font-size:.75rem; color:#9aa9ff; margin-top:2px; }
+    .row { display:flex; gap:8px; align-items:center; margin-top:10px; }
+    button, .ghost { cursor:pointer; border:none; border-radius:12px; padding:10px 12px; background:#2b376f; color:#e7eaff; }
+    button:hover { background:#35428a; }
+    .ghost { background:transparent; border:1px dashed #2b376f; }
+    .map-panel { position:relative; min-height:0; padding:0; overflow:hidden; }
+    #map { width:100%; height:100%; min-height:0; }
+    .hint { font-size:.8rem; color:#9aa9ff; margin-top:6px; }
+    .load-error { color:#fecaca; background:#3f1d1d; border:1px solid #b91c1c; padding:12px; border-radius:12px; line-height:1.45; font-size:.9rem; }
+    .load-error code { color:#fde68a; font-size:.82rem; word-break:break-all; }
+    .list { display:grid; gap:10px; }
+    .item {
+      background:#0e1440;
+      border:1.5px solid #3d508f;
+      box-shadow:0 0 0 1px rgba(120, 150, 255, 0.14);
+      padding:10px 12px;
+      border-radius:12px;
+    }
+    .item strong { color:#c7d2fe; }
+    .badge { font-size:.85rem; padding:3px 9px; border-radius:999px; background:#1a2253; border:1px solid #2b376f; color:#a7b4ff; }
+    .result-meta { display:flex; flex-direction:column; align-items:flex-end; gap:5px; flex-shrink:0; }
+    .walk-time { font-size:1.05rem; font-weight:600; color:#c7d2fe; display:flex; align-items:center; gap:8px; }
+    .walk-icon { font-size:2rem; line-height:1; }
+    .detail-dist .walk-time { font-size:1.08rem; }
+    .go-actions { display:flex; align-items:center; gap:8px; margin-top:8px; flex-wrap:wrap; }
+    .go-label { font-size:.78rem; font-weight:600; color:#c7d2fe; }
+    .go-btn {
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:7px;
+      border-radius:10px;
+      text-decoration:none;
+      border:1px solid #2b376f;
+      background:#131a44;
+      color:#e0e7ff;
+      transition:background .15s, border-color .15s;
+    }
+    .go-btn:hover { background:#1a2253; border-color:#3b4a8f; text-decoration:none; }
+    .go-btn svg { width:22px; height:22px; flex-shrink:0; display:block; }
+    .go-btn-apple:hover { border-color:#6b7280; }
+    .go-btn-google:hover { border-color:#4285f4; }
+    .muted { color:#9aa9ff; font-size:.85rem; }
+    .google-rating {
+      font-size:.82rem;
+      color:#9aa9ff;
+      margin-top:4px;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:wrap;
+    }
+    .google-stars {
+      position:relative;
+      display:inline-block;
+      line-height:1;
+      letter-spacing:0.5px;
+      font-size:0.82rem;
+    }
+    .google-stars .stars-bg {
+      color:#3b4a8f;
+    }
+    .google-stars .stars-fill {
+      position:absolute;
+      left:0;
+      top:0;
+      overflow:hidden;
+      white-space:nowrap;
+      color:#fbbf24;
+    }
+    .google-rating-value { color:#fbbf24; font-weight:700; }
+    .google-rating .reviews { color:#9aa9ff; font-weight:400; }
+    .parking-info { font-size:.82rem; color:#c7d2fe; margin-top:4px; line-height:1.45; }
+    .parking-info .info-sep { color:#5b6b9a; margin:0 6px; }
+    .parking-photo {
+      width:100%;
+      max-height:140px;
+      object-fit:cover;
+      border-radius:10px;
+      margin-top:8px;
+      border:1px solid #2b376f;
+      background:#0b1020;
+    }
+    a { color:var(--accent); text-decoration:none; }
+    a:hover { text-decoration:underline; }
+    .fileBox { border:1px dashed #2b376f; border-radius:12px; padding:10px; display:flex; align-items:center; justify-content:space-between; gap:8px; }
+    .tiny { font-size:.78rem; color:#9aa9ff; }
+    .leaflet-control-attribution { font-size:10px; }
+    .leaflet-marker-icon.parking-map-marker {
+      background:transparent !important;
+      border:none !important;
+      overflow:visible !important;
+    }
+    .marker {
+      display:grid;
+      place-items:center;
+      width:30px;
+      height:30px;
+      border-radius:999px;
+      color:white;
+      font-weight:800;
+      border:2px solid white;
+      box-shadow:0 8px 22px rgba(0,0,0,.35);
+      transition:transform .25s ease, background-color .25s ease, box-shadow .25s ease, width .25s ease, height .25s ease, border-width .25s ease;
+    }
+    .marker-origin { background:#2563eb; }
+    @keyframes parking-pin-pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.07); }
+    }
+    @keyframes parking-glow-pulse {
+      0%, 100% {
+        box-shadow:
+          0 4px 14px rgba(0,0,0,.22),
+          0 0 0 3px rgba(74,222,128,.28),
+          0 0 14px rgba(34,197,94,.5),
+          0 0 28px rgba(22,163,74,.28);
+      }
+      50% {
+        box-shadow:
+          0 6px 18px rgba(0,0,0,.28),
+          0 0 0 5px rgba(74,222,128,.42),
+          0 0 22px rgba(34,197,94,.72),
+          0 0 40px rgba(22,163,74,.45);
+      }
+    }
+    @keyframes parking-glow-pulse-blue {
+      0%, 100% {
+        box-shadow:
+          0 4px 14px rgba(0,0,0,.22),
+          0 0 0 3px rgba(96,165,250,.32),
+          0 0 14px rgba(59,130,246,.55),
+          0 0 28px rgba(37,99,235,.28);
+      }
+      50% {
+        box-shadow:
+          0 6px 18px rgba(0,0,0,.28),
+          0 0 0 5px rgba(96,165,250,.45),
+          0 0 22px rgba(59,130,246,.75),
+          0 0 40px rgba(37,99,235,.42);
+      }
+    }
+    @keyframes parking-halo-pulse {
+      0%, 100% { opacity:.55; transform: scale(1); }
+      50% { opacity:.9; transform: scale(1.12); }
+    }
+    @keyframes parking-halo-pulse-blue {
+      0%, 100% { opacity:.55; transform: scale(1); }
+      50% { opacity:.92; transform: scale(1.12); }
+    }
+    .marker-wrap-best {
+      width:44px;
+      height:44px;
+      display:grid;
+      place-items:center;
+      position:relative;
+      cursor:pointer;
+    }
+    .marker-wrap-best::before {
+      content:"";
+      position:absolute;
+      inset:2px;
+      border-radius:999px;
+      background:radial-gradient(circle, rgba(134,239,172,.5) 0%, rgba(34,197,94,.22) 42%, transparent 72%);
+      animation:parking-halo-pulse 2.4s ease-in-out infinite;
+      pointer-events:none;
+    }
+    .marker-best {
+      position:relative;
+      z-index:1;
+      background:linear-gradient(145deg, #22c55e 0%, #16a34a 55%, #15803d 100%);
+      animation:parking-pin-pulse 2.4s ease-in-out infinite, parking-glow-pulse 2.4s ease-in-out infinite;
+    }
+    .marker-pin-wrap .marker-best:not(.marker-selected) {
+      animation:parking-glow-pulse 2.4s ease-in-out infinite;
+    }
+    .marker-alt {
+      width:28px;
+      height:28px;
+      background:#7c3aed;
+      font-size:.7rem;
+      opacity:.9;
+      position:relative;
+      z-index:1;
+    }
+    .marker.marker-selected {
+      width:38px;
+      height:38px;
+      background:#FF9F1A;
+      color:#ffffff;
+      border:2px solid #ffffff;
+      opacity:1;
+      transform:none;
+      animation:none;
+      box-shadow:
+        0 0 0 5px rgba(255,159,26,0.22),
+        0 0 14px rgba(255,159,26,0.5);
+    }
+    .marker-best.marker-selected {
+      background:#FF9F1A;
+    }
+    .marker-alt.marker-selected {
+      font-size:.78rem;
+    }
+    .marker-wrap-best.has-selected {
+      width:46px;
+      height:46px;
+    }
+    .marker-wrap-best.has-selected::before {
+      display:none;
+    }
+    .marker-pin-wrap {
+      position:relative;
+      box-sizing:border-box;
+      overflow:visible;
+      cursor:pointer;
+    }
+    .marker-hit-layer {
+      position:absolute;
+      inset:0;
+      z-index:30;
+      cursor:pointer;
+      background:transparent;
+    }
+    .marker-pin-visual {
+      position:relative;
+      z-index:1;
+      width:100%;
+      height:100%;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:flex-start;
+      gap:2px;
+      pointer-events:none;
+    }
+    .marker-pin-visual * {
+      pointer-events:none;
+    }
+    .marker-pin-wrap.is-selected .marker-pin-visual {
+      gap:7px;
+    }
+    .marker-pin-wrap.is-selected .marker-name,
+    .marker-pin-wrap.is-selected .marker-walk {
+      position:relative;
+      z-index:2;
+    }
+    .marker-pin-wrap.is-selected .marker-wrap-best,
+    .marker-pin-wrap.is-selected .marker-alt {
+      position:relative;
+      z-index:1;
+    }
+    .marker-pin-wrap.is-selected .marker-name {
+      font-size:.84rem;
+      max-width:156px;
+      padding:4px 10px;
+    }
+    .marker-pin-wrap.is-selected .marker-walk {
+      font-size:.88rem;
+      padding:4px 11px;
+    }
+    .marker-pin-wrap.is-selected .marker-walk-icon {
+      font-size:1.12rem;
+    }
+    .marker-name {
+      font-size:.7rem;
+      font-weight:700;
+      color:#0f172a;
+      background:rgba(255,255,255,.96);
+      padding:3px 8px;
+      border-radius:8px;
+      border:1px solid rgba(15,23,42,.14);
+      box-shadow:0 2px 8px rgba(0,0,0,.2);
+      white-space:nowrap;
+      max-width:130px;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      text-align:center;
+      line-height:1.25;
+    }
+    .marker-walk {
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
+      font-size:.78rem;
+      font-weight:700;
+      color:#1e293b;
+      background:rgba(255,255,255,.94);
+      padding:3px 9px;
+      border-radius:999px;
+      border:1px solid rgba(15,23,42,.12);
+      box-shadow:0 2px 8px rgba(0,0,0,.2);
+      white-space:nowrap;
+      line-height:1.25;
+    }
+    .marker-walk-icon { font-size:1rem; line-height:1; }
+    .result-title { display:flex; align-items:center; gap:8px; }
+    .result-marker {
+      display:inline-grid;
+      place-items:center;
+      width:24px;
+      height:24px;
+      border-radius:999px;
+      color:white;
+      font-size:.72rem;
+      font-weight:800;
+      border:2px solid white;
+      box-shadow:0 4px 12px rgba(0,0,0,.25);
+      transition:transform .25s ease, background-color .25s ease, box-shadow .25s ease, width .25s ease, height .25s ease, border-width .25s ease;
+    }
+    .result-marker-best {
+      position:relative;
+      background:linear-gradient(145deg, #22c55e 0%, #16a34a 55%, #15803d 100%);
+      animation:parking-pin-pulse 2.4s ease-in-out infinite, parking-glow-pulse 2.4s ease-in-out infinite;
+    }
+    .result-marker-best::before {
+      content:"";
+      position:absolute;
+      inset:-5px;
+      border-radius:999px;
+      background:radial-gradient(circle, rgba(134,239,172,.45) 0%, rgba(34,197,94,.18) 50%, transparent 72%);
+      animation:parking-halo-pulse 2.4s ease-in-out infinite;
+      z-index:-1;
+      pointer-events:none;
+    }
+    .result-marker-alt { background:#7c3aed; }
+    .item.is-selected .result-marker-best,
+    .item.is-selected .result-marker-alt {
+      width:30px;
+      height:30px;
+      background:#FF9F1A;
+      color:#ffffff;
+      border:3px solid #ffffff;
+      transform:scale(1.25);
+      animation:none;
+      box-shadow:
+        0 0 0 6px rgba(255,159,26,0.25),
+        0 0 16px rgba(255,159,26,0.6);
+    }
+    .item.is-selected .result-marker-best::before {
+      display:none;
+    }
+    @media (max-width: 900px){
+      .app-main { display:flex; flex-direction:column; }
+      .sidebar { flex:1; min-height:0; }
+      .map-panel { height:36vh; flex-shrink:0; }
+    }
+  </style>
 </head>
 <body>
-  <p><a href="appli/findparking.html">FindParking — trouver un parking à Paris</a></p>
+  <header>
+    <h1>Se garer à Paris : jusqu'à 18 €/h à l'horodateur, à partir de 3 €/h dans un parking public sécurisé.</h1>
+    <p class="tagline">Trouvez le parking public le plus proche et comparez les coûts.</p>
+    <p class="tagline-note">Seuls les parkings réellement accessibles au public sont affichés.</p>
+  </header>
+
+  <div class="app-main">
+    <div class="panel sidebar">
+      <div class="sidebar-fixed">
+      <div class="address-row">
+        <label for="address">Adresse de départ à Paris</label>
+        <button type="button" id="btnLocate" class="btn-locate" title="Utiliser ma position actuelle">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="2" x2="5" y1="12" y2="12"/><line x1="19" x2="22" y1="12" y2="12"/><line x1="12" x2="12" y1="2" y2="5"/><line x1="12" x2="12" y1="19" y2="22"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/></svg>
+          Ma position
+        </button>
+      </div>
+      <div class="address-wrap">
+        <input id="address" type="text" placeholder="ex. 10 rue de Rivoli ou 75001" autocomplete="off" />
+        <div id="address-suggestions" role="listbox"></div>
+        <p class="hint">Code postal Paris (75001–75020) : tous les parkings de l’arrondissement.</p>
+      </div>
+      </div>
+      <div class="results-area">
+        <div class="results-scroll" id="results-scroll">
+          <div class="list" id="results"><div class="muted">Chargement de la base…</div></div>
+        </div>
+        <div id="detail-stack" class="detail-stack" aria-hidden="true">
+          <aside id="parking-detail-panel" class="parking-detail-panel" aria-hidden="true">
+            <div class="detail-header">
+              <button type="button" id="detail-close" class="detail-close" aria-label="Fermer">×</button>
+            </div>
+            <div id="detail-body" class="detail-body"></div>
+            <div id="detail-footer" class="detail-footer" hidden></div>
+          </aside>
+          <aside id="parking-gain-panel" class="parking-gain-panel" aria-hidden="true">
+            <div class="gain-header">
+              <span>Calcul de mon économie</span>
+              <button type="button" id="gain-close" class="detail-close" aria-label="Fermer le calcul">×</button>
+            </div>
+            <div class="gain-body gain-panel">
+              <div class="gain-field">
+                <label for="gain-vehicle">Type de véhicule</label>
+                <select id="gain-vehicle">
+                  <option value="electrique">Électrique léger</option>
+                  <option value="leger" selected>Thermique léger</option>
+                  <option value="suv">SUV thermique ou hybride</option>
+                </select>
+              </div>
+              <div class="gain-field">
+                <label for="gain-duration">Temps de stationnement</label>
+                <select id="gain-duration">
+                  <option value="1">1 h</option>
+                  <option value="2">2 h</option>
+                  <option value="3">3 h</option>
+                  <option value="4">4 h</option>
+                  <option value="5">5 h</option>
+                  <option value="6">6 h et plus</option>
+                </select>
+              </div>
+              <button type="button" class="btn-gain-calc" id="btn-gain-calc">Calculer</button>
+              <div id="gain-results" class="gain-results" hidden></div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel map-panel">
+      <div id="map"></div>
+    </div>
+  </div>
+
+  <script>
+    // --- Données en mémoire (après chargement fichier) ---
+    let PARKINGS = [];
+    let STREET_TARIFFS = {};
+    let map, userMarker, bestMarker, altMarkers = [];
+    let LAST_RESULT_PARKINGS = [];
+    let DETAIL_PARKING_BY_ID = new Map();
+    let SELECTED_PARKING_ID = "";
+    let CURRENT_GAIN_PARKING = null;
+    let CURRENT_ORIGIN = null;
+    let CURRENT_GPS_POSITION = null;
+    let MARKERS_BY_PARKING_ID = new Map();
+    let lastParkingMarkerClickAt = 0;
+
+    // --- Helpers ---
+    function haversineMeters(lat1, lon1, lat2, lon2){
+      const R = 6371000;
+      const toRad = d => d * Math.PI / 180;
+      const dphi = toRad(lat2 - lat1), dl = toRad(lon2 - lon1);
+      const a = Math.sin(dphi/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dl/2)**2;
+      return 2 * R * Math.asin(Math.sqrt(a));
+    }
+    function fmtDist(m){
+      return m < 1000 ? `${Math.round(m)} m` : `${(m/1000).toFixed(2)} km`;
+    }
+    function fmtWalkTime(m){
+      const min = Math.max(1, Math.round(m / 80));
+      if(min < 60) return `${min} min`;
+      const h = Math.floor(min / 60);
+      const rest = min % 60;
+      return rest ? `${h} h ${rest} min` : `${h} h`;
+    }
+    function fmtEur(amount){
+      if(amount == null || !Number.isFinite(amount)) return "";
+      const text = amount.toFixed(2).replace(/\.00$/, "");
+      return `${text.replace(".", ",")} €`;
+    }
+    function mapsCoordsPoint(point){
+      if(point?.lat == null || point?.lon == null) return "";
+      return `${point.lat},${point.lon}`;
+    }
+    function appleMapsUrl(lat, lon, origin){
+      const dest = `${lat},${lon}`;
+      const from = mapsCoordsPoint(origin);
+      if(from) return `http://maps.apple.com/?saddr=${from}&daddr=${dest}&dirflg=w`;
+      return `http://maps.apple.com/?daddr=${dest}&dirflg=w`;
+    }
+    function googleMapsUrl(lat, lon, origin){
+      const dest = `${lat},${lon}`;
+      const from = mapsCoordsPoint(origin);
+      const base = `https://www.google.com/maps/dir/?api=1&destination=${dest}&travelmode=walking`;
+      return from ? `${base}&origin=${from}` : base;
+    }
+    function setGpsPosition(lat, lon){
+      CURRENT_GPS_POSITION = {
+        lat,
+        lon,
+        label: "Ma position actuelle"
+      };
+    }
+    function refreshGpsForNav(onDone){
+      if(!navigator.geolocation){
+        onDone?.();
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          setGpsPosition(pos.coords.latitude, pos.coords.longitude);
+          onDone?.();
+        },
+        () => onDone?.(),
+        { enableHighAccuracy: true, timeout: 12000, maximumAge: 30000 }
+      );
+    }
+    function renderDetailFooterNav(p){
+      const footer = document.getElementById("detail-footer");
+      if(!footer || footer.hidden) return;
+      const navOrigin = CURRENT_GPS_POSITION;
+      footer.innerHTML = `
+        <div class="detail-footer-bar">
+          <div class="go-actions">
+            <span class="go-label">y aller</span>
+            <a class="go-btn go-btn-apple" href="${appleMapsUrl(p.lat,p.lon,navOrigin)}" target="_blank" rel="noreferrer" title="Itinéraire Apple Plans" aria-label="y aller avec Apple Plans">
+              ${ICON_APPLE}
+            </a>
+            <a class="go-btn go-btn-google" href="${googleMapsUrl(p.lat,p.lon,navOrigin)}" target="_blank" rel="noreferrer" title="Itinéraire Google Maps" aria-label="y aller avec Google Maps">
+              ${ICON_GOOGLE}
+            </a>
+          </div>
+          <button type="button" class="btn-gain-open" id="btn-gain-open">Calculer mon économie</button>
+        </div>`;
+      document.getElementById("btn-gain-open")?.addEventListener("click", () => openGainPanel(p));
+    }
+    const ICON_APPLE = `<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>`;
+    const ICON_GOOGLE = `<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#EA4335" d="M12 11.5v8.3c3.1-.1 5.6-2.6 5.6-5.7 0-1-.3-2-.8-2.8L12 11.5z"/><path fill="#34A853" d="M6.4 14.1c-.5.8-.8 1.8-.8 2.8 0 3.1 2.5 5.6 5.6 5.7v-8.3L6.4 14.1z"/><path fill="#FBBC05" d="M12 4.2c1.7 0 3.2.6 4.4 1.6l3.3-3.3C17.5 1.2 14.9 0 12 0 7.7 0 3.8 2.6 1.9 6.5l4.1 3.2C7.1 6.6 9.4 4.2 12 4.2z"/><path fill="#4285F4" d="M23.5 12c0-.8-.1-1.6-.3-2.3H12v4.6h6.5c-.3 1.5-1.2 2.8-2.4 3.7l3.8 3c2.2-2 3.6-5 3.6-8z"/><path fill="#4285F4" d="M12 24c3.2 0 5.9-1.1 7.9-2.9l-3.8-3c-1.1.8-2.5 1.2-4.1 1.2-2.6 0-4.9-1.6-5.9-3.9l-4.1 3.2C3.8 21.4 7.7 24 12 24z"/></svg>`;
+
+    function escapeHtml(value){
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function parseOptionalNumber(value){
+      if(value === "" || value == null) return null;
+      const n = Number(value);
+      return Number.isFinite(n) ? n : null;
+    }
+
+    const PARKING_TARIFF_FIELDS = [
+      ["price15mnEur", "15 min"],
+      ["price30mnEur", "30 min"],
+      ["price1hEur", "1 h"],
+      ["price1h30Eur", "1 h 30"],
+      ["price2hEur", "2 h"],
+      ["price3hEur", "3 h"],
+      ["price4hEur", "4 h"],
+      ["price7hEur", "7 h"],
+      ["price8hEur", "8 h"],
+      ["price9hEur", "9 h"],
+      ["price10hEur", "10 h"],
+      ["price11hEur", "11 h"],
+      ["price12hEur", "12 h"],
+      ["price24hEur", "24 h"]
+    ];
+
+    const DURATION_PARKING_PRICE_KEY = {
+      1: "price1hEur",
+      2: "price2hEur",
+      3: "price3hEur",
+      4: "price4hEur",
+      5: "price7hEur",
+      6: "price7hEur"
+    };
+
+    function normalizeParkingRecord(r){
+      const lat = +r.lat;
+      const lon = +r.lon;
+      if(!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
+      const ratingsCount = parseOptionalNumber(r.googleRatingsCount);
+      const record = {
+        id: String(r.id || "").trim(),
+        name: r.name || "Parking",
+        addr: r.addr || "",
+        lat,
+        lon,
+        googleRating: parseOptionalNumber(r.googleRating),
+        googleRatingsCount: ratingsCount == null ? null : Math.round(ratingsCount),
+        photoUrl: String(r.photoUrl || "").trim(),
+        operator: cleanCsvText(r.operator),
+        capacity: parseOptionalNumber(r.capacity),
+        price1hEur: parseOptionalNumber(r.price1hEur),
+        entranceAddr: cleanCsvText(r.entranceAddr),
+        websiteUrl: cleanCsvText(r.websiteUrl)
+      };
+      for(const [key] of PARKING_TARIFF_FIELDS){
+        const value = parseOptionalNumber(r[key]);
+        if(value != null) record[key] = value;
+      }
+      if(record.price1hEur == null && record.price1h30Eur != null){
+        record.price1hEur = record.price1h30Eur;
+      }
+      return record;
+    }
+
+    function cleanCsvText(value){
+      if(value == null) return "";
+      const text = String(value).trim();
+      return text.toLowerCase() === "nan" ? "" : text;
+    }
+
+    function displayParkingName(value){
+      const text = cleanCsvText(value || "Parking");
+      const lower = (text || "Parking").toLocaleLowerCase("fr-FR");
+      return lower.charAt(0).toLocaleUpperCase("fr-FR") + lower.slice(1);
+    }
+
+    function setParkingsFromBundle(records){
+      PARKINGS = (records || []).map(normalizeParkingRecord).filter(Boolean);
+    }
+
+    function googleRatingHtml(p){
+      if(p.googleRating == null) return "";
+      const rating = Math.max(0, Math.min(5, Number(p.googleRating)));
+      const ratingText = escapeHtml(rating.toFixed(1));
+      const fillPercent = Math.round((rating / 5) * 100);
+      const reviews = p.googleRatingsCount != null
+        ? `<span class="reviews">(${escapeHtml(p.googleRatingsCount)} avis)</span>`
+        : "";
+      return `<div class="google-rating">
+        <span class="google-stars" aria-hidden="true">
+          <span class="stars-bg">★★★★★</span>
+          <span class="stars-fill" style="width:${fillPercent}%;">★★★★★</span>
+        </span>
+        <span class="google-rating-value">${ratingText}</span>
+        ${reviews}
+      </div>`;
+    }
+
+    function fmtParkingPrice(value){
+      if(value == null) return "";
+      return `${value.toFixed(2).replace(/\.00$/, "")} €`;
+    }
+
+    function parkingInfoHtml(p){
+      const parts = [];
+      if(p.operator) parts.push(escapeHtml(p.operator));
+      if(p.capacity != null) parts.push(`${escapeHtml(Math.round(p.capacity))} places`);
+      if(!parts.length) return "";
+      return `<div class="parking-info">${parts.join('<span class="info-sep">·</span>')}</div>`;
+    }
+
+    function parkingTariffsHtml(p){
+      const rows = PARKING_TARIFF_FIELDS
+        .map(([key, label]) => {
+          const value = p[key];
+          if(value == null) return "";
+          return `<div class="detail-tariff-item">
+            <span class="detail-tariff-label">${escapeHtml(label)}</span>
+            <span class="detail-tariff-value">${escapeHtml(fmtParkingPrice(value))}</span>
+          </div>`;
+        })
+        .filter(Boolean);
+      if(!rows.length) return "";
+      return `<div class="detail-tariffs">
+        <div class="detail-tariffs-title">Tarifs horaires (visiteur)</div>
+        <div class="detail-tariffs-grid">${rows.join("")}</div>
+      </div>`;
+    }
+
+    function parkingWebsiteHtml(p){
+      const url = String(p.websiteUrl || "").trim();
+      if(!url) return "";
+      const safeUrl = escapeHtml(url);
+      return `<a class="detail-website" href="${safeUrl}" target="_blank" rel="noreferrer">Site du parking ↗</a>`;
+    }
+
+    function parkingPhotoHtml(p, className = "parking-photo"){
+      if(!p.photoUrl) return "";
+      const alt = escapeHtml(`Entrée — ${p.name}`);
+      const src = escapeHtml(p.photoUrl);
+      return `<img class="${className}" src="${src}" alt="${alt}" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">`;
+    }
+
+    function resetGainPanelContent(){
+      const results = document.getElementById("gain-results");
+      const vehicle = document.getElementById("gain-vehicle");
+      const duration = document.getElementById("gain-duration");
+      if(results){
+        results.innerHTML = "";
+        results.hidden = true;
+      }
+      if(vehicle) vehicle.value = "leger";
+      if(duration) duration.value = "1";
+    }
+
+    function setStackView(view){
+      const stack = document.getElementById("detail-stack");
+      const detailPanel = document.getElementById("parking-detail-panel");
+      const gainPanel = document.getElementById("parking-gain-panel");
+      if(!stack) return;
+      stack.classList.remove("view-detail", "view-gain");
+      if(view === "detail"){
+        stack.classList.add("view-detail");
+        detailPanel?.setAttribute("aria-hidden", "false");
+        gainPanel?.setAttribute("aria-hidden", "true");
+      } else if(view === "gain"){
+        stack.classList.add("view-gain");
+        detailPanel?.setAttribute("aria-hidden", "true");
+        gainPanel?.setAttribute("aria-hidden", "false");
+      } else {
+        detailPanel?.setAttribute("aria-hidden", "true");
+        gainPanel?.setAttribute("aria-hidden", "true");
+      }
+    }
+
+    function showDetailView(){
+      setStackView("detail");
+    }
+
+    function closeGainPanel({ restoreDetail = true } = {}){
+      const stack = document.getElementById("detail-stack");
+      const scroll = document.getElementById("results-scroll");
+      resetGainPanelContent();
+      CURRENT_GAIN_PARKING = null;
+      if(restoreDetail){
+        stack?.classList.add("open");
+        stack?.setAttribute("aria-hidden", "false");
+        scroll?.classList.add("is-hidden");
+        showDetailView();
+      } else {
+        setStackView(null);
+      }
+    }
+
+    function openGainPanel(p){
+      const stack = document.getElementById("detail-stack");
+      if(!stack || !p) return;
+      resetGainPanelContent();
+      CURRENT_GAIN_PARKING = p;
+      stack.classList.add("open");
+      stack.setAttribute("aria-hidden", "false");
+      setStackView("gain");
+    }
+
+    function closeParkingDetail(){
+      const stack = document.getElementById("detail-stack");
+      const scroll = document.getElementById("results-scroll");
+      if(!stack || !scroll) return;
+      closeGainPanel({ restoreDetail: false });
+      stack.classList.remove("open", "view-detail", "view-gain");
+      stack.setAttribute("aria-hidden", "true");
+      scroll.classList.remove("is-hidden");
+      document.getElementById("detail-body").innerHTML = "";
+      const footer = document.getElementById("detail-footer");
+      if(footer){
+        footer.innerHTML = "";
+        footer.hidden = true;
+      }
+      updateParkingSelection("");
+    }
+
+    function updateParkingSelection(parkingId){
+      SELECTED_PARKING_ID = parkingId || "";
+      document.querySelectorAll(".item[data-parking-id]").forEach(el => {
+        el.classList.toggle("is-selected", el.dataset.parkingId === SELECTED_PARKING_ID);
+      });
+      MARKERS_BY_PARKING_ID.forEach((marker, id) => {
+        const meta = marker._parkingMeta;
+        if(!meta) return;
+        const selected = id === SELECTED_PARKING_ID;
+        marker.setZIndexOffset(selected ? 1000 : 0);
+        if(meta.type === "best"){
+          marker.setIcon(buildBestMapIcon(selected, meta.distanceM, meta.parkingName));
+        } else {
+          marker.setIcon(buildAltMapIcon(meta.label, selected, meta.distanceM, meta.parkingName));
+        }
+      });
+    }
+
+    function extractArrondissementFromAddr(addr){
+      const pc = parseParisPostcodeQuery(String(addr || ""));
+      if(!pc) return null;
+      const n = +pc.slice(3);
+      return n >= 1 && n <= 20 ? n : null;
+    }
+
+    function getStreetParkingPrice(arrNum, vehicleType, durationHours){
+      if(vehicleType === "electrique") return 0;
+      if(!arrNum || !STREET_TARIFFS[String(arrNum)]) return null;
+      const row = STREET_TARIFFS[String(arrNum)];
+      const key = vehicleType === "suv" ? "suv" : "leger";
+      const idx = Math.min(Math.max(durationHours, 1), 6) - 1;
+      return row[key]?.[idx] ?? null;
+    }
+
+    const DEFAULT_PARKING_PRICE_1H = 5;
+
+    function getNeighborhoodAvgPrice1h(){
+      const prices = LAST_RESULT_PARKINGS
+        .map(pk => pk?.price1hEur)
+        .filter(v => v != null);
+      if(!prices.length) return DEFAULT_PARKING_PRICE_1H;
+      return prices.reduce((sum, v) => sum + v, 0) / prices.length;
+    }
+
+    function resolveParkingLotPrice(p, durationHours){
+      const priceKey = DURATION_PARKING_PRICE_KEY[durationHours];
+      if(priceKey && p[priceKey] != null){
+        return {
+          total: p[priceKey],
+          estimated: false,
+          tariffLabel: PARKING_TARIFF_FIELDS.find(([key]) => key === priceKey)?.[1] || ""
+        };
+      }
+      if(p.price1hEur != null){
+        return {
+          total: p.price1hEur * durationHours,
+          estimated: false
+        };
+      }
+      const avg1h = getNeighborhoodAvgPrice1h();
+      return {
+        total: avg1h * durationHours,
+        estimated: true,
+        usedDefault: !LAST_RESULT_PARKINGS.some(pk => pk?.price1hEur != null)
+      };
+    }
+
+    function renderGainResults(p, vehicleType, durationHours){
+      const results = document.getElementById("gain-results");
+      if(!results) return;
+
+      const parkingName = displayParkingName(p.name);
+      const parkingQuote = resolveParkingLotPrice(p, durationHours);
+      const parkingPrice = parkingQuote.total;
+      const arrNum = extractArrondissementFromAddr(p.addr);
+      const streetPrice = getStreetParkingPrice(arrNum, vehicleType, durationHours);
+
+      const parkingValue = `<span class="gain-result-value">${escapeHtml(fmtEur(parkingPrice))}</span>`;
+
+      let streetValue;
+      if(vehicleType === "electrique"){
+        streetValue = `<span class="gain-result-value">Gratuit</span>`;
+      } else if(streetPrice == null){
+        streetValue = `<span class="gain-result-muted">Tarif voirie non disponible</span>`;
+      } else {
+        streetValue = `<span class="gain-result-value">${escapeHtml(fmtEur(streetPrice))}</span>`;
+      }
+
+      let gainHtml = "";
+      if(vehicleType === "electrique" || streetPrice != null){
+        const street = vehicleType === "electrique" ? 0 : streetPrice;
+        const gain = street - parkingPrice;
+        const gainClass = gain >= 0 ? "is-positive" : "is-negative";
+        const gainLabel = gain >= 0 ? "Gain estimé" : "Surcoût parking";
+        gainHtml = `
+          <div class="gain-result-row">
+            <span class="gain-result-label">${gainLabel}</span>
+            <span class="gain-result-gain ${gainClass}">${escapeHtml(fmtEur(Math.abs(gain)))}</span>
+          </div>`;
+      }
+
+      let parkingLabel;
+      if(parkingQuote.estimated){
+        parkingLabel = "Le tarif du parking n'est pas encore disponible. Le calcul est fait en prenant la moyenne des parkings du quartier.";
+      } else if(parkingQuote.tariffLabel){
+        parkingLabel = `Tarif parking ${escapeHtml(parkingQuote.tariffLabel)} — ${escapeHtml(parkingName)}`;
+      } else {
+        parkingLabel = `Prix du stationnement — ${escapeHtml(parkingName)}`;
+      }
+
+      results.innerHTML = `
+        <div class="gain-result-row">
+          <span class="gain-result-label">${parkingLabel}</span>
+          ${parkingValue}
+        </div>
+        <div class="gain-result-row">
+          <span class="gain-result-label">Prix en voirie</span>
+          ${streetValue}
+        </div>
+        ${gainHtml}`;
+      results.hidden = false;
+    }
+
+    function runGainCalculation(){
+      const p = CURRENT_GAIN_PARKING;
+      if(!p) return;
+      const vehicleType = document.getElementById("gain-vehicle")?.value || "leger";
+      const durationHours = +(document.getElementById("gain-duration")?.value || 1);
+      renderGainResults(p, vehicleType, durationHours);
+    }
+
+    async function loadStreetTariffs(){
+      try {
+        const res = await fetch(DATA_STREET_TARIFFS_JSON);
+        if(!res.ok) throw new Error(`Tarifs voirie HTTP ${res.status}`);
+        STREET_TARIFFS = await res.json();
+      } catch(err) {
+        console.warn("Tarifs voirie non chargés", err);
+        STREET_TARIFFS = {};
+      }
+    }
+
+    function openParkingDetail(parkingId){
+      const p = DETAIL_PARKING_BY_ID.get(parkingId);
+      if(!p) return;
+      const stack = document.getElementById("detail-stack");
+      const panel = document.getElementById("parking-detail-panel");
+      const scroll = document.getElementById("results-scroll");
+      const body = document.getElementById("detail-body");
+      const footer = document.getElementById("detail-footer");
+      if(!stack || !panel || !scroll || !body || !footer) return;
+
+      closeGainPanel({ restoreDetail: false });
+      resetGainPanelContent();
+
+      const distBlock = p.distance_m != null
+        ? `<div class="detail-dist">
+            <span class="badge">${fmtDist(p.distance_m)}</span>
+            <span class="walk-time"><span class="walk-icon" aria-hidden="true">🚶</span> ${fmtWalkTime(p.distance_m)}</span>
+          </div>`
+        : "";
+
+      const entranceBlock = p.entranceAddr && p.entranceAddr !== p.addr
+        ? `<div class="detail-entrance">Entrée : ${escapeHtml(p.entranceAddr)}</div>`
+        : "";
+
+      body.innerHTML = `
+        <div class="detail-name">${escapeHtml(displayParkingName(p.name))}</div>
+        ${distBlock}
+        ${parkingPhotoHtml(p, "detail-photo")}
+        <div class="detail-meta">
+          <div class="muted">${escapeHtml(p.addr || p.entranceAddr || "Adresse non fournie")}</div>
+          ${entranceBlock}
+          ${parkingInfoHtml(p)}
+          ${googleRatingHtml(p)}
+          ${parkingWebsiteHtml(p)}
+          ${parkingTariffsHtml(p)}
+        </div>`;
+
+      footer.hidden = false;
+      renderDetailFooterNav(p);
+      refreshGpsForNav(() => {
+        if(SELECTED_PARKING_ID === parkingId) renderDetailFooterNav(p);
+      });
+
+      scroll.classList.add("is-hidden");
+      stack.classList.add("open");
+      stack.setAttribute("aria-hidden", "false");
+      setStackView("detail");
+      body.scrollTop = 0;
+      updateParkingSelection(parkingId);
+    }
+
+    function registerResultParkings(parkings, optionsById = {}){
+      DETAIL_PARKING_BY_ID.clear();
+      LAST_RESULT_PARKINGS = parkings;
+      for(const p of parkings){
+        if(!p?.id) continue;
+        DETAIL_PARKING_BY_ID.set(p.id, {
+          ...p,
+          detailTitle: optionsById[p.id]?.title || p.name || "Parking"
+        });
+      }
+    }
+
+    function clearMarkers(){
+      if(userMarker){ map.removeLayer(userMarker); userMarker = null; }
+      if(bestMarker){ map.removeLayer(bestMarker); bestMarker = null; }
+      altMarkers.forEach(m => map.removeLayer(m));
+      altMarkers = [];
+      MARKERS_BY_PARKING_ID.clear();
+      updateParkingSelection("");
+    }
+
+    function fitMapToParkings(latLngs){
+      if(!map || !latLngs.length) return;
+      const bounds = L.latLngBounds(latLngs);
+      map.fitBounds(bounds.pad(0.08), {
+        paddingTopLeft: [44, 24],
+        paddingBottomRight: [32, 24],
+        maxZoom: 18,
+        animate: false
+      });
+    }
+
+    function markerNameHtml(name){
+      const text = displayParkingName(name);
+      if(!text) return "";
+      return `<div class="marker-name" title="${escapeHtml(text)}">${escapeHtml(text)}</div>`;
+    }
+
+    function markerWalkLabelHtml(distanceM){
+      if(distanceM == null || !Number.isFinite(distanceM)) return "";
+      return `<div class="marker-walk"><span class="marker-walk-icon" aria-hidden="true">🚶</span><span>${fmtWalkTime(distanceM)}</span></div>`;
+    }
+
+    function createParkingMarker(lat, lon, options = {}){
+      return L.marker([lat, lon], {
+        riseOnHover: true,
+        riseOffset: 350,
+        ...options
+      });
+    }
+
+    function registerMapMarker(parkingId, marker, type, label, distanceM, parkingName){
+      if(!parkingId || !marker) return;
+      marker._parkingMeta = {
+        type,
+        label: label || "",
+        distanceM: distanceM ?? null,
+        parkingName: parkingName || ""
+      };
+      MARKERS_BY_PARKING_ID.set(parkingId, marker);
+      marker.on("click", (event) => {
+        lastParkingMarkerClickAt = Date.now();
+        if(event?.originalEvent){
+          L.DomEvent.stopPropagation(event.originalEvent);
+        }
+        if(DETAIL_PARKING_BY_ID.has(parkingId)) openParkingDetail(parkingId);
+      });
+    }
+
+    function buildMarkerPinHtml(pinClass, totalW, totalH, visualHtml){
+      const sizeStyle = `width:${totalW}px;height:${totalH}px;`;
+      return `<div class="${pinClass}" style="${sizeStyle}"><div class="marker-hit-layer" aria-hidden="true"></div><div class="marker-pin-visual">${visualHtml}</div></div>`;
+    }
+
+    function findParkingMarkerAtMapClick(clickLatLng){
+      if(!map || !MARKERS_BY_PARKING_ID.size) return null;
+      const mapRect = map.getContainer().getBoundingClientRect();
+      const clickPt = map.latLngToContainerPoint(clickLatLng);
+      let bestId = null;
+      let bestZ = -1;
+      MARKERS_BY_PARKING_ID.forEach((marker, id) => {
+        if(!DETAIL_PARKING_BY_ID.has(id)) return;
+        const el = marker.getElement();
+        if(!el) return;
+        const rect = el.getBoundingClientRect();
+        const pad = 8;
+        const left = rect.left - mapRect.left - pad;
+        const top = rect.top - mapRect.top - pad;
+        const right = left + rect.width + pad * 2;
+        const bottom = top + rect.height + pad * 2;
+        if(clickPt.x < left || clickPt.x > right || clickPt.y < top || clickPt.y > bottom) return;
+        const z = parseInt(el.style.zIndex || window.getComputedStyle(el).zIndex || "0", 10) || 0;
+        if(z >= bestZ){
+          bestZ = z;
+          bestId = id;
+        }
+      });
+      return bestId;
+    }
+
+    function parkingMapMarkerClass(selected){
+      return selected ? "parking-map-marker leaflet-marker-selected" : "parking-map-marker";
+    }
+
+    function buildBestMapIcon(selected, distanceM, parkingName){
+      const selectedClass = selected ? " marker-selected" : "";
+      const wrapClass = selected ? "marker-wrap-best has-selected" : "marker-wrap-best";
+      const wrapSize = selected ? 46 : 44;
+      const pinClass = selected ? "marker-pin-wrap is-selected" : "marker-pin-wrap";
+      const name = markerNameHtml(parkingName);
+      const walk = markerWalkLabelHtml(distanceM);
+      const nameH = name ? (selected ? 30 : 24) : 0;
+      const walkH = walk ? (selected ? 32 : 26) : 0;
+      const gapExtra = selected ? 14 : 0;
+      const nameMaxW = selected ? 156 : 130;
+      const totalW = Math.max(wrapSize, name ? nameMaxW : 52);
+      const totalH = nameH + wrapSize + walkH + gapExtra;
+      const visual = `${name}<div class="${wrapClass}"><div class="marker marker-best${selectedClass}">P</div></div>${walk}`;
+      return L.divIcon({
+        className: parkingMapMarkerClass(selected),
+        html: buildMarkerPinHtml(pinClass, totalW, totalH, visual),
+        iconSize: [totalW, totalH],
+        iconAnchor: [totalW / 2, nameH + gapExtra / 2 + wrapSize / 2]
+      });
+    }
+
+    function buildAltMapIcon(label, selected, distanceM, parkingName){
+      const selectedClass = selected ? " marker-selected" : "";
+      const pSize = selected ? 38 : 28;
+      const pinClass = selected ? "marker-pin-wrap is-selected" : "marker-pin-wrap";
+      const name = markerNameHtml(parkingName);
+      const walk = markerWalkLabelHtml(distanceM);
+      const nameH = name ? (selected ? 30 : 24) : 0;
+      const walkH = walk ? (selected ? 32 : 26) : 0;
+      const gapExtra = selected ? 14 : 0;
+      const nameMaxW = selected ? 156 : 130;
+      const totalW = Math.max(pSize, name ? nameMaxW : 52);
+      const totalH = nameH + pSize + walkH + gapExtra;
+      const visual = `${name}<div class="marker marker-alt${selectedClass}">${label}</div>${walk}`;
+      return L.divIcon({
+        className: parkingMapMarkerClass(selected),
+        html: buildMarkerPinHtml(pinClass, totalW, totalH, visual),
+        iconSize: [totalW, totalH],
+        iconAnchor: [totalW / 2, nameH + gapExtra / 2 + pSize / 2]
+      });
+    }
+
+    // --- Initialisation carte ---
+    function initMap(){
+      map = L.map("map", { zoomControl:true }).setView([48.8566, 2.3522], 13);
+      L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
+        maxZoom: 20,
+        attribution: "&copy; OpenStreetMap &copy; CARTO",
+        subdomains: "abcd"
+      }).addTo(map);
+      map.on("click", (event) => {
+        if(Date.now() - lastParkingMarkerClickAt < 80) return;
+        const id = findParkingMarkerAtMapClick(event.latlng);
+        if(!id) return;
+        if(DETAIL_PARKING_BY_ID.has(id)) openParkingDetail(id);
+      });
+      setTimeout(() => map.invalidateSize(), 0);
+    }
+    initMap();
+
+    window.addEventListener('resize', () => { if(map) map.invalidateSize(); });
+
+    const originIcon = L.divIcon({
+      className: "",
+      html: '<div class="marker marker-origin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="2" x2="5" y1="12" y2="12"/><line x1="19" x2="22" y1="12" y2="12"/><line x1="12" x2="12" y1="2" y2="5"/><line x1="12" x2="12" y1="19" y2="22"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/></svg></div>',
+      iconSize: [30, 30],
+      iconAnchor: [15, 15]
+    });
+    function altIcon(label, distanceM, parkingName){
+      return buildAltMapIcon(label, false, distanceM, parkingName);
+    }
+
+    const DATA_APP_PARKINGS_JSON = encodeURI("donnée/app_parkings.json");
+    const DATA_STREET_TARIFFS_JSON = encodeURI("donnée/tarifs_paris_arrondissements.json");
+
+    function showLoadError(title, detail){
+      const results = document.getElementById("results");
+      if(!results) return;
+      results.innerHTML =
+        `<div class="load-error"><strong>${title}</strong><br>${detail}</div>`;
+    }
+
+    async function loadDefaultBase(){
+      try {
+        await loadStreetTariffs();
+        const res = await fetch(DATA_APP_PARKINGS_JSON);
+        if(!res.ok) throw new Error(`app_parkings.json HTTP ${res.status}`);
+        const bundle = await res.json();
+        setParkingsFromBundle(bundle.parkings);
+        if(!PARKINGS.length){
+          showLoadError(
+            "Base vide",
+            "Le fichier app_parkings.json est chargé mais ne contient aucun parking.<br>" +
+            "Regénérez-le : <code>cd \"donnée\" && python3 fab_base_appli.py</code>"
+          );
+          return;
+        }
+        document.getElementById("results").innerHTML = "";
+        const withPhoto = PARKINGS.filter(p => p.photoUrl).length;
+        console.info(
+          `FindParking — base chargée: ${PARKINGS.length} parkings, ${withPhoto} avec photo ` +
+          `(bundle du ${bundle.builtAt || "?"})`
+        );
+      } catch(err) {
+        console.error("Chargement automatique impossible", err);
+        const origin = window.location.origin || "";
+        const expected = origin ? `${origin}/` : "http://127.0.0.1:8766/";
+        showLoadError(
+          "Impossible de charger la base",
+          `${err && err.message ? err.message : err}<br><br>` +
+          `Ouvrez l’app via un serveur local, pas en double-clic :<br>` +
+          `<code>${expected}</code><br><br>` +
+          `Terminal :<br><code>cd \"parking principal\" && python3 -m http.server 8766</code><br><br>` +
+          `Puis regénérez la base si besoin :<br>` +
+          `<code>cd \"donnée\" && python3 fab_base_appli.py</code>`
+        );
+      }
+    }
+
+    window.addEventListener("load", loadDefaultBase);
+
+    // --- Géocodage via Nominatim ---
+    async function geocodeAddress(q){
+      const cleaned = q.trim();
+      const hasParis = /\bparis\b/i.test(cleaned) || /\b750\d{2}\b/.test(cleaned);
+      const parisQuery = hasParis ? cleaned : `${cleaned}, Paris`;
+      const variants = [
+        parisQuery,
+        `${cleaned}, 75005 Paris`,
+        `${cleaned}, 75013 Paris`,
+        cleaned,
+        cleaned.replace(/\bparis\b/i, "75013 Paris")
+      ];
+
+      for(const query of [...new Set(variants)]){
+        const params = new URLSearchParams({
+          q: query,
+          format:"jsonv2",
+          limit:"8",
+          countrycodes:"fr",
+          addressdetails:"1",
+          viewbox:"2.224,48.902,2.470,48.815",
+          bounded:"0"
+        });
+        const url = "https://nominatim.openstreetmap.org/search?" + params.toString();
+        const res = await fetch(url, { headers: { "Accept":"application/json" } });
+        if(!res.ok) throw new Error("Géocodage refusé");
+        const results = await res.json();
+        if(!results || !results.length) continue;
+
+        const parisResult = results.find(item => {
+          const label = (item.display_name || "").toLowerCase();
+          const postcode = item.address && item.address.postcode || "";
+          const lat = +item.lat;
+          const lon = +item.lon;
+          const insideParisBox = lat >= 48.815 && lat <= 48.902 && lon >= 2.224 && lon <= 2.470;
+          return insideParisBox || postcode.startsWith("750") || label.includes("paris, île-de-france");
+        });
+        const best = parisResult || results[0];
+        return { lat:+best.lat, lon:+best.lon, label:best.display_name };
+      }
+
+      throw new Error("Adresse introuvable");
+    }
+
+    async function reverseGeocode(lat, lon){
+      const params = new URLSearchParams({ lat, lon, format:"jsonv2" });
+      const res = await fetch(
+        "https://nominatim.openstreetmap.org/reverse?" + params.toString(),
+        { headers: { "Accept":"application/json" } }
+      );
+      if(!res.ok) return { lat, lon, label:"Ma position actuelle" };
+      const data = await res.json();
+      return { lat, lon, label: data.display_name || "Ma position actuelle" };
+    }
+
+    const ARRONDISSEMENT_LABELS = {
+      "75001": "Paris 1er", "75002": "Paris 2e", "75003": "Paris 3e", "75004": "Paris 4e",
+      "75005": "Paris 5e", "75006": "Paris 6e", "75007": "Paris 7e", "75008": "Paris 8e",
+      "75009": "Paris 9e", "75010": "Paris 10e", "75011": "Paris 11e", "75012": "Paris 12e",
+      "75013": "Paris 13e", "75014": "Paris 14e", "75015": "Paris 15e", "75016": "Paris 16e",
+      "75017": "Paris 17e", "75018": "Paris 18e", "75019": "Paris 19e", "75020": "Paris 20e"
+    };
+
+    function normalizeParisPostcode(postcode){
+      return postcode === "75116" ? "75016" : postcode;
+    }
+
+    function parseParisPostcodeQuery(q){
+      const cleaned = q.trim().toLowerCase().replace(/\s+/g, " ");
+      let m = cleaned.match(/\b(75116|750\d{2})\b/);
+      if(m) return normalizeParisPostcode(m[1]);
+      m = cleaned.match(/\b750(\d)\b/);
+      if(m) return `7500${m[1]}`;
+      m = cleaned.match(/(?:^|\b)paris\s*(\d{1,2})\s*(?:er|ère|e|ème|ᵉ)?\b/);
+      if(m){
+        const n = +m[1];
+        if(n >= 1 && n <= 20) return `750${String(n).padStart(2, "0")}`;
+      }
+      m = cleaned.match(/\b(\d{1,2})\s*(?:er|ère|e|ème|ᵉ)?\s*arrondissement\b/);
+      if(m){
+        const n = +m[1];
+        if(n >= 1 && n <= 20) return `750${String(n).padStart(2, "0")}`;
+      }
+      m = cleaned.match(/\barrondissement\s*(\d{1,2})\b/);
+      if(m){
+        const n = +m[1];
+        if(n >= 1 && n <= 20) return `750${String(n).padStart(2, "0")}`;
+      }
+      const compact = cleaned.replace(/\s/g, "");
+      if(/^750\d{2}$/.test(compact) || compact === "75116") return normalizeParisPostcode(compact);
+      return null;
+    }
+
+    function hasStreetLikeQuery(q){
+      return /\b(rue|avenue|av\.|bd|boulevard|place|quai|passage|impasse|square|cours|allée|allee|voie|parvis|pont|esplanade|carrefour)\b/i.test(q);
+    }
+
+    function isArrondissementOnlyQuery(q, postcode){
+      if(!postcode) return false;
+      if(hasStreetLikeQuery(q)) return false;
+      const stripped = q.trim().toLowerCase()
+        .replace(new RegExp(postcode.toLowerCase(), "g"), "")
+        .replace(/\b75116\b/g, "")
+        .replace(/\bparis\b/g, "")
+        .replace(/\barrondissement\b/g, "")
+        .replace(/\d{1,2}\s*(?:er|ère|e|ème|ᵉ)?/g, "")
+        .trim();
+      return stripped === "" || /^(?:75116|750\d{0,2})$/.test(q.trim().replace(/\s/g, ""));
+    }
+
+    function parkingInPostcode(p, postcode){
+      const addr = String(p.addr || "").toLowerCase();
+      const codes = postcode === "75016" ? ["75016", "75116"] : [postcode];
+      return codes.some(code => {
+        const escaped = code.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        return new RegExp(`\\b${escaped}\\b`).test(addr);
+      });
+    }
+
+    function arrondissementLabel(postcode){
+      return ARRONDISSEMENT_LABELS[postcode] || postcode;
+    }
+
+    function parkingResultCard(p, idx, options = {}){
+      const showDist = options.showDistance !== false && p.distance_m != null;
+      const markerClass = options.markerClass || (idx === 0 ? "result-marker-best" : "result-marker-alt");
+      const title = options.title ?? "";
+      const markerText = options.markerText ?? (
+        markerClass === "result-marker-best" ? "P" :
+        showDist === false ? String(idx + 1) : `P${idx}`
+      );
+      const showTitleInHeader = title && title !== markerText;
+      const distBlock = showDist
+        ? `<div class="result-meta">
+            <span class="badge">${fmtDist(p.distance_m)}</span>
+            <span class="walk-time"><span class="walk-icon" aria-hidden="true">🚶</span> ${fmtWalkTime(p.distance_m)}</span>
+          </div>`
+        : "";
+      const parkingId = escapeHtml(p.id || "");
+      return `
+        <div class="item item-clickable" data-parking-id="${parkingId}" role="button" tabindex="0" aria-label="Voir le détail — ${escapeHtml(displayParkingName(p.name))}">
+          <div style="display:flex;align-items:center;gap:8px;justify-content:space-between;">
+            <strong class="result-title">
+              <span class="result-marker ${markerClass}">${markerText}</span>
+              ${showTitleInHeader ? escapeHtml(title) : ""}
+            </strong>
+            ${distBlock}
+          </div>
+          <div>${escapeHtml(displayParkingName(p.name))}</div>
+          ${parkingInfoHtml(p)}
+          <div class="item-hint">Appuyer pour adresse, photo et avis</div>
+        </div>`;
+    }
+
+    function showArrondissementParkings(postcode){
+      CURRENT_ORIGIN = null;
+      closeParkingDetail();
+      const label = arrondissementLabel(postcode);
+      const inArr = PARKINGS.filter(p => parkingInPostcode(p, postcode))
+        .sort((a, b) => (a.name || "").localeCompare(b.name || "", "fr"));
+
+      const resBox = document.getElementById("results");
+      if(!inArr.length){
+        resBox.innerHTML =
+          `<div class="muted">Aucun parking dans la base pour ${escapeHtml(label)} (${escapeHtml(postcode)}).</div>`;
+        clearMarkers();
+        return;
+      }
+
+      clearMarkers();
+      bestMarker = null;
+      const bounds = [];
+      altMarkers = inArr.map((p, i) => {
+        const label = String(i + 1);
+        const m = createParkingMarker(p.lat, p.lon, {
+          title: p.name,
+          icon: altIcon(label, null, p.name)
+        }).addTo(map);
+        registerMapMarker(p.id, m, "alt", label, null, p.name);
+        bounds.push([p.lat, p.lon]);
+        return m;
+      });
+      fitMapToParkings(bounds);
+
+      const optionsById = {};
+      inArr.forEach(p => { if(p.id) optionsById[p.id] = { title: p.name || "Parking" }; });
+      registerResultParkings(inArr, optionsById);
+
+      resBox.innerHTML =
+        `<div class="muted" style="margin-bottom:10px;">` +
+        `<strong>${escapeHtml(label)}</strong> (${escapeHtml(postcode)}) — ` +
+        `${inArr.length} parking${inArr.length > 1 ? "s" : ""}</div>` +
+        inArr.map((p, i) => parkingResultCard(p, i, {
+          showDistance: false,
+          markerClass: "result-marker-alt"
+        })).join("");
+    }
+
+    function showNearestFromOrigin(origin){
+      CURRENT_ORIGIN = origin;
+      closeParkingDetail();
+      const enriched = PARKINGS.map(p => ({
+        ...p,
+        distance_m: haversineMeters(origin.lat, origin.lon, p.lat, p.lon)
+      })).sort((a,b)=> a.distance_m - b.distance_m);
+
+      if(!enriched.length){
+        document.getElementById('results').innerHTML = `<div class="muted">Aucun parking disponible dans la base.</div>`;
+        return;
+      }
+
+      const best = enriched[0];
+      const alts = enriched.slice(1,4);
+
+      clearMarkers();
+      userMarker = L.marker([origin.lat, origin.lon], {title: origin.label || "Adresse de départ", icon: originIcon}).addTo(map);
+      bestMarker = createParkingMarker(best.lat, best.lon, {title: best.name, icon: buildBestMapIcon(false, best.distance_m, best.name)}).addTo(map);
+      registerMapMarker(best.id, bestMarker, "best", "P", best.distance_m, best.name);
+      altMarkers = alts.map((p, i) => {
+        const label = `P${i + 1}`;
+        const m = createParkingMarker(p.lat, p.lon, {title: p.name, icon: altIcon(label, p.distance_m, p.name)}).addTo(map);
+        registerMapMarker(p.id, m, "alt", label, p.distance_m, p.name);
+        return m;
+      });
+      fitMapToParkings([
+        [origin.lat, origin.lon],
+        [best.lat, best.lon],
+        ...alts.map(p => [p.lat, p.lon])
+      ]);
+
+      const shown = [best, ...alts];
+      const optionsById = {
+        [best.id]: { title: "Parking le plus proche" }
+      };
+      alts.forEach((p, i) => { if(p.id) optionsById[p.id] = { title: `P${i + 1}` }; });
+      registerResultParkings(shown, optionsById);
+
+      const resBox = document.getElementById('results');
+      resBox.innerHTML =
+        parkingResultCard(best, 0, { title: "Parking le plus proche", markerClass: "result-marker-best" }) +
+        alts.map((p, i) => parkingResultCard(p, i + 1)).join("");
+    }
+
+    // --- Trouver le plus proche ---
+    async function findNearest(){
+      if(PARKINGS.length === 0){
+        alert("Charge d’abord le fichier CSV/JSON des parkings.");
+        return;
+      }
+      const addr = document.getElementById('address').value.trim();
+      if(!addr){
+        alert("Entre une adresse ou un code postal (ex. 75001).");
+        return;
+      }
+      const postcode = parseParisPostcodeQuery(addr);
+      if(postcode && isArrondissementOnlyQuery(addr, postcode)){
+        showArrondissementParkings(postcode);
+        return;
+      }
+      document.getElementById('results').innerHTML = `<div class="muted">Recherche en cours…</div>`;
+      closeParkingDetail();
+
+      try {
+        const origin = await geocodeAddress(addr);
+        showNearestFromOrigin(origin);
+      } catch(err){
+        document.getElementById('results').innerHTML =
+          `<div class="muted">Adresse introuvable (${err.message}).</div>`;
+      }
+    }
+
+    function useCurrentLocation(){
+      if(PARKINGS.length === 0){
+        alert("La base des parkings n’est pas encore chargée.");
+        return;
+      }
+      if(!navigator.geolocation){
+        alert("La géolocalisation n’est pas disponible sur ce navigateur.");
+        return;
+      }
+
+      const btn = document.getElementById('btnLocate');
+      btn.disabled = true;
+      document.getElementById('results').innerHTML = `<div class="muted">Localisation en cours…</div>`;
+
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          const lat = pos.coords.latitude;
+          const lon = pos.coords.longitude;
+          setGpsPosition(lat, lon);
+          try {
+            const origin = await reverseGeocode(lat, lon);
+            document.getElementById('address').value = origin.label;
+            showNearestFromOrigin(origin);
+          } catch(err){
+            document.getElementById('results').innerHTML =
+              `<div class="muted">Impossible d’utiliser la position (${err.message}).</div>`;
+          } finally {
+            btn.disabled = false;
+          }
+        },
+        (err) => {
+          btn.disabled = false;
+          const msg = err.code === 1
+            ? "Autorisez l’accès à votre position dans les réglages du navigateur."
+            : "Position introuvable. Réessayez ou saisissez une adresse.";
+          document.getElementById('results').innerHTML = `<div class="muted">${msg}</div>`;
+        },
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }
+      );
+    }
+
+    document.getElementById('btnLocate').addEventListener('click', useCurrentLocation);
+
+    document.getElementById('detail-close').addEventListener('click', closeParkingDetail);
+    document.getElementById('gain-close').addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      closeParkingDetail();
+    });
+    document.getElementById('btn-gain-calc').addEventListener('click', runGainCalculation);
+
+    document.getElementById('results').addEventListener('click', (event) => {
+      const item = event.target.closest('.item[data-parking-id]');
+      if(!item) return;
+      openParkingDetail(item.dataset.parkingId);
+    });
+
+    document.getElementById('results').addEventListener('keydown', (event) => {
+      if(event.key !== 'Enter' && event.key !== ' ') return;
+      const item = event.target.closest('.item[data-parking-id]');
+      if(!item) return;
+      event.preventDefault();
+      openParkingDetail(item.dataset.parkingId);
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if(event.key !== 'Escape') return;
+      const stack = document.getElementById('detail-stack');
+      if(stack?.classList.contains('open')) closeParkingDetail();
+    });
+
+    // --- Suggestions d'adresse (API Adresse data.gouv.fr) ---
+    const addressInput = document.getElementById('address');
+    const suggestionsBox = document.getElementById('address-suggestions');
+    let suggestionItems = [];
+    let activeSuggestion = -1;
+    let suggestTimer = null;
+    let suggestRequestId = 0;
+
+    function hideSuggestions(){
+      suggestionsBox.classList.remove('open');
+      suggestionsBox.innerHTML = '';
+      suggestionItems = [];
+      activeSuggestion = -1;
+    }
+
+    function renderSuggestions(features){
+      if(!features.length){
+        hideSuggestions();
+        return;
+      }
+      suggestionItems = features;
+      activeSuggestion = -1;
+      suggestionsBox.innerHTML = features.map((f, i) => {
+        const p = f.properties || {};
+        const main = p.label || p.name || '';
+        const sub = p.context || p.city || 'Paris';
+        return `<div class="suggestion-item" data-index="${i}" role="option">
+          <div class="suggestion-main">${main}</div>
+          <div class="suggestion-sub">${sub}</div>
+        </div>`;
+      }).join('');
+      suggestionsBox.classList.add('open');
+      suggestionsBox.querySelectorAll('.suggestion-item').forEach(el => {
+        el.addEventListener('mousedown', (e) => {
+          e.preventDefault();
+          selectSuggestion(+el.dataset.index);
+        });
+      });
+    }
+
+    function setActiveSuggestion(index){
+      activeSuggestion = index;
+      suggestionsBox.querySelectorAll('.suggestion-item').forEach((el, i) => {
+        el.classList.toggle('active', i === index);
+      });
+    }
+
+    function isParisFeature(feature){
+      const p = feature.properties || {};
+      const cp = String(p.postcode || '');
+      // Paris intra-muros : 75001 à 75020 (75116 = ancien code du 16e, normalisé en 75016)
+      if (/^750\d{2}$/.test(cp) || cp === '75116') return true;
+      return (p.city || '').toLowerCase() === 'paris';
+    }
+
+    function arrondissementSuggestionFeature(postcode){
+      const label = arrondissementLabel(postcode);
+      return {
+        properties: {
+          label: `${label} — tous les parkings (${postcode})`,
+          context: "Arrondissement · Paris",
+          postcode
+        },
+        geometry: null,
+        _arrondissementPostcode: postcode
+      };
+    }
+
+    async function fetchAddressSuggestions(query){
+      const features = [];
+      const postcode = parseParisPostcodeQuery(query);
+      if(postcode && isArrondissementOnlyQuery(query, postcode)){
+        features.push(arrondissementSuggestionFeature(postcode));
+      }
+      const params = new URLSearchParams({
+        q: query,
+        limit: '15',
+        autocomplete: '1',
+        lat: '48.8566',
+        lon: '2.3522',
+        postcode: '75001,75002,75003,75004,75005,75006,75007,75008,75009,75010,75011,75012,75013,75014,75015,75016,75017,75018,75019,75020'
+      });
+      const res = await fetch('https://api-adresse.data.gouv.fr/search/?' + params.toString());
+      if(!res.ok) throw new Error('Suggestions indisponibles');
+      const data = await res.json();
+      const fromApi = (data.features || []).filter(isParisFeature).slice(0, 6);
+      return features.concat(fromApi).slice(0, 6);
+    }
+
+    function selectSuggestion(index, runSearch = true){
+      const feature = suggestionItems[index];
+      if(!feature) return;
+      const p = feature.properties || {};
+      const coords = feature.geometry && feature.geometry.coordinates;
+      const label = p.label || p.name || addressInput.value;
+      addressInput.value = label;
+      hideSuggestions();
+      if(!runSearch) return;
+      if(PARKINGS.length === 0){
+        alert("La base des parkings n’est pas encore chargée.");
+        return;
+      }
+      if(feature._arrondissementPostcode){
+        showArrondissementParkings(feature._arrondissementPostcode);
+        return;
+      }
+      if(coords && coords.length >= 2){
+        showNearestFromOrigin({ lat: coords[1], lon: coords[0], label });
+      }
+    }
+
+    addressInput.addEventListener('input', () => {
+      const q = addressInput.value.trim();
+      clearTimeout(suggestTimer);
+      const postcodeOnly = parseParisPostcodeQuery(q) && isArrondissementOnlyQuery(q, parseParisPostcodeQuery(q));
+      if(q.length < 3 && !postcodeOnly){
+        hideSuggestions();
+        return;
+      }
+      suggestTimer = setTimeout(async () => {
+        const requestId = ++suggestRequestId;
+        try {
+          const features = await fetchAddressSuggestions(q);
+          if(requestId !== suggestRequestId) return;
+          renderSuggestions(features);
+        } catch {
+          if(requestId === suggestRequestId) hideSuggestions();
+        }
+      }, 250);
+    });
+
+    addressInput.addEventListener('keydown', (event)=>{
+      if(suggestionsBox.classList.contains('open') && suggestionItems.length){
+        if(event.key === 'ArrowDown'){
+          event.preventDefault();
+          const next = activeSuggestion < suggestionItems.length - 1 ? activeSuggestion + 1 : 0;
+          setActiveSuggestion(next);
+          return;
+        }
+        if(event.key === 'ArrowUp'){
+          event.preventDefault();
+          const prev = activeSuggestion > 0 ? activeSuggestion - 1 : suggestionItems.length - 1;
+          setActiveSuggestion(prev);
+          return;
+        }
+        if(event.key === 'Escape'){
+          hideSuggestions();
+          return;
+        }
+        if(event.key === 'Enter' && activeSuggestion >= 0){
+          event.preventDefault();
+          selectSuggestion(activeSuggestion);
+          return;
+        }
+      }
+      if(event.key === 'Enter'){
+        event.preventDefault();
+        hideSuggestions();
+        findNearest();
+      }
+    });
+
+    addressInput.addEventListener('blur', () => {
+      setTimeout(hideSuggestions, 150);
+    });
+
+  </script>
 </body>
 </html>
