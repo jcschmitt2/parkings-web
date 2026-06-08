@@ -1,0 +1,9 @@
+{
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "/appli/findparking.html",
+      "permanent": false
+    }
+  ]
+}

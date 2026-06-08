@@ -1,0 +1,27 @@
+# --- Système ---
+.DS_Store
+Thumbs.db
+
+# --- Python ---
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.venv/
+venv/
+
+# --- Édition locale (Numbers, Excel temporaire) ---
+*.numbers
+~$*
+*.tmp
+
+# --- Dossier de travail (copies, Excel de suivi, doc interne) ---
+donnée de travail/
+
+# --- Copies et brouillons ---
+*copie*
+* copie*
+*.bak
+
+# --- Config IDE locale (pas nécessaire sur le web) ---
+.cursor/

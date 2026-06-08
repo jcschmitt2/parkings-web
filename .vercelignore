@@ -1,0 +1,7 @@
+# Fichiers utiles en local / GitHub, pas nécessaires sur le site public
+construction_base/
+autre_programme_de_construction/
+chemins_projet.py
+donnée/parkings.csv
+donnée/photos.csv
+donnée/Tarifs_Paris_Arrondissements.xlsx
