@@ -12,7 +12,7 @@
   <style>
     :root { --bg:#0b1020; --card:#121733; --muted:#8ea0ff; --accent:#7dd3fc; --text:#e7eaff; }
     * { box-sizing: border-box; }
-    html, body { height:100%; height:100dvh; overflow:hidden; }
+    html, body { height:100%; height:100dvh; overflow:hidden; overflow-x:hidden; max-width:100vw; }
     body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; color:var(--text); background:linear-gradient(180deg,#0b1020,#0e153a); display:flex; flex-direction:column; }
     header { flex-shrink:0; padding:18px 22px; border-bottom:1px solid #263069; background:rgba(11,16,32,.95); backdrop-filter:saturate(140%) blur(8px); }
     h1 { margin:0 0 6px; font-size:1.1rem; font-weight:700; letter-spacing:-0.3px; color:#fff; line-height:1.35; max-width:920px; }
@@ -32,6 +32,16 @@
     .app-main { display:contents; }
     .sidebar { grid-column:1; grid-row:2; min-height:0; }
     .map-panel { grid-column:2; grid-row:1 / span 2; min-height:0; }
+    .detail-stack {
+      grid-column:1;
+      grid-row:2;
+      display:none;
+      position:relative;
+      z-index:25;
+      min-height:0;
+      pointer-events:none;
+    }
+    .detail-stack.open { display:block; pointer-events:auto; }
     .panel { background:var(--card); border:1px solid #263069; border-radius:16px; padding:16px; box-shadow:0 10px 30px rgba(0,0,0,.25); }
     .sidebar { display:flex; flex-direction:column; min-height:0; overflow:visible; position:relative; }
     .results-area {
@@ -57,13 +67,6 @@
       box-shadow:0 0 0 1px rgba(255, 159, 26, 0.35);
     }
     .item-hint { font-size:.75rem; color:#7d8fd6; margin-top:6px; }
-    .detail-stack {
-      display:none;
-      position:absolute;
-      inset:0;
-      z-index:20;
-    }
-    .detail-stack.open { display:block; }
     .parking-detail-panel,
     .parking-gain-panel {
       display:none;
@@ -682,7 +685,7 @@
     }
     @media (max-width: 900px){
       header {
-        padding:10px 14px 8px;
+        padding:10px max(14px, env(safe-area-inset-right)) 8px max(14px, env(safe-area-inset-left));
         padding-top:max(10px, env(safe-area-inset-top));
       }
       h1 {
@@ -706,8 +709,14 @@
         flex-direction:column;
         flex:1;
         min-height:0;
-        padding:8px;
-        padding-bottom:max(8px, env(safe-area-inset-bottom));
+        width:100%;
+        max-width:100%;
+        overflow:hidden;
+        padding:
+          8px
+          max(8px, env(safe-area-inset-right))
+          max(8px, env(safe-area-inset-bottom))
+          max(8px, env(safe-area-inset-left));
         gap:8px;
       }
       .search-strip { padding:10px 12px; }
@@ -745,6 +754,7 @@
         grid-row:auto;
         flex:1;
         min-height:0;
+        max-width:100%;
       }
       .app-main.view-list .map-panel { display:none; }
       .app-main.view-map .sidebar { display:none; }
@@ -753,21 +763,33 @@
         position:fixed;
         inset:0;
         z-index:2000;
+        display:none;
+        grid-column:auto;
+        grid-row:auto;
         padding:
           max(8px, env(safe-area-inset-top))
           max(8px, env(safe-area-inset-right))
           max(8px, env(safe-area-inset-bottom))
           max(8px, env(safe-area-inset-left));
         background:rgba(11,16,32,.55);
+        pointer-events:none;
+      }
+      .detail-stack.open {
+        display:block;
+        pointer-events:auto;
       }
       .parking-detail-panel,
       .parking-gain-panel {
         border-radius:14px;
         box-shadow:0 16px 48px rgba(0,0,0,.45);
       }
-      body.detail-open .mobile-tabs,
-      body.detail-open .search-strip,
-      body.detail-open .app-main { visibility:hidden; }
+      .detail-header,
+      .gain-header {
+        position:relative;
+        z-index:2;
+        padding-top:max(6px, env(safe-area-inset-top));
+      }
+      body.detail-open header { visibility:hidden; }
       body.detail-open .detail-stack.open { visibility:visible; }
     }
   </style>
@@ -814,45 +836,45 @@
         <div class="map-version" id="map-version" aria-label="Version de l'application"></div>
       </div>
     </div>
-  </div>
 
-  <div id="detail-stack" class="detail-stack" aria-hidden="true">
-    <aside id="parking-detail-panel" class="parking-detail-panel" aria-hidden="true">
-      <div class="detail-header">
-        <button type="button" id="detail-close" class="detail-close" aria-label="Fermer">×</button>
-      </div>
-      <div id="detail-body" class="detail-body"></div>
-      <div id="detail-footer" class="detail-footer" hidden></div>
-    </aside>
-    <aside id="parking-gain-panel" class="parking-gain-panel" aria-hidden="true">
-      <div class="gain-header">
-        <span>Calcul de mon économie</span>
-        <button type="button" id="gain-close" class="detail-close" aria-label="Fermer le calcul">×</button>
-      </div>
-      <div class="gain-body gain-panel">
-        <div class="gain-field">
-          <label for="gain-vehicle">Type de véhicule</label>
-          <select id="gain-vehicle">
-            <option value="electrique">Électrique léger</option>
-            <option value="leger" selected>Thermique léger</option>
-            <option value="suv">SUV thermique ou hybride</option>
-          </select>
+    <div id="detail-stack" class="detail-stack" aria-hidden="true">
+      <aside id="parking-detail-panel" class="parking-detail-panel" aria-hidden="true">
+        <div class="detail-header">
+          <button type="button" id="detail-close" class="detail-close" aria-label="Fermer">×</button>
         </div>
-        <div class="gain-field">
-          <label for="gain-duration">Temps de stationnement</label>
-          <select id="gain-duration">
-            <option value="1">1 h</option>
-            <option value="2">2 h</option>
-            <option value="3">3 h</option>
-            <option value="4">4 h</option>
-            <option value="5">5 h</option>
-            <option value="6">6 h et plus</option>
-          </select>
+        <div id="detail-body" class="detail-body"></div>
+        <div id="detail-footer" class="detail-footer" hidden></div>
+      </aside>
+      <aside id="parking-gain-panel" class="parking-gain-panel" aria-hidden="true">
+        <div class="gain-header">
+          <span>Calcul de mon économie</span>
+          <button type="button" id="gain-close" class="detail-close" aria-label="Fermer le calcul">×</button>
         </div>
-        <button type="button" class="btn-gain-calc" id="btn-gain-calc">Calculer</button>
-        <div id="gain-results" class="gain-results" hidden></div>
-      </div>
-    </aside>
+        <div class="gain-body gain-panel">
+          <div class="gain-field">
+            <label for="gain-vehicle">Type de véhicule</label>
+            <select id="gain-vehicle">
+              <option value="electrique">Électrique léger</option>
+              <option value="leger" selected>Thermique léger</option>
+              <option value="suv">SUV thermique ou hybride</option>
+            </select>
+          </div>
+          <div class="gain-field">
+            <label for="gain-duration">Temps de stationnement</label>
+            <select id="gain-duration">
+              <option value="1">1 h</option>
+              <option value="2">2 h</option>
+              <option value="3">3 h</option>
+              <option value="4">4 h</option>
+              <option value="5">5 h</option>
+              <option value="6">6 h et plus</option>
+            </select>
+          </div>
+          <button type="button" class="btn-gain-calc" id="btn-gain-calc">Calculer</button>
+          <div id="gain-results" class="gain-results" hidden></div>
+        </div>
+      </aside>
+    </div>
   </div>
 
   <script>
@@ -868,7 +890,7 @@
     let CURRENT_GPS_POSITION = null;
     let MARKERS_BY_PARKING_ID = new Map();
     let lastParkingMarkerClickAt = 0;
-    const APP_VERSION = "4";
+    const APP_VERSION = "5";
 
     function isMobileLayout(){
       return window.matchMedia("(max-width: 900px)").matches;
