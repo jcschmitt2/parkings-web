@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8" />
-  <title>Se garer à Paris — parking public sécurisé</title>
+  <title>Se garer à Paris — évitez les 18 €/h en voirie</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <!-- Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -14,22 +14,32 @@
     * { box-sizing: border-box; }
     html, body { height:100%; height:100dvh; overflow:hidden; }
     body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; color:var(--text); background:linear-gradient(180deg,#0b1020,#0e153a); display:flex; flex-direction:column; }
-    .title-short { display:none; }
     header { flex-shrink:0; padding:18px 22px; border-bottom:1px solid #263069; background:rgba(11,16,32,.95); backdrop-filter:saturate(140%) blur(8px); }
     h1 { margin:0 0 6px; font-size:1.1rem; font-weight:700; letter-spacing:-0.3px; color:#fff; line-height:1.35; max-width:920px; }
     .tagline { margin:0 0 6px; font-size:1.1rem; font-weight:700; letter-spacing:-0.3px; color:#c7d2fe; line-height:1.35; max-width:920px; }
     .tagline-note { margin:6px 0 0; font-size:.9rem; color:#9aa9ff; line-height:1.4; max-width:520px; }
-    .app-main { flex:1; min-height:0; display:grid; grid-template-columns:380px 1fr; gap:14px; padding:14px; }
+    .mobile-tabs { display:none; }
+    .app-frame {
+      flex:1;
+      min-height:0;
+      display:grid;
+      grid-template-columns:380px 1fr;
+      grid-template-rows:auto 1fr;
+      gap:14px;
+      padding:0 14px 14px;
+    }
+    .search-strip { grid-column:1; grid-row:1; padding:12px 16px; }
+    .app-main { display:contents; }
+    .sidebar { grid-column:1; grid-row:2; min-height:0; }
+    .map-panel { grid-column:2; grid-row:1 / span 2; min-height:0; }
     .panel { background:var(--card); border:1px solid #263069; border-radius:16px; padding:16px; box-shadow:0 10px 30px rgba(0,0,0,.25); }
     .sidebar { display:flex; flex-direction:column; min-height:0; overflow:visible; position:relative; }
-    .sidebar-fixed { flex-shrink:0; }
     .results-area {
       flex:1;
       min-height:0;
       position:relative;
       display:flex;
       flex-direction:column;
-      margin-top:14px;
     }
     .results-scroll { flex:1; min-height:0; overflow-y:auto; padding-right:4px; -webkit-overflow-scrolling:touch; }
     .results-scroll.is-hidden { visibility:hidden; pointer-events:none; }
@@ -675,15 +685,10 @@
         padding:10px 14px 8px;
         padding-top:max(10px, env(safe-area-inset-top));
       }
-      .title-full { display:none; }
-      .title-short {
-        display:block;
-        margin:0 0 4px;
-        font-size:1.12rem;
-        font-weight:700;
-        letter-spacing:-0.3px;
-        color:#fff;
+      h1 {
+        font-size:1.02rem;
         line-height:1.25;
+        margin:0 0 4px;
       }
       .tagline {
         margin:0 0 4px;
@@ -696,7 +701,7 @@
         font-size:.76rem;
         line-height:1.3;
       }
-      .app-main {
+      .app-frame {
         display:flex;
         flex-direction:column;
         flex:1;
@@ -705,20 +710,45 @@
         padding-bottom:max(8px, env(safe-area-inset-bottom));
         gap:8px;
       }
-      .map-panel {
-        order:1;
-        flex:3 0 0;
-        min-height:80px;
-        padding:0;
+      .search-strip { padding:10px 12px; }
+      .mobile-tabs {
+        display:flex;
+        flex-shrink:0;
+        gap:8px;
+        padding:0 2px;
       }
-      .sidebar {
-        order:2;
-        flex:7 0 0;
-        min-height:0;
+      .mobile-tab {
+        flex:1;
         padding:10px 12px;
+        border-radius:10px;
+        border:1px solid #2b376f;
+        background:#0e1440;
+        color:#9aa9ff;
+        font-weight:600;
+        font-size:.9rem;
       }
-      .sidebar-fixed { margin-bottom:8px; }
-      .results-area { margin-top:8px; }
+      .mobile-tab.is-active {
+        background:#2b376f;
+        color:#fff;
+        border-color:#5b72c9;
+      }
+      .app-main {
+        display:flex;
+        flex-direction:column;
+        flex:1;
+        min-height:0;
+        gap:8px;
+      }
+      .sidebar,
+      .map-panel {
+        grid-column:auto;
+        grid-row:auto;
+        flex:1;
+        min-height:0;
+      }
+      .app-main.view-list .map-panel { display:none; }
+      .app-main.view-map .sidebar { display:none; }
+      .map-panel { padding:0; }
       .detail-stack {
         position:fixed;
         inset:0;
@@ -735,6 +765,8 @@
         border-radius:14px;
         box-shadow:0 16px 48px rgba(0,0,0,.45);
       }
+      body.detail-open .mobile-tabs,
+      body.detail-open .search-strip,
       body.detail-open .app-main { visibility:hidden; }
       body.detail-open .detail-stack.open { visibility:visible; }
     }
@@ -742,15 +774,13 @@
 </head>
 <body>
   <header>
-    <h1 class="title-full">Se garer à Paris : jusqu'à 18 €/h à l'horodateur, à partir de 3 €/h dans un parking public sécurisé.</h1>
-    <h1 class="title-short">Se garer à Paris</h1>
+    <h1>Se garer à Paris : évitez les 18 €/h en voirie</h1>
     <p class="tagline">Trouvez le parking public le plus proche et comparez les coûts.</p>
-    <p class="tagline-note">Seuls les parkings réellement accessibles au public sont affichés.</p>
+    <p class="tagline-note">Seuls les parkings accessibles au public sont affichés.</p>
   </header>
 
-  <div class="app-main">
-    <div class="panel sidebar">
-      <div class="sidebar-fixed">
+  <div class="app-frame">
+    <section class="search-strip panel" aria-label="Recherche d'adresse">
       <div class="address-row">
         <label for="address">Adresse de départ à Paris</label>
         <button type="button" id="btnLocate" class="btn-locate" title="Utiliser ma position actuelle">
@@ -763,17 +793,26 @@
         <div id="address-suggestions" role="listbox"></div>
         <p class="hint">Code postal Paris (75001–75020) : tous les parkings de l’arrondissement.</p>
       </div>
-      </div>
-      <div class="results-area">
-        <div class="results-scroll" id="results-scroll">
-          <div class="list" id="results"><div class="muted">Chargement de la base…</div></div>
+    </section>
+
+    <nav class="mobile-tabs" id="mobile-tabs" aria-label="Affichage">
+      <button type="button" id="tab-list" class="mobile-tab is-active" aria-selected="true">Liste</button>
+      <button type="button" id="tab-map" class="mobile-tab" aria-selected="false">Carte</button>
+    </nav>
+
+    <div class="app-main view-list">
+      <div class="panel sidebar">
+        <div class="results-area">
+          <div class="results-scroll" id="results-scroll">
+            <div class="list" id="results"><div class="muted">Chargement de la base…</div></div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="panel map-panel">
-      <div id="map"></div>
-      <div class="map-version" id="map-version" aria-label="Version de l'application"></div>
+      <div class="panel map-panel">
+        <div id="map"></div>
+        <div class="map-version" id="map-version" aria-label="Version de l'application"></div>
+      </div>
     </div>
   </div>
 
@@ -829,15 +868,38 @@
     let CURRENT_GPS_POSITION = null;
     let MARKERS_BY_PARKING_ID = new Map();
     let lastParkingMarkerClickAt = 0;
-    const APP_VERSION = "3";
+    const APP_VERSION = "4";
 
     function isMobileLayout(){
       return window.matchMedia("(max-width: 900px)").matches;
     }
 
-    function syncMobileLayout(){
-      if(!isMobileLayout()) document.body.classList.remove("detail-open");
+    function setMobileView(view){
+      const main = document.querySelector(".app-main");
+      if(!main || !isMobileLayout()) return;
+      const listTab = document.getElementById("tab-list");
+      const mapTab = document.getElementById("tab-map");
+      const isMap = view === "map";
+      main.classList.remove("view-list", "view-map");
+      main.classList.add(isMap ? "view-map" : "view-list");
+      listTab?.classList.toggle("is-active", !isMap);
+      mapTab?.classList.toggle("is-active", isMap);
+      listTab?.setAttribute("aria-selected", isMap ? "false" : "true");
+      mapTab?.setAttribute("aria-selected", isMap ? "true" : "false");
       if(map) setTimeout(() => map.invalidateSize(), 80);
+    }
+
+    function syncMobileLayout(){
+      const main = document.querySelector(".app-main");
+      if(!main) return;
+      if(!isMobileLayout()){
+        main.classList.remove("view-list", "view-map");
+        document.body.classList.remove("detail-open");
+        return;
+      }
+      if(!main.classList.contains("view-list") && !main.classList.contains("view-map")){
+        main.classList.add("view-list");
+      }
     }
 
     // --- Helpers ---
@@ -1517,6 +1579,8 @@
       if(map) map.invalidateSize();
     });
     syncMobileLayout();
+    document.getElementById("tab-list")?.addEventListener("click", () => setMobileView("list"));
+    document.getElementById("tab-map")?.addEventListener("click", () => setMobileView("map"));
 
     const originIcon = L.divIcon({
       className: "",
@@ -1773,7 +1837,7 @@
           showDistance: false,
           markerClass: "result-marker-alt"
         })).join("");
-      syncMobileLayout();
+      setMobileView("list");
     }
 
     function showNearestFromOrigin(origin){
@@ -1819,7 +1883,7 @@
       resBox.innerHTML =
         parkingResultCard(best, 0, { title: "Parking le plus proche", markerClass: "result-marker-best" }) +
         alts.map((p, i) => parkingResultCard(p, i + 1)).join("");
-      syncMobileLayout();
+      setMobileView("list");
     }
 
     // --- Trouver le plus proche ---
