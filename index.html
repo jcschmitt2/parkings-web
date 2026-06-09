@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <!-- build: v5 -->
+  <!-- build: v6 -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
@@ -15,7 +15,7 @@
   <style>
     :root { --bg:#0b1020; --card:#121733; --muted:#8ea0ff; --accent:#7dd3fc; --text:#e7eaff; }
     * { box-sizing: border-box; }
-    html, body { height:100%; height:100dvh; overflow:hidden; overflow-x:hidden; max-width:100vw; }
+    html, body { height:100%; height:100dvh; width:100%; overflow:hidden; overflow-x:hidden; }
     body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; color:var(--text); background:linear-gradient(180deg,#0b1020,#0e153a); display:flex; flex-direction:column; }
     header { flex-shrink:0; padding:18px 22px; border-bottom:1px solid #263069; background:rgba(11,16,32,.95); backdrop-filter:saturate(140%) blur(8px); }
     h1 { margin:0 0 6px; font-size:1.1rem; font-weight:700; letter-spacing:-0.3px; color:#fff; line-height:1.35; max-width:920px; }
@@ -722,7 +722,31 @@
           max(8px, env(safe-area-inset-left));
         gap:8px;
       }
-      .search-strip { padding:10px 12px; }
+      .search-strip {
+        padding:10px 12px;
+        min-width:0;
+        overflow:hidden;
+      }
+      .address-row { min-width:0; }
+      .address-row label {
+        min-width:0;
+        overflow:hidden;
+        text-overflow:ellipsis;
+        white-space:nowrap;
+        font-size:.82rem;
+      }
+      .address-wrap { min-width:0; overflow:hidden; }
+      input[type="text"],
+      select {
+        font-size:16px;
+        max-width:100%;
+      }
+      #address-suggestions {
+        max-width:100%;
+        word-break:break-word;
+      }
+      .suggestion-item { font-size:16px; }
+      .panel { min-width:0; }
       .mobile-tabs {
         display:flex;
         flex-shrink:0;
@@ -893,7 +917,7 @@
     let CURRENT_GPS_POSITION = null;
     let MARKERS_BY_PARKING_ID = new Map();
     let lastParkingMarkerClickAt = 0;
-    const APP_VERSION = "5";
+    const APP_VERSION = "6";
 
     function isMobileLayout(){
       return window.matchMedia("(max-width: 900px)").matches;
@@ -2010,6 +2034,15 @@
       if(stack?.classList.contains('open')) closeParkingDetail();
     });
 
+    function resetMobileViewport(){
+      if(!isMobileLayout()) return;
+      window.scrollTo(0, 0);
+      document.documentElement.scrollLeft = 0;
+      document.body.scrollLeft = 0;
+    }
+
+    window.visualViewport?.addEventListener('resize', resetMobileViewport);
+
     // --- Suggestions d'adresse (API Adresse data.gouv.fr) ---
     const addressInput = document.getElementById('address');
     const suggestionsBox = document.getElementById('address-suggestions');
@@ -2174,7 +2207,10 @@
 
     addressInput.addEventListener('blur', () => {
       setTimeout(hideSuggestions, 150);
+      setTimeout(resetMobileViewport, 200);
     });
+
+    addressInput.addEventListener('focus', resetMobileViewport);
 
   </script>
 </body>
