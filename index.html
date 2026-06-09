@@ -2,12 +2,12 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8" />
-  <title>Se garer à Paris — évitez les 18 €/h en voirie</title>
+  <title>Se garer à Paris — parking public dès 3 €/h</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <!-- build: v7 -->
+  <!-- build: v8 -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
@@ -21,6 +21,7 @@
     h1 { margin:0 0 6px; font-size:1.1rem; font-weight:700; letter-spacing:-0.3px; color:#fff; line-height:1.35; max-width:920px; }
     .tagline { margin:0 0 6px; font-size:1.1rem; font-weight:700; letter-spacing:-0.3px; color:#c7d2fe; line-height:1.35; max-width:920px; }
     .tagline-note { margin:6px 0 0; font-size:.9rem; color:#9aa9ff; line-height:1.4; max-width:520px; }
+    .title-short { display:none; }
     .tagline-short { display:none; }
     .mobile-tabs { display:none; }
     .app-frame {
@@ -108,26 +109,26 @@
       flex-shrink:0;
       display:flex;
       align-items:center;
-      justify-content:flex-end;
-      padding:4px 6px;
+      justify-content:flex-start;
+      padding:6px 8px;
       border-bottom:1px solid #263069;
       background:rgba(11,16,32,.55);
     }
     .detail-close {
-      display:inline-grid;
-      place-items:center;
-      width:28px;
-      height:28px;
-      padding:0;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:6px 10px;
       border-radius:8px;
       border:1px solid #2b376f;
       background:#1a2253;
       color:#c7d2fe;
-      font-size:1.15rem;
+      font-size:.88rem;
       line-height:1;
-      font-weight:400;
+      font-weight:600;
       cursor:pointer;
     }
+    .detail-close-arrow { font-size:1.1rem; line-height:1; }
     .detail-close:hover { background:#243067; border-color:#3b82f6; color:#fff; }
     .detail-body {
       flex:1;
@@ -692,10 +693,15 @@
         padding:10px max(14px, env(safe-area-inset-right)) 8px max(14px, env(safe-area-inset-left));
         padding-top:max(10px, env(safe-area-inset-top));
       }
-      h1 {
+      .title-full { display:none; }
+      .title-short {
+        display:block;
+        margin:0 0 4px;
         font-size:1.02rem;
         line-height:1.25;
-        margin:0 0 4px;
+        font-weight:700;
+        letter-spacing:-0.3px;
+        color:#fff;
       }
       .tagline-full { display:none; }
       .tagline-short {
@@ -838,7 +844,8 @@
 </head>
 <body>
   <header>
-    <h1>Se garer à Paris : évitez les 18 €/h en voirie</h1>
+    <h1 class="title-full">Se garer à Paris : jusqu'à 18 €/h en voirie, parking public dès 3 €/h.</h1>
+    <h1 class="title-short">Se garer à Paris : évitez les 18 €/h en voirie</h1>
     <p class="tagline tagline-full">Trouvez le parking public le plus proche et comparez les coûts.</p>
     <p class="tagline tagline-short">Le parking public le plus proche et comparez les coûts.</p>
     <p class="tagline-note">Seuls les parkings accessibles au public sont affichés.</p>
@@ -883,15 +890,21 @@
     <div id="detail-stack" class="detail-stack" aria-hidden="true">
       <aside id="parking-detail-panel" class="parking-detail-panel" aria-hidden="true">
         <div class="detail-header">
-          <button type="button" id="detail-close" class="detail-close" aria-label="Fermer">×</button>
+          <button type="button" id="detail-close" class="detail-close" aria-label="Retour">
+            <span class="detail-close-arrow" aria-hidden="true">←</span>
+            <span>Retour</span>
+          </button>
         </div>
         <div id="detail-body" class="detail-body"></div>
         <div id="detail-footer" class="detail-footer" hidden></div>
       </aside>
       <aside id="parking-gain-panel" class="parking-gain-panel" aria-hidden="true">
         <div class="gain-header">
+          <button type="button" id="gain-close" class="detail-close" aria-label="Retour">
+            <span class="detail-close-arrow" aria-hidden="true">←</span>
+            <span>Retour</span>
+          </button>
           <span>Calcul de mon économie</span>
-          <button type="button" id="gain-close" class="detail-close" aria-label="Fermer le calcul">×</button>
         </div>
         <div class="gain-body gain-panel">
           <div class="gain-field">
@@ -933,7 +946,7 @@
     let CURRENT_GPS_POSITION = null;
     let MARKERS_BY_PARKING_ID = new Map();
     let lastParkingMarkerClickAt = 0;
-    const APP_VERSION = "7";
+    const APP_VERSION = "8";
 
     function isMobileLayout(){
       return window.matchMedia("(max-width: 900px)").matches;
@@ -2026,7 +2039,7 @@
     document.getElementById('gain-close').addEventListener('click', (event) => {
       event.preventDefault();
       event.stopPropagation();
-      closeParkingDetail();
+      closeGainPanel({ restoreDetail: true });
     });
     document.getElementById('btn-gain-calc').addEventListener('click', runGainCalculation);
 
