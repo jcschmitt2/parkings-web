@@ -12,8 +12,10 @@
   <style>
     :root { --bg:#0b1020; --card:#121733; --muted:#8ea0ff; --accent:#7dd3fc; --text:#e7eaff; }
     * { box-sizing: border-box; }
-    html, body { height:100%; overflow:hidden; }
+    html, body { height:100%; height:100dvh; overflow:hidden; }
     body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; color:var(--text); background:linear-gradient(180deg,#0b1020,#0e153a); display:flex; flex-direction:column; }
+    .title-short { display:none; }
+    .mobile-tabs { display:none; }
     header { flex-shrink:0; padding:18px 22px; border-bottom:1px solid #263069; background:rgba(11,16,32,.95); backdrop-filter:saturate(140%) blur(8px); }
     h1 { margin:0 0 6px; font-size:1.1rem; font-weight:700; letter-spacing:-0.3px; color:#fff; line-height:1.35; max-width:920px; }
     .tagline { margin:0 0 6px; font-size:1.1rem; font-weight:700; letter-spacing:-0.3px; color:#c7d2fe; line-height:1.35; max-width:920px; }
@@ -30,7 +32,7 @@
       flex-direction:column;
       margin-top:14px;
     }
-    .results-scroll { flex:1; min-height:0; overflow-y:auto; padding-right:4px; }
+    .results-scroll { flex:1; min-height:0; overflow-y:auto; padding-right:4px; -webkit-overflow-scrolling:touch; }
     .results-scroll.is-hidden { visibility:hidden; pointer-events:none; }
     .item-clickable {
       cursor:pointer;
@@ -657,20 +659,108 @@
       display:none;
     }
     @media (max-width: 900px){
-      .app-main { display:flex; flex-direction:column; }
-      .sidebar { flex:1; min-height:0; }
-      .map-panel { height:36vh; flex-shrink:0; }
+      header {
+        padding:10px 14px 8px;
+        padding-top:max(10px, env(safe-area-inset-top));
+      }
+      .title-full { display:none; }
+      .title-short {
+        display:block;
+        margin:0 0 4px;
+        font-size:1.12rem;
+        font-weight:700;
+        letter-spacing:-0.3px;
+        color:#fff;
+        line-height:1.25;
+      }
+      .tagline {
+        margin:0 0 4px;
+        font-size:.86rem;
+        font-weight:600;
+        line-height:1.3;
+      }
+      .tagline-note {
+        margin:0;
+        font-size:.76rem;
+        line-height:1.3;
+      }
+      .mobile-tabs {
+        display:flex;
+        flex-shrink:0;
+        gap:8px;
+        padding:0 14px 8px;
+        background:rgba(11,16,32,.95);
+        border-bottom:1px solid #263069;
+      }
+      .mobile-tab {
+        flex:1;
+        padding:10px 12px;
+        border-radius:10px;
+        border:1px solid #2b376f;
+        background:#0e1440;
+        color:#9aa9ff;
+        font-weight:600;
+        font-size:.9rem;
+      }
+      .mobile-tab.is-active {
+        background:#2b376f;
+        color:#fff;
+        border-color:#5b72c9;
+      }
+      .app-main {
+        display:flex;
+        flex-direction:column;
+        flex:1;
+        min-height:0;
+        padding:8px;
+        padding-bottom:max(8px, env(safe-area-inset-bottom));
+        gap:8px;
+      }
+      .app-main.view-list .map-panel { display:none; }
+      .app-main.view-map .sidebar { display:none; }
+      .sidebar,
+      .map-panel {
+        flex:1;
+        min-height:0;
+        height:auto;
+      }
+      .map-panel { padding:0; }
+      .detail-stack {
+        position:fixed;
+        inset:0;
+        z-index:2000;
+        padding:
+          max(8px, env(safe-area-inset-top))
+          max(8px, env(safe-area-inset-right))
+          max(8px, env(safe-area-inset-bottom))
+          max(8px, env(safe-area-inset-left));
+        background:rgba(11,16,32,.55);
+      }
+      .parking-detail-panel,
+      .parking-gain-panel {
+        border-radius:14px;
+        box-shadow:0 16px 48px rgba(0,0,0,.45);
+      }
+      body.detail-open .mobile-tabs,
+      body.detail-open .app-main { visibility:hidden; }
+      body.detail-open .detail-stack.open { visibility:visible; }
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>Se garer à Paris : jusqu'à 18 €/h à l'horodateur, à partir de 3 €/h dans un parking public sécurisé.</h1>
+    <h1 class="title-full">Se garer à Paris : jusqu'à 18 €/h à l'horodateur, à partir de 3 €/h dans un parking public sécurisé.</h1>
+    <h1 class="title-short">Se garer à Paris</h1>
     <p class="tagline">Trouvez le parking public le plus proche et comparez les coûts.</p>
     <p class="tagline-note">Seuls les parkings réellement accessibles au public sont affichés.</p>
   </header>
 
-  <div class="app-main">
+  <nav class="mobile-tabs" id="mobile-tabs" aria-label="Affichage">
+    <button type="button" id="tab-list" class="mobile-tab is-active" aria-selected="true">Liste</button>
+    <button type="button" id="tab-map" class="mobile-tab" aria-selected="false">Carte</button>
+  </nav>
+
+  <div class="app-main view-list">
     <div class="panel sidebar">
       <div class="sidebar-fixed">
       <div class="address-row">
@@ -690,50 +780,51 @@
         <div class="results-scroll" id="results-scroll">
           <div class="list" id="results"><div class="muted">Chargement de la base…</div></div>
         </div>
-        <div id="detail-stack" class="detail-stack" aria-hidden="true">
-          <aside id="parking-detail-panel" class="parking-detail-panel" aria-hidden="true">
-            <div class="detail-header">
-              <button type="button" id="detail-close" class="detail-close" aria-label="Fermer">×</button>
-            </div>
-            <div id="detail-body" class="detail-body"></div>
-            <div id="detail-footer" class="detail-footer" hidden></div>
-          </aside>
-          <aside id="parking-gain-panel" class="parking-gain-panel" aria-hidden="true">
-            <div class="gain-header">
-              <span>Calcul de mon économie</span>
-              <button type="button" id="gain-close" class="detail-close" aria-label="Fermer le calcul">×</button>
-            </div>
-            <div class="gain-body gain-panel">
-              <div class="gain-field">
-                <label for="gain-vehicle">Type de véhicule</label>
-                <select id="gain-vehicle">
-                  <option value="electrique">Électrique léger</option>
-                  <option value="leger" selected>Thermique léger</option>
-                  <option value="suv">SUV thermique ou hybride</option>
-                </select>
-              </div>
-              <div class="gain-field">
-                <label for="gain-duration">Temps de stationnement</label>
-                <select id="gain-duration">
-                  <option value="1">1 h</option>
-                  <option value="2">2 h</option>
-                  <option value="3">3 h</option>
-                  <option value="4">4 h</option>
-                  <option value="5">5 h</option>
-                  <option value="6">6 h et plus</option>
-                </select>
-              </div>
-              <button type="button" class="btn-gain-calc" id="btn-gain-calc">Calculer</button>
-              <div id="gain-results" class="gain-results" hidden></div>
-            </div>
-          </aside>
-        </div>
       </div>
     </div>
 
     <div class="panel map-panel">
       <div id="map"></div>
     </div>
+  </div>
+
+  <div id="detail-stack" class="detail-stack" aria-hidden="true">
+    <aside id="parking-detail-panel" class="parking-detail-panel" aria-hidden="true">
+      <div class="detail-header">
+        <button type="button" id="detail-close" class="detail-close" aria-label="Fermer">×</button>
+      </div>
+      <div id="detail-body" class="detail-body"></div>
+      <div id="detail-footer" class="detail-footer" hidden></div>
+    </aside>
+    <aside id="parking-gain-panel" class="parking-gain-panel" aria-hidden="true">
+      <div class="gain-header">
+        <span>Calcul de mon économie</span>
+        <button type="button" id="gain-close" class="detail-close" aria-label="Fermer le calcul">×</button>
+      </div>
+      <div class="gain-body gain-panel">
+        <div class="gain-field">
+          <label for="gain-vehicle">Type de véhicule</label>
+          <select id="gain-vehicle">
+            <option value="electrique">Électrique léger</option>
+            <option value="leger" selected>Thermique léger</option>
+            <option value="suv">SUV thermique ou hybride</option>
+          </select>
+        </div>
+        <div class="gain-field">
+          <label for="gain-duration">Temps de stationnement</label>
+          <select id="gain-duration">
+            <option value="1">1 h</option>
+            <option value="2">2 h</option>
+            <option value="3">3 h</option>
+            <option value="4">4 h</option>
+            <option value="5">5 h</option>
+            <option value="6">6 h et plus</option>
+          </select>
+        </div>
+        <button type="button" class="btn-gain-calc" id="btn-gain-calc">Calculer</button>
+        <div id="gain-results" class="gain-results" hidden></div>
+      </div>
+    </aside>
   </div>
 
   <script>
@@ -749,6 +840,38 @@
     let CURRENT_GPS_POSITION = null;
     let MARKERS_BY_PARKING_ID = new Map();
     let lastParkingMarkerClickAt = 0;
+
+    function isMobileLayout(){
+      return window.matchMedia("(max-width: 900px)").matches;
+    }
+
+    function setMobileView(view){
+      const main = document.querySelector(".app-main");
+      if(!main || !isMobileLayout()) return;
+      const listTab = document.getElementById("tab-list");
+      const mapTab = document.getElementById("tab-map");
+      const isMap = view === "map";
+      main.classList.remove("view-list", "view-map");
+      main.classList.add(isMap ? "view-map" : "view-list");
+      listTab?.classList.toggle("is-active", !isMap);
+      mapTab?.classList.toggle("is-active", isMap);
+      listTab?.setAttribute("aria-selected", isMap ? "false" : "true");
+      mapTab?.setAttribute("aria-selected", isMap ? "true" : "false");
+      if(isMap && map) setTimeout(() => map.invalidateSize(), 80);
+    }
+
+    function syncMobileLayout(){
+      const main = document.querySelector(".app-main");
+      if(!main) return;
+      if(!isMobileLayout()){
+        main.classList.remove("view-list", "view-map");
+        document.body.classList.remove("detail-open");
+        return;
+      }
+      if(!main.classList.contains("view-list") && !main.classList.contains("view-map")){
+        main.classList.add("view-list");
+      }
+    }
 
     // --- Helpers ---
     function haversineMeters(lat1, lon1, lat2, lon2){
@@ -1040,12 +1163,14 @@
       stack.classList.add("open");
       stack.setAttribute("aria-hidden", "false");
       setStackView("gain");
+      if(isMobileLayout()) document.body.classList.add("detail-open");
     }
 
     function closeParkingDetail(){
       const stack = document.getElementById("detail-stack");
       const scroll = document.getElementById("results-scroll");
       if(!stack || !scroll) return;
+      document.body.classList.remove("detail-open");
       closeGainPanel({ restoreDetail: false });
       stack.classList.remove("open", "view-detail", "view-gain");
       stack.setAttribute("aria-hidden", "true");
@@ -1248,6 +1373,7 @@
       stack.classList.add("open");
       stack.setAttribute("aria-hidden", "false");
       setStackView("detail");
+      if(isMobileLayout()) document.body.classList.add("detail-open");
       body.scrollTop = 0;
       updateParkingSelection(parkingId);
     }
@@ -1417,7 +1543,13 @@
     }
     initMap();
 
-    window.addEventListener('resize', () => { if(map) map.invalidateSize(); });
+    window.addEventListener("resize", () => {
+      syncMobileLayout();
+      if(map) map.invalidateSize();
+    });
+    syncMobileLayout();
+    document.getElementById("tab-list")?.addEventListener("click", () => setMobileView("list"));
+    document.getElementById("tab-map")?.addEventListener("click", () => setMobileView("map"));
 
     const originIcon = L.divIcon({
       className: "",
@@ -1674,6 +1806,7 @@
           showDistance: false,
           markerClass: "result-marker-alt"
         })).join("");
+      setMobileView("list");
     }
 
     function showNearestFromOrigin(origin){
@@ -1719,6 +1852,7 @@
       resBox.innerHTML =
         parkingResultCard(best, 0, { title: "Parking le plus proche", markerClass: "result-marker-best" }) +
         alts.map((p, i) => parkingResultCard(p, i + 1)).join("");
+      setMobileView("list");
     }
 
     // --- Trouver le plus proche ---
