@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "builtAt": "2026-06-08T17:39:43+00:00",
-  "count": 168,
+  "builtAt": "2026-06-10T07:08:59+00:00",
+  "count": 167,
   "parkings": [
     {
       "id": "pk_0001_alma-george-v",
@@ -173,14 +173,14 @@
     },
     {
       "id": "pk_0007_bercy-seine-vehicules-legers",
-      "name": "BERCY SEINE VEHICULES LEGERS",
-      "addr": "180 quai de bercy 75012 paris",
-      "lat": 48.83505677,
-      "lon": 2.38083038,
+      "name": "Bercy Seine",
+      "addr": "210 quai de bercy 75012 paris",
+      "lat": 48.8362563,
+      "lon": 2.3793641,
       "operator": "SAEMES",
       "capacity": 284,
       "price1hEur": 4.6,
-      "entranceAddr": "180 quai de bercy 75012 paris",
+      "entranceAddr": "210 quai de bercy 75012 paris",
       "websiteUrl": "https://www.saemes.fr/fr/parking/parking-bercy-seine",
       "googleRating": 3.4,
       "googleRatingsCount": 159,
@@ -2268,24 +2268,6 @@
       "price4hEur": 18.0,
       "price12hEur": 29.9,
       "price24hEur": 35.0
-    },
-    {
-      "id": "pk_0089_bercy",
-      "name": "Bercy",
-      "addr": "quai de bercy 75012 paris",
-      "lat": 48.893579,
-      "lon": 2.380648,
-      "operator": "",
-      "capacity": null,
-      "price1hEur": 4.6,
-      "entranceAddr": "quai de bercy 75012 paris",
-      "websiteUrl": "",
-      "googleRating": 3.4,
-      "googleRatingsCount": 159,
-      "photoUrl": "donnée/images/pk_0089_bercy/entree.png",
-      "price15mnEur": 1.15,
-      "price3hEur": 13.8,
-      "price24hEur": 41.4
     },
     {
       "id": "pk_0090_berger",

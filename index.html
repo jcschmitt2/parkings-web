@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <!-- build: v10 -->
+  <!-- build: v11 -->
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
   <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
@@ -951,7 +951,7 @@
     let CURRENT_GPS_POSITION = null;
     let MARKERS_BY_PARKING_ID = new Map();
     let lastParkingMarkerClickAt = 0;
-    const APP_VERSION = "10";
+    const APP_VERSION = "11";
 
     function isMobileLayout(){
       return window.matchMedia("(max-width: 900px)").matches;
@@ -1847,6 +1847,31 @@
       return ARRONDISSEMENT_LABELS[postcode] || postcode;
     }
 
+    function resolveArrondissementPostcode(input){
+      if(input && typeof input === "object"){
+        if(input._arrondissementPostcode) return input._arrondissementPostcode;
+        const p = input.properties || {};
+        const text = String(p.label || p.name || "").trim();
+        const city = String(p.city || "");
+        if(/\barrondissement\b/i.test(text) || /\barrondissement\b/i.test(city)){
+          const pc = parseParisPostcodeQuery(text) || normalizeParisPostcode(String(p.postcode || ""));
+          if(pc) return pc;
+        }
+        input = text;
+      }
+      const query = String(input || "").trim();
+      if(!query) return null;
+      const postcode = parseParisPostcodeQuery(query);
+      if(postcode && isArrondissementOnlyQuery(query, postcode)) return postcode;
+      return null;
+    }
+
+    function isApiArrondissementFeature(feature){
+      const p = feature?.properties || {};
+      const text = `${p.label || ""} ${p.city || ""}`;
+      return /\barrondissement\b/i.test(text);
+    }
+
     function parkingResultCard(p, idx, options = {}){
       const showDist = options.showDistance !== false && p.distance_m != null;
       const markerClass = options.markerClass || (idx === 0 ? "result-marker-best" : "result-marker-alt");
@@ -1980,9 +2005,9 @@
         alert("Entre une adresse ou un code postal (ex. 75001).");
         return;
       }
-      const postcode = parseParisPostcodeQuery(addr);
-      if(postcode && isArrondissementOnlyQuery(addr, postcode)){
-        showArrondissementParkings(postcode);
+      const arrPostcode = resolveArrondissementPostcode(addr);
+      if(arrPostcode){
+        showArrondissementParkings(arrPostcode);
         return;
       }
       document.getElementById('results').innerHTML = `<div class="muted">Recherche en cours…</div>`;
@@ -2168,7 +2193,10 @@
       const res = await fetch('https://api-adresse.data.gouv.fr/search/?' + params.toString());
       if(!res.ok) throw new Error('Suggestions indisponibles');
       const data = await res.json();
-      const fromApi = (data.features || []).filter(isParisFeature).slice(0, 6);
+      const fromApi = (data.features || [])
+        .filter(isParisFeature)
+        .filter(f => !(postcode && isApiArrondissementFeature(f)))
+        .slice(0, 6);
       return features.concat(fromApi).slice(0, 6);
     }
 
@@ -2185,8 +2213,9 @@
         alert("La base des parkings n’est pas encore chargée.");
         return;
       }
-      if(feature._arrondissementPostcode){
-        showArrondissementParkings(feature._arrondissementPostcode);
+      const arrPostcode = resolveArrondissementPostcode(feature);
+      if(arrPostcode){
+        showArrondissementParkings(arrPostcode);
         return;
       }
       if(coords && coords.length >= 2){
