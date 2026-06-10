@@ -14,7 +14,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <!-- build: v16 -->
+  <!-- build: v17 -->
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
   <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
@@ -345,6 +345,15 @@
     .suggestion-item .suggestion-main { color:#c7d2fe; }
     .suggestion-item .suggestion-sub { font-size:.75rem; color:#9aa9ff; margin-top:2px; }
     .row { display:flex; gap:8px; align-items:center; margin-top:10px; }
+    .search-form { margin:0; }
+    .btn-search {
+      flex:1;
+      width:100%;
+      font-weight:600;
+      background:#3b82f6;
+      color:#fff;
+    }
+    .btn-search:hover { background:#2563eb; }
     button, .ghost { cursor:pointer; border:none; border-radius:12px; padding:10px 12px; background:#2b376f; color:#e7eaff; }
     button:hover { background:#35428a; }
     .ghost { background:transparent; border:1px dashed #2b376f; }
@@ -848,18 +857,23 @@
 
   <div class="app-frame">
     <section class="search-strip panel" aria-label="Recherche d'adresse">
-      <div class="address-row">
-        <label for="address">Adresse de départ à Paris</label>
-        <button type="button" id="btnLocate" class="btn-locate" title="Utiliser ma position actuelle">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="2" x2="5" y1="12" y2="12"/><line x1="19" x2="22" y1="12" y2="12"/><line x1="12" x2="12" y1="2" y2="5"/><line x1="12" x2="12" y1="19" y2="22"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/></svg>
-          Ma position
-        </button>
-      </div>
-      <div class="address-wrap">
-        <input id="address" type="text" placeholder="ex. 10 rue de Rivoli ou 75001" autocomplete="off" />
-        <div id="address-suggestions" role="listbox"></div>
-        <p class="hint">Code postal Paris (75001–75020) : tous les parkings de l’arrondissement.</p>
-      </div>
+      <form id="search-form" class="search-form" action="#" method="get">
+        <div class="address-row">
+          <label for="address">Adresse de départ à Paris</label>
+          <button type="button" id="btnLocate" class="btn-locate" title="Utiliser ma position actuelle" aria-label="Utiliser ma position pour trouver un parking proche">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="2" x2="5" y1="12" y2="12"/><line x1="19" x2="22" y1="12" y2="12"/><line x1="12" x2="12" y1="2" y2="5"/><line x1="12" x2="12" y1="19" y2="22"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/></svg>
+            Ma position
+          </button>
+        </div>
+        <div class="address-wrap">
+          <input id="address" type="text" placeholder="ex. 10 rue de Rivoli ou 75001" autocomplete="off" />
+          <div id="address-suggestions" role="listbox"></div>
+          <p class="hint">Code postal Paris (75001–75020) : tous les parkings de l’arrondissement.</p>
+        </div>
+        <div class="row">
+          <button type="submit" id="btn-search" class="btn-search" aria-label="Rechercher un parking proche">Rechercher</button>
+        </div>
+      </form>
     </section>
 
     <nav class="mobile-tabs" id="mobile-tabs" aria-label="Affichage">
@@ -943,7 +957,7 @@
     let lastParkingMarkerClickAt = 0;
     let LAST_MAP_FIT_LATLNGS = null;
     let mapFitToken = 0;
-    const APP_VERSION = "16";
+    const APP_VERSION = "17";
 
     function isMobileLayout(){
       return window.matchMedia("(max-width: 900px)").matches;
@@ -2114,6 +2128,11 @@
     }
 
     document.getElementById('btnLocate').addEventListener('click', useCurrentLocation);
+    document.getElementById('search-form').addEventListener('submit', (event) => {
+      event.preventDefault();
+      hideSuggestions();
+      findNearest();
+    });
 
     document.getElementById('detail-close').addEventListener('click', closeParkingDetail);
     document.getElementById('gain-close').addEventListener('click', (event) => {
@@ -2316,11 +2335,6 @@
           selectSuggestion(activeSuggestion);
           return;
         }
-      }
-      if(event.key === 'Enter'){
-        event.preventDefault();
-        hideSuggestions();
-        findNearest();
       }
     });
 
