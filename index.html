@@ -14,7 +14,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <!-- build: v15 -->
+  <!-- build: v16 -->
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
   <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
@@ -941,7 +941,9 @@
     let CURRENT_GPS_POSITION = null;
     let MARKERS_BY_PARKING_ID = new Map();
     let lastParkingMarkerClickAt = 0;
-    const APP_VERSION = "15";
+    let LAST_MAP_FIT_LATLNGS = null;
+    let mapFitToken = 0;
+    const APP_VERSION = "16";
 
     function isMobileLayout(){
       return window.matchMedia("(max-width: 900px)").matches;
@@ -959,7 +961,66 @@
       mapTab?.classList.toggle("is-active", isMap);
       listTab?.setAttribute("aria-selected", isMap ? "false" : "true");
       mapTab?.setAttribute("aria-selected", isMap ? "true" : "false");
-      if(map) setTimeout(() => map.invalidateSize(), 80);
+      if(map){
+        setTimeout(() => {
+          map.invalidateSize({ animate:false });
+          if(isMap) scheduleMapFit();
+        }, 80);
+      }
+    }
+
+    function isMapPanelVisible(){
+      const main = document.querySelector(".app-main");
+      if(!main) return true;
+      if(!isMobileLayout()) return true;
+      return main.classList.contains("view-map");
+    }
+
+    function getMapFitOptions(latLngCount){
+      if(isMobileLayout()){
+        return {
+          padRatio: 0.14,
+          paddingTopLeft: [20, 52],
+          paddingBottomRight: [20, 28],
+          maxZoom: latLngCount > 6 ? 15 : 16
+        };
+      }
+      return {
+        padRatio: 0.12,
+        paddingTopLeft: [32, 56],
+        paddingBottomRight: [32, 32],
+        maxZoom: latLngCount > 6 ? 15 : 17
+      };
+    }
+
+    function applyMapFit(){
+      if(!map || !LAST_MAP_FIT_LATLNGS?.length) return;
+      map.invalidateSize({ animate:false });
+      const latLngs = LAST_MAP_FIT_LATLNGS;
+      if(latLngs.length === 1){
+        map.setView(latLngs[0], isMobileLayout() ? 15 : 16, { animate:false });
+        return;
+      }
+      const bounds = L.latLngBounds(latLngs);
+      if(!bounds.isValid()) return;
+      const { padRatio, paddingTopLeft, paddingBottomRight, maxZoom } = getMapFitOptions(latLngs.length);
+      map.fitBounds(bounds.pad(padRatio), {
+        paddingTopLeft,
+        paddingBottomRight,
+        maxZoom,
+        animate:false
+      });
+    }
+
+    function scheduleMapFit(){
+      if(!map || !LAST_MAP_FIT_LATLNGS?.length) return;
+      const token = ++mapFitToken;
+      const run = () => {
+        if(token !== mapFitToken) return;
+        applyMapFit();
+      };
+      requestAnimationFrame(() => requestAnimationFrame(run));
+      setTimeout(run, 150);
     }
 
     function syncMobileLayout(){
@@ -1502,14 +1563,11 @@
     }
 
     function fitMapToParkings(latLngs){
-      if(!map || !latLngs.length) return;
-      const bounds = L.latLngBounds(latLngs);
-      map.fitBounds(bounds.pad(0.08), {
-        paddingTopLeft: [44, 24],
-        paddingBottomRight: [32, 24],
-        maxZoom: 18,
-        animate: false
-      });
+      if(!latLngs.length) return;
+      LAST_MAP_FIT_LATLNGS = latLngs.map(ll => [ll[0], ll[1]]);
+      if(!map) return;
+      if(!isMapPanelVisible()) return;
+      scheduleMapFit();
     }
 
     function markerNameHtml(name){
@@ -1649,7 +1707,9 @@
 
     window.addEventListener("resize", () => {
       syncMobileLayout();
-      if(map) map.invalidateSize();
+      if(!map) return;
+      map.invalidateSize({ animate:false });
+      if(isMapPanelVisible() && LAST_MAP_FIT_LATLNGS?.length) scheduleMapFit();
     });
     syncMobileLayout();
     document.getElementById("tab-list")?.addEventListener("click", () => setMobileView("list"));
