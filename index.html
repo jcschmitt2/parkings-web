@@ -14,7 +14,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <!-- build: v17.18 -->
+  <!-- build: v17.19 -->
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
   <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
@@ -799,10 +799,18 @@
         0 0 0 6px rgba(255,159,26,0.25),
         0 0 16px rgba(255,159,26,0.6);
     }
-    .item.is-selected .result-marker-best::before {
-      display:none;
+    @media (min-width: 901px) {
+      body.has-results .app-main .map-panel {
+        display:block !important;
+      }
+      body.has-results .map-panel {
+        height:100%;
+      }
+      body.has-results #map {
+        min-height:320px;
+      }
     }
-    @media (max-width: 900px){
+    @media (max-width: 900px) {
       body:not(.has-results) {
         overflow-y:auto;
         height:auto;
@@ -1114,22 +1122,31 @@
     let suggestTimer = null;
     let suggestRequestId = 0;
     let suppressSuggestionBlurHide = false;
-    const APP_VERSION = "17.18";
+    const APP_VERSION = "17.19";
 
     function setResultsLayoutActive(active){
       document.body.classList.toggle("has-results", !!active);
-      if(!map) return;
+      if(!active){
+        mapFitToken++;
+        setTimeout(() => refreshMapAfterLayoutChange(false), 100);
+        return;
+      }
       mapFitToken++;
-      const delay = active ? 180 : 100;
-      setTimeout(() => {
-        refreshMapAfterLayoutChange(!!active);
-      }, delay);
+      if(!map) initMap();
+      refreshMapAfterLayoutChange(true);
     }
 
-    function refreshMapAfterLayoutChange(shouldRefit){
+    function refreshMapAfterLayoutChange(shouldRefit, attempt = 0){
       if(!map) return;
       const mapEl = document.getElementById("map");
-      if(!mapEl || mapEl.offsetWidth < 20 || mapEl.offsetHeight < 20) return;
+      if(!mapEl) return;
+      if(mapEl.offsetWidth < 20 || mapEl.offsetHeight < 20){
+        if(attempt < 20){
+          const delay = attempt < 5 ? 40 : 80;
+          setTimeout(() => refreshMapAfterLayoutChange(shouldRefit, attempt + 1), delay);
+        }
+        return;
+      }
       try {
         map.invalidateSize({ animate:false });
         if(shouldRefit && LAST_MAP_FIT_LATLNGS?.length) scheduleMapFit();
@@ -1792,6 +1809,7 @@
     }
 
     function clearMarkers(){
+      if(!map) return;
       if(userMarker){ map.removeLayer(userMarker); userMarker = null; }
       if(bestMarker){ map.removeLayer(bestMarker); bestMarker = null; }
       altMarkers.forEach(m => map.removeLayer(m));
@@ -1953,9 +1971,9 @@
     }
 
     function bootApp(){
-      initMap();
       syncMobileLayout();
-      refreshMapAfterLayoutChange(false);
+      if(document.body.classList.contains("has-results")) initMap();
+      if(map) refreshMapAfterLayoutChange(false);
       loadDefaultBase();
     }
 
@@ -2215,6 +2233,8 @@
     function showArrondissementParkings(postcode){
       CURRENT_ORIGIN = null;
       closeParkingDetail();
+      setResultsLayoutActive(true);
+
       const label = arrondissementLabel(postcode);
       const inArr = PARKINGS.filter(p => parkingInPostcode(p, postcode))
         .sort((a, b) => (a.name || "").localeCompare(b.name || "", "fr"));
@@ -2224,7 +2244,6 @@
         resBox.innerHTML =
           `<div class="muted">Aucun parking dans la base pour ${escapeHtml(label)} (${escapeHtml(postcode)}).</div>`;
         clearMarkers();
-        setResultsLayoutActive(true);
         return;
       }
 
@@ -2256,12 +2275,12 @@
           markerClass: "result-marker-alt"
         })).join("");
       setMobileView("list");
-      setResultsLayoutActive(true);
     }
 
     function showNearestFromOrigin(origin){
       CURRENT_ORIGIN = origin;
       closeParkingDetail();
+      setResultsLayoutActive(true);
       const enriched = PARKINGS.map(p => ({
         ...p,
         distance_m: haversineMeters(origin.lat, origin.lon, p.lat, p.lon)
@@ -2303,7 +2322,6 @@
         parkingResultCard(best, 0, { title: "Parking le plus proche", markerClass: "result-marker-best" }) +
         alts.map((p, i) => parkingResultCard(p, i + 1)).join("");
       setMobileView("list");
-      setResultsLayoutActive(true);
     }
 
     // --- Trouver le plus proche ---
@@ -2323,6 +2341,7 @@
         return;
       }
       document.getElementById('results').innerHTML = `<div class="muted">Recherche en cours…</div>`;
+      setResultsLayoutActive(true);
       closeParkingDetail();
 
       try {
