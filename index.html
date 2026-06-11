@@ -14,7 +14,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <!-- build: v17.19 -->
+  <!-- build: v17.20 -->
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
   <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
@@ -40,8 +40,6 @@
     .header-compact { display:none; }
     body.has-results .header-welcome { display:none; }
     body.has-results .header-compact { display:block; }
-    body:not(.has-results) .mobile-tabs,
-    body:not(.has-results) .app-main { display:none !important; }
     body:not(.has-results) .app-frame { flex:0 0 auto; }
     .header-brand {
       display:flex;
@@ -800,6 +798,26 @@
         0 0 16px rgba(255,159,26,0.6);
     }
     @media (min-width: 901px) {
+      body:not(.has-results) .app-frame {
+        flex:1 1 0;
+        min-height:0;
+      }
+      body:not(.has-results) .app-main {
+        display:contents !important;
+      }
+      body:not(.has-results) .sidebar {
+        display:none !important;
+      }
+      body:not(.has-results) .map-panel {
+        display:block !important;
+        grid-column:2;
+        grid-row:1 / span 2;
+        min-height:0;
+        height:100%;
+      }
+      body:not(.has-results) #map {
+        min-height:360px;
+      }
       body.has-results .app-main .map-panel {
         display:block !important;
       }
@@ -815,6 +833,10 @@
         overflow-y:auto;
         height:auto;
         min-height:100dvh;
+      }
+      body:not(.has-results) .mobile-tabs,
+      body:not(.has-results) .app-main {
+        display:none !important;
       }
       header {
         padding:10px max(14px, env(safe-area-inset-right)) 8px max(14px, env(safe-area-inset-left));
@@ -1122,7 +1144,7 @@
     let suggestTimer = null;
     let suggestRequestId = 0;
     let suppressSuggestionBlurHide = false;
-    const APP_VERSION = "17.19";
+    const APP_VERSION = "17.20";
 
     function setResultsLayoutActive(active){
       document.body.classList.toggle("has-results", !!active);
@@ -1284,6 +1306,8 @@
       if(!isMobileLayout()){
         main.classList.remove("view-list", "view-map");
         document.body.classList.remove("detail-open");
+        if(!map) initMap();
+        refreshMapAfterLayoutChange(!!LAST_MAP_FIT_LATLNGS?.length);
         return;
       }
       if(!main.classList.contains("view-list") && !main.classList.contains("view-map")){
@@ -1972,7 +1996,7 @@
 
     function bootApp(){
       syncMobileLayout();
-      if(document.body.classList.contains("has-results")) initMap();
+      if(!map && (!isMobileLayout() || document.body.classList.contains("has-results"))) initMap();
       if(map) refreshMapAfterLayoutChange(false);
       loadDefaultBase();
     }
