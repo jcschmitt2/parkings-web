@@ -14,7 +14,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <!-- build: v17.15 -->
+  <!-- build: v17.16 -->
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
   <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
@@ -38,6 +38,9 @@
     .header-compact { display:none; }
     body.has-results .header-welcome { display:none; }
     body.has-results .header-compact { display:block; }
+    body:not(.has-results) .mobile-tabs,
+    body:not(.has-results) .app-main { display:none !important; }
+    body:not(.has-results) .app-frame { flex:0 0 auto; }
     .header-brand {
       display:flex;
       align-items:center;
@@ -1108,7 +1111,7 @@
     let suggestTimer = null;
     let suggestRequestId = 0;
     let suppressSuggestionBlurHide = false;
-    const APP_VERSION = "17.15";
+    const APP_VERSION = "17.16";
 
     function setResultsLayoutActive(active){
       document.body.classList.toggle("has-results", !!active);
