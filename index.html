@@ -14,7 +14,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <!-- build: v17.16 -->
+  <!-- build: v17.17 -->
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
   <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
@@ -27,13 +27,21 @@
   <style>
     :root { --bg:#0b1020; --card:#121733; --muted:#8ea0ff; --accent:#7dd3fc; --text:#e7eaff; }
     * { box-sizing: border-box; }
-    html, body { height:100%; height:100dvh; width:100%; overflow:hidden; overflow-x:hidden; }
+    html, body { height:100%; height:100dvh; width:100%; overflow-x:hidden; }
+    body:not(.has-results) {
+      overflow-y:auto;
+      height:auto;
+      min-height:100dvh;
+    }
+    body.has-results {
+      overflow:hidden;
+      height:100%;
+      height:100dvh;
+    }
     body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; color:var(--text); background:linear-gradient(180deg,#0b1020,#0e153a); display:flex; flex-direction:column; }
     header { flex-shrink:0; padding:18px 22px; border-bottom:1px solid #263069; background:rgba(11,16,32,.95); backdrop-filter:saturate(140%) blur(8px); width:100%; }
     body:not(.has-results) .header-welcome {
-      max-height:min(48vh, 460px);
-      overflow-y:auto;
-      -webkit-overflow-scrolling:touch;
+      overflow:visible;
     }
     .header-compact { display:none; }
     body.has-results .header-welcome { display:none; }
@@ -80,10 +88,6 @@
       font-weight:400;
     }
     .header-intro--trust {
-      display:flex;
-      flex-wrap:wrap;
-      align-items:center;
-      gap:0;
       margin-top:14px;
       font-size:.84rem;
       color:#7d8fd6;
@@ -100,8 +104,8 @@
       display:inline-flex;
       align-items:center;
       gap:2px;
-      flex-shrink:0;
-      line-height:1;
+      vertical-align:middle;
+      line-height:1.2;
       font-weight:700;
       color:#fff;
       white-space:nowrap;
@@ -995,7 +999,7 @@
       <p class="header-subtitle">À Paris, se garer dans la rue coûte généralement plus cher qu'un parking public.</p>
       <p class="header-intro header-intro--lead">Un SUV peut payer jusqu'à 18 €/h dans la rue, alors que certains parkings publics sécurisés sont accessibles dès 3 €/h.</p>
       <p class="header-intro header-intro--body">Trouvez le parking sécurisé le plus proche de votre destination et comparez son coût avec celui du stationnement en voirie.</p>
-      <p class="header-intro header-intro--trust"><span class="brand-inline" aria-label="ParkEco"><svg class="brand-inline-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="brand-inline-pk-lavender" x1="18%" y1="12%" x2="88%" y2="92%"><stop offset="0%" stop-color="#c7d2fe"/><stop offset="55%" stop-color="#a7b4ff"/><stop offset="100%" stop-color="#7c89e8"/></linearGradient></defs><circle cx="16" cy="16" r="13" fill="url(#brand-inline-pk-lavender)" stroke="#ffffff" stroke-width="2"/><text x="16" y="21.5" text-anchor="middle" fill="#ffffff" font-family="system-ui,-apple-system,Segoe UI,Roboto,sans-serif" font-size="15" font-weight="800">P</text></svg><span class="brand-inline-name">Park<span class="brand-eco">Eco</span></span></span><span class="header-intro-trust-rest">&nbsp;référence uniquement des parkings réellement accessibles au public.</span></p>
+      <p class="header-intro header-intro--trust"><span class="brand-inline" aria-label="ParkEco"><svg class="brand-inline-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="brand-inline-pk-lavender" x1="18%" y1="12%" x2="88%" y2="92%"><stop offset="0%" stop-color="#c7d2fe"/><stop offset="55%" stop-color="#a7b4ff"/><stop offset="100%" stop-color="#7c89e8"/></linearGradient></defs><circle cx="16" cy="16" r="13" fill="url(#brand-inline-pk-lavender)" stroke="#ffffff" stroke-width="2"/><text x="16" y="21.5" text-anchor="middle" fill="#ffffff" font-family="system-ui,-apple-system,Segoe UI,Roboto,sans-serif" font-size="15" font-weight="800">P</text></svg><span class="brand-inline-name">Park<span class="brand-eco">Eco</span></span></span> référence uniquement des parkings réellement accessibles au public.</p>
     </div>
     <div id="header-compact" class="header-compact">
       <p class="header-compact-title">Se garer à Paris : évitez les 18 €/h en voirie</p>
@@ -1111,7 +1115,7 @@
     let suggestTimer = null;
     let suggestRequestId = 0;
     let suppressSuggestionBlurHide = false;
-    const APP_VERSION = "17.16";
+    const APP_VERSION = "17.17";
 
     function setResultsLayoutActive(active){
       document.body.classList.toggle("has-results", !!active);
