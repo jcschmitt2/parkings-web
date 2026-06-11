@@ -14,7 +14,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <!-- build: v17.20 -->
+  <!-- build: v17.21 -->
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
   <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
@@ -425,6 +425,73 @@
       box-shadow:0 12px 28px rgba(0,0,0,.35);
     }
     #address-suggestions.open { display:block; }
+    .address-search-overlay { display:none; }
+    .address-search-overlay-header {
+      display:flex;
+      align-items:center;
+      gap:12px;
+      flex-shrink:0;
+      margin-bottom:12px;
+    }
+    .address-search-cancel {
+      flex-shrink:0;
+      padding:8px 12px;
+      border-radius:10px;
+      border:1px solid #2b376f;
+      background:#0e1440;
+      color:#c7d2fe;
+      font-size:.9rem;
+      font-weight:600;
+    }
+    .address-search-overlay-title {
+      flex:1;
+      font-size:1rem;
+      font-weight:700;
+      color:#fff;
+    }
+    .address-search-overlay-field { flex-shrink:0; margin-bottom:8px; }
+    .address-search-overlay-field input {
+      width:100%;
+      padding:12px 14px;
+      border-radius:12px;
+      border:1px solid #2b376f;
+      background:#0e1440;
+      color:var(--text);
+      font-size:16px;
+      line-height:1.35;
+      outline:none;
+    }
+    .address-search-overlay-field input:focus {
+      border-color:#3b82f6;
+      box-shadow:0 0 0 2px rgba(59,130,246,.25);
+    }
+    .address-overlay-suggestions {
+      display:none;
+      flex:1;
+      min-height:0;
+      overflow-y:auto;
+      -webkit-overflow-scrolling:touch;
+      background:#0e1440;
+      border:1px solid #263069;
+      border-radius:12px;
+    }
+    .address-overlay-suggestions.open { display:block; }
+    .address-overlay-suggestions .suggestion-item {
+      padding:14px 14px;
+      font-size:16px;
+    }
+    .address-search-overlay-hint {
+      flex-shrink:0;
+      margin:10px 0 0;
+      font-size:.8rem;
+      color:#9aa9ff;
+      line-height:1.4;
+    }
+    .address-search-overlay-actions {
+      flex-shrink:0;
+      margin-top:12px;
+    }
+    .address-search-overlay-actions .btn-search { width:100%; }
     .suggestion-item {
       padding:10px 12px;
       cursor:pointer;
@@ -932,6 +999,33 @@
         word-break:break-word;
         -webkit-overflow-scrolling:touch;
       }
+      #address.address-mobile-trigger {
+        cursor:pointer;
+      }
+      .address-search-overlay {
+        flex-direction:column;
+        position:fixed;
+        inset:0;
+        z-index:8000;
+        background:linear-gradient(180deg,#0b1020,#0e153a);
+        padding:
+          max(10px, env(safe-area-inset-top))
+          max(14px, env(safe-area-inset-right))
+          max(12px, env(safe-area-inset-bottom))
+          max(14px, env(safe-area-inset-left));
+      }
+      body.address-search-open .address-search-overlay {
+        display:flex;
+      }
+      body.address-search-open {
+        overflow:hidden;
+      }
+      .address-search-overlay-inner {
+        display:flex;
+        flex-direction:column;
+        flex:1;
+        min-height:0;
+      }
       .suggestion-item { font-size:16px; }
       .panel { min-width:0; }
       .mobile-tabs {
@@ -1124,6 +1218,23 @@
     </div>
   </div>
 
+  <div id="address-search-overlay" class="address-search-overlay" aria-hidden="true">
+    <div class="address-search-overlay-inner">
+      <div class="address-search-overlay-header">
+        <button type="button" id="address-search-cancel" class="address-search-cancel">Annuler</button>
+        <span class="address-search-overlay-title">Adresse à Paris</span>
+      </div>
+      <div class="address-search-overlay-field">
+        <input id="address-overlay-input" type="search" inputmode="search" enterkeyhint="search" placeholder="ex. 10 rue de Rivoli ou 75001" autocomplete="off" autocorrect="off" spellcheck="false" />
+      </div>
+      <div id="address-overlay-suggestions" class="address-overlay-suggestions" role="listbox" aria-label="Suggestions d'adresse"></div>
+      <p class="address-search-overlay-hint">Code postal Paris (75001–75020) : tous les parkings de l’arrondissement.</p>
+      <div class="address-search-overlay-actions">
+        <button type="button" id="address-overlay-search" class="btn-search">Rechercher</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // --- Données en mémoire (après chargement fichier) ---
     let PARKINGS = [];
@@ -1144,7 +1255,7 @@
     let suggestTimer = null;
     let suggestRequestId = 0;
     let suppressSuggestionBlurHide = false;
-    const APP_VERSION = "17.20";
+    const APP_VERSION = "17.21";
 
     function setResultsLayoutActive(active){
       document.body.classList.toggle("has-results", !!active);
@@ -1188,12 +1299,80 @@
     }
 
     function hideSuggestions(){
-      const box = document.getElementById("address-suggestions");
-      if(!box) return;
-      box.classList.remove("open");
-      box.innerHTML = "";
+      ["address-suggestions", "address-overlay-suggestions"].forEach((id) => {
+        const box = document.getElementById(id);
+        if(!box) return;
+        box.classList.remove("open");
+        box.innerHTML = "";
+      });
       suggestionItems = [];
       activeSuggestion = -1;
+    }
+
+    function isAddressSearchOverlayOpen(){
+      return document.body.classList.contains("address-search-open");
+    }
+
+    function getSuggestionsBoxForInput(inputEl){
+      if(inputEl?.id === "address-overlay-input"){
+        return document.getElementById("address-overlay-suggestions");
+      }
+      return document.getElementById("address-suggestions");
+    }
+
+    function syncAddressInputMode(){
+      const input = document.getElementById("address");
+      if(!input) return;
+      if(isMobileLayout()){
+        input.readOnly = true;
+        input.classList.add("address-mobile-trigger");
+      } else {
+        input.readOnly = false;
+        input.classList.remove("address-mobile-trigger");
+        closeAddressSearchOverlay({ restoreSnapshot:false });
+      }
+    }
+
+    let addressOverlaySnapshot = "";
+
+    function openAddressSearchOverlay(){
+      if(!isMobileLayout()) return;
+      const overlayInput = document.getElementById("address-overlay-input");
+      const overlay = document.getElementById("address-search-overlay");
+      const input = document.getElementById("address");
+      if(!overlayInput || !overlay || !input) return;
+      addressOverlaySnapshot = input.value;
+      overlayInput.value = input.value;
+      hideSuggestions();
+      document.body.classList.add("address-search-open");
+      overlay.setAttribute("aria-hidden", "false");
+      requestAnimationFrame(() => {
+        overlayInput.focus({ preventScroll:true });
+        if(overlayInput.value.trim().length >= 3){
+          handleAddressInput(overlayInput);
+        }
+      });
+    }
+
+    function closeAddressSearchOverlay(options = {}){
+      const { restoreSnapshot = false } = options;
+      const overlayInput = document.getElementById("address-overlay-input");
+      const overlay = document.getElementById("address-search-overlay");
+      const input = document.getElementById("address");
+      if(restoreSnapshot && input) input.value = addressOverlaySnapshot;
+      else if(overlayInput && input) input.value = overlayInput.value;
+      hideSuggestions();
+      document.body.classList.remove("address-search-open");
+      overlay?.setAttribute("aria-hidden", "true");
+      overlayInput?.blur();
+    }
+
+    function submitAddressSearchFromOverlay(){
+      const overlayInput = document.getElementById("address-overlay-input");
+      const input = document.getElementById("address");
+      if(overlayInput && input) input.value = overlayInput.value;
+      closeAddressSearchOverlay({ restoreSnapshot:false });
+      findNearest();
     }
 
     function resetToWelcome(){
@@ -1207,6 +1386,7 @@
       SELECTED_PARKING_ID = "";
       DETAIL_PARKING_BY_ID.clear();
       hideSuggestions();
+      closeAddressSearchOverlay({ restoreSnapshot:false });
       const resBox = document.getElementById("results");
       if(resBox) resBox.innerHTML = "";
       setMobileView("list");
@@ -1302,6 +1482,7 @@
 
     function syncMobileLayout(){
       const main = document.querySelector(".app-main");
+      syncAddressInputMode();
       if(!main) return;
       if(!isMobileLayout()){
         main.classList.remove("view-list", "view-map");
@@ -2354,6 +2535,11 @@
         alert("Charge d’abord le fichier CSV/JSON des parkings.");
         return;
       }
+      if(isAddressSearchOverlayOpen()){
+        const overlayInput = document.getElementById("address-overlay-input");
+        if(overlayInput) document.getElementById("address").value = overlayInput.value;
+        closeAddressSearchOverlay({ restoreSnapshot:false });
+      }
       const addr = document.getElementById('address').value.trim();
       if(!addr){
         alert("Entre une adresse ou un code postal (ex. 75001).");
@@ -2476,14 +2662,14 @@
       el.addEventListener('touchstart', pick, { passive: false });
     }
 
-    function renderSuggestions(features){
-      if(!features.length){
+    function renderSuggestions(features, box){
+      if(!box || !features.length){
         hideSuggestions();
         return;
       }
       suggestionItems = features;
       activeSuggestion = -1;
-      suggestionsBox.innerHTML = features.map((f, i) => {
+      box.innerHTML = features.map((f, i) => {
         const p = f.properties || {};
         const main = p.label || p.name || '';
         const sub = p.context || p.city || 'Paris';
@@ -2492,13 +2678,14 @@
           <div class="suggestion-sub">${sub}</div>
         </div>`;
       }).join('');
-      suggestionsBox.classList.add('open');
-      suggestionsBox.querySelectorAll('.suggestion-item').forEach(bindSuggestionItem);
+      box.classList.add('open');
+      box.querySelectorAll('.suggestion-item').forEach(bindSuggestionItem);
     }
 
-    function setActiveSuggestion(index){
+    function setActiveSuggestion(index, box){
+      if(!box) return;
       activeSuggestion = index;
-      suggestionsBox.querySelectorAll('.suggestion-item').forEach((el, i) => {
+      box.querySelectorAll('.suggestion-item').forEach((el, i) => {
         el.classList.toggle('active', i === index);
       });
     }
@@ -2555,7 +2742,10 @@
       const coords = feature.geometry && feature.geometry.coordinates;
       const label = p.label || p.name || addressInput.value;
       addressInput.value = label;
+      const overlayInput = document.getElementById("address-overlay-input");
+      if(overlayInput) overlayInput.value = label;
       hideSuggestions();
+      if(isAddressSearchOverlayOpen()) closeAddressSearchOverlay({ restoreSnapshot:false });
       if(!runSearch) return;
       if(PARKINGS.length === 0){
         alert("La base des parkings n’est pas encore chargée.");
@@ -2571,8 +2761,9 @@
       }
     }
 
-    addressInput.addEventListener('input', () => {
-      const q = addressInput.value.trim();
+    function handleAddressInput(sourceInput){
+      const q = sourceInput.value.trim();
+      const box = getSuggestionsBoxForInput(sourceInput);
       clearTimeout(suggestTimer);
       const postcodeOnly = parseParisPostcodeQuery(q) && isArrondissementOnlyQuery(q, parseParisPostcodeQuery(q));
       if(q.length < 3 && !postcodeOnly){
@@ -2584,44 +2775,58 @@
         try {
           const features = await fetchAddressSuggestions(q);
           if(requestId !== suggestRequestId) return;
-          renderSuggestions(features);
+          renderSuggestions(features, box);
         } catch {
           if(requestId === suggestRequestId) hideSuggestions();
         }
       }, 250);
-    });
+    }
 
-    addressInput.addEventListener('keydown', (event)=>{
-      if(suggestionsBox.classList.contains('open') && suggestionItems.length){
-        if(event.key === 'ArrowDown'){
+    function handleAddressKeydown(event, sourceInput){
+      const box = getSuggestionsBoxForInput(sourceInput);
+      if(!box?.classList.contains('open') || !suggestionItems.length) {
+        if(event.key === "Enter" && sourceInput.id === "address-overlay-input"){
           event.preventDefault();
-          const next = activeSuggestion < suggestionItems.length - 1 ? activeSuggestion + 1 : 0;
-          setActiveSuggestion(next);
-          return;
+          submitAddressSearchFromOverlay();
         }
-        if(event.key === 'ArrowUp'){
+        return;
+      }
+      if(event.key === 'ArrowDown'){
+        event.preventDefault();
+        const next = activeSuggestion < suggestionItems.length - 1 ? activeSuggestion + 1 : 0;
+        setActiveSuggestion(next, box);
+        return;
+      }
+      if(event.key === 'ArrowUp'){
+        event.preventDefault();
+        const prev = activeSuggestion > 0 ? activeSuggestion - 1 : suggestionItems.length - 1;
+        setActiveSuggestion(prev, box);
+        return;
+      }
+      if(event.key === 'Escape'){
+        if(sourceInput.id === "address-overlay-input"){
           event.preventDefault();
-          const prev = activeSuggestion > 0 ? activeSuggestion - 1 : suggestionItems.length - 1;
-          setActiveSuggestion(prev);
+          closeAddressSearchOverlay({ restoreSnapshot:true });
           return;
         }
-        if(event.key === 'Escape'){
-          hideSuggestions();
-          return;
-        }
-        if(event.key === 'Enter' && activeSuggestion >= 0){
+        hideSuggestions();
+        return;
+      }
+      if(event.key === 'Enter'){
+        if(activeSuggestion >= 0){
           event.preventDefault();
           selectSuggestion(activeSuggestion);
           return;
         }
+        if(sourceInput.id === "address-overlay-input"){
+          event.preventDefault();
+          submitAddressSearchFromOverlay();
+        }
       }
-    });
+    }
 
-    suggestionsBox.addEventListener('touchstart', () => {
-      suppressSuggestionBlurHide = true;
-    }, { passive: true });
-
-    addressInput.addEventListener('blur', () => {
+    function handleAddressBlur(sourceInput){
+      if(sourceInput.id === "address-overlay-input") return;
       setTimeout(() => {
         if(suppressSuggestionBlurHide){
           suppressSuggestionBlurHide = false;
@@ -2630,9 +2835,41 @@
         hideSuggestions();
         resetMobileViewport();
       }, 220);
+    }
+
+    addressInput.addEventListener('input', () => handleAddressInput(addressInput));
+    addressInput.addEventListener('keydown', (event) => handleAddressKeydown(event, addressInput));
+    addressInput.addEventListener('blur', () => handleAddressBlur(addressInput));
+    addressInput.addEventListener('focus', (event) => {
+      if(isMobileLayout()){
+        event.preventDefault();
+        addressInput.blur();
+        openAddressSearchOverlay();
+        return;
+      }
+      resetMobileViewport();
+    });
+    addressInput.addEventListener('click', (event) => {
+      if(!isMobileLayout()) return;
+      event.preventDefault();
+      openAddressSearchOverlay();
     });
 
-    addressInput.addEventListener('focus', resetMobileViewport);
+    const addressOverlayInput = document.getElementById('address-overlay-input');
+    addressOverlayInput?.addEventListener('input', () => handleAddressInput(addressOverlayInput));
+    addressOverlayInput?.addEventListener('keydown', (event) => handleAddressKeydown(event, addressOverlayInput));
+    document.getElementById('address-search-cancel')?.addEventListener('click', () => {
+      closeAddressSearchOverlay({ restoreSnapshot:true });
+    });
+    document.getElementById('address-overlay-search')?.addEventListener('click', submitAddressSearchFromOverlay);
+
+    suggestionsBox.addEventListener('touchstart', () => {
+      suppressSuggestionBlurHide = true;
+    }, { passive: true });
+
+    document.getElementById('address-overlay-suggestions')?.addEventListener('touchstart', () => {
+      suppressSuggestionBlurHide = true;
+    }, { passive: true });
 
     window.addEventListener("pageshow", (event) => {
       if(!event.persisted) return;
