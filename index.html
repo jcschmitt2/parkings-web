@@ -14,7 +14,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <!-- build: v17.27 -->
+  <!-- build: v17.28 -->
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
   <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
@@ -414,9 +414,8 @@
     input[type="text"]:focus { border-color:#3b82f6; box-shadow:0 0 0 2px rgba(59,130,246,.25); }
     #address-suggestions {
       display:none;
-      position:relative;
-      left:0; right:0;
-      margin-top:4px;
+      position:absolute;
+      left:0; right:0; top:calc(100% + 4px);
       z-index:1000;
       max-height:220px;
       overflow:auto;
@@ -439,11 +438,7 @@
     .suggestion-item .suggestion-main { color:#c7d2fe; }
     .suggestion-item .suggestion-sub { font-size:.75rem; color:#9aa9ff; margin-top:2px; }
     .row { display:flex; gap:8px; align-items:center; margin-top:10px; }
-    .search-form { display:flex; flex-direction:column; }
-    .address-row { order:1; }
-    .address-wrap { order:2; }
-    #address-suggestions { order:3; }
-    .search-form > .row { order:4; }
+    .search-form { margin:0; }
     .btn-search {
       flex:1;
       width:100%;
@@ -924,51 +919,18 @@
         white-space:nowrap;
         font-size:.82rem;
       }
-      .address-wrap {
-        position:relative;
-        min-width:0;
-        overflow:visible;
-      }
+      .address-wrap { position:relative; min-width:0; overflow:visible; }
       input[type="text"],
       select {
         font-size:16px;
         max-width:100%;
       }
-      #address-suggestions:not(.open) {
-        display:none !important;
-        max-height:0;
-        margin:0;
-        padding:0;
-        border:none;
-        overflow:hidden;
-      }
-      #address-suggestions.open.mobile-suggestions-fixed {
-        display:block !important;
-        position:fixed !important;
-        z-index:9000;
-        margin:0;
+      #address-suggestions {
+        z-index:5000;
         max-width:100%;
-        overflow-y:auto;
+        max-height:min(220px, 38vh);
         word-break:break-word;
         -webkit-overflow-scrolling:touch;
-        overscroll-behavior:contain;
-        background:#0e1440;
-        border:1px solid #3b82f6;
-        border-radius:12px;
-        box-shadow:0 8px 24px rgba(0,0,0,.35);
-      }
-      #address-suggestions.open:not(.mobile-suggestions-fixed) {
-        display:none !important;
-      }
-      #address-suggestions .suggestion-loading {
-        padding:14px;
-        font-size:.9rem;
-        color:#9aa9ff;
-      }
-      #address-suggestions .suggestion-item {
-        padding:12px 14px;
-        min-height:56px;
-        box-sizing:border-box;
       }
       .suggestion-item { font-size:16px; }
       .panel { min-width:0; }
@@ -1077,17 +1039,17 @@
 
   <div class="app-frame">
     <section class="search-strip panel" aria-label="Recherche d'adresse">
-      <form id="search-form" class="search-form" action="#" method="get" autocomplete="off">
-        <div id="address-suggestions" role="listbox" aria-label="Suggestions d'adresse"></div>
+      <form id="search-form" class="search-form" action="#" method="get">
         <div class="address-row">
-          <span class="address-label" id="address-label">Adresse à Paris</span>
+          <label for="address">Adresse à Paris</label>
           <button type="button" id="btnLocate" class="btn-locate" title="Utiliser ma position actuelle" aria-label="Utiliser ma position pour trouver un parking proche">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="2" x2="5" y1="12" y2="12"/><line x1="19" x2="22" y1="12" y2="12"/><line x1="12" x2="12" y1="2" y2="5"/><line x1="12" x2="12" y1="19" y2="22"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/></svg>
             Ma position
           </button>
         </div>
         <div class="address-wrap">
-          <input id="address" type="text" placeholder="ex. 10 rue de Rivoli ou 75001" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-labelledby="address-label" />
+          <input id="address" type="text" placeholder="ex. 10 rue de Rivoli ou 75001" autocomplete="off" />
+          <div id="address-suggestions" role="listbox"></div>
           <p class="hint">Code postal Paris (75001–75020) : tous les parkings de l’arrondissement.</p>
         </div>
         <div class="row">
@@ -1182,7 +1144,7 @@
     let suggestTimer = null;
     let suggestRequestId = 0;
     let suppressSuggestionBlurHide = false;
-    const APP_VERSION = "17.27";
+    const APP_VERSION = "17.28";
 
     function setResultsLayoutActive(active){
       document.body.classList.toggle("has-results", !!active);
@@ -1228,48 +1190,10 @@
     function hideSuggestions(){
       const box = document.getElementById("address-suggestions");
       if(!box) return;
-      box.classList.remove("open", "mobile-suggestions-fixed");
-      box.style.top = "";
-      box.style.left = "";
-      box.style.width = "";
-      box.style.maxHeight = "";
+      box.classList.remove("open");
       box.innerHTML = "";
       suggestionItems = [];
       activeSuggestion = -1;
-    }
-
-    function updateMobileSuggestionsPosition(){
-      if(!isMobileLayout() || !suggestionsBox.classList.contains("open")) return;
-      const addressRow = document.querySelector(".address-row");
-      const searchStrip = document.querySelector(".search-strip");
-      if(!addressRow || !searchStrip) return;
-      const rowRect = addressRow.getBoundingClientRect();
-      const stripRect = searchStrip.getBoundingClientRect();
-      const viewportTop = (window.visualViewport?.offsetTop || 0) + 8;
-      const gap = 8;
-      const panelBottom = rowRect.top - gap;
-      const maxPanelHeight = 168;
-      let panelHeight = Math.min(maxPanelHeight, Math.max(96, panelBottom - viewportTop));
-      let top = panelBottom - panelHeight;
-      if(top < viewportTop){
-        top = viewportTop;
-        panelHeight = Math.max(80, panelBottom - top);
-      }
-      const padLeft = Math.max(8, stripRect.left + 10);
-      const panelWidth = Math.min(stripRect.width - 20, window.innerWidth - padLeft - 8);
-      suggestionsBox.classList.add("mobile-suggestions-fixed");
-      suggestionsBox.style.left = `${padLeft}px`;
-      suggestionsBox.style.width = `${panelWidth}px`;
-      suggestionsBox.style.top = `${top}px`;
-      suggestionsBox.style.maxHeight = `${panelHeight}px`;
-      suggestionsBox.style.overflowY = "auto";
-    }
-
-    function showSuggestionsLoading(){
-      if(!isMobileLayout()) return;
-      suggestionsBox.innerHTML = '<div class="suggestion-loading">Recherche d’adresses…</div>';
-      suggestionsBox.classList.add("open");
-      updateMobileSuggestionsPosition();
     }
 
     function resetToWelcome(){
@@ -2531,67 +2455,26 @@
 
     function resetMobileViewport(){
       if(!isMobileLayout()) return;
-      if(document.activeElement === document.getElementById("address")) return;
-      if(document.getElementById("address-suggestions")?.classList.contains("open")) return;
       window.scrollTo(0, 0);
       document.documentElement.scrollLeft = 0;
       document.body.scrollLeft = 0;
     }
 
-    function onVisualViewportResize(){
-      if(isMobileLayout() && document.activeElement === document.getElementById("address")){
-        updateMobileSuggestionsPosition();
-        return;
-      }
-      resetMobileViewport();
-    }
-
-    window.visualViewport?.addEventListener('resize', onVisualViewportResize);
-    window.visualViewport?.addEventListener('scroll', onVisualViewportResize);
+    window.visualViewport?.addEventListener('resize', resetMobileViewport);
 
     // --- Suggestions d'adresse (API Adresse data.gouv.fr) ---
     const addressInput = document.getElementById('address');
     const suggestionsBox = document.getElementById('address-suggestions');
-    let suggestionTouch = { x:0, y:0, moved:false };
 
     function bindSuggestionItem(el){
-      el.addEventListener('mousedown', (event) => {
+      const pick = (event) => {
         event.preventDefault();
         suppressSuggestionBlurHide = false;
         selectSuggestion(+el.dataset.index);
-      });
+      };
+      el.addEventListener('mousedown', pick);
+      el.addEventListener('touchstart', pick, { passive: false });
     }
-
-    function setupSuggestionTouchScroll(){
-      if(suggestionsBox._touchScrollBound) return;
-      suggestionsBox._touchScrollBound = true;
-      suggestionsBox.addEventListener('touchstart', (event) => {
-        const t = event.touches[0];
-        if(!t) return;
-        suggestionTouch = { x:t.clientX, y:t.clientY, moved:false };
-        suppressSuggestionBlurHide = true;
-      }, { passive:true });
-      suggestionsBox.addEventListener('touchmove', (event) => {
-        const t = event.touches[0];
-        if(!t) return;
-        if(Math.abs(t.clientX - suggestionTouch.x) > 10 || Math.abs(t.clientY - suggestionTouch.y) > 10){
-          suggestionTouch.moved = true;
-        }
-      }, { passive:true });
-      suggestionsBox.addEventListener('touchend', (event) => {
-        if(suggestionTouch.moved){
-          suppressSuggestionBlurHide = false;
-          return;
-        }
-        const item = event.target.closest('.suggestion-item');
-        if(item){
-          event.preventDefault();
-          suppressSuggestionBlurHide = false;
-          selectSuggestion(+item.dataset.index);
-        }
-      });
-    }
-    setupSuggestionTouchScroll();
 
     function renderSuggestions(features){
       if(!features.length){
@@ -2602,21 +2485,15 @@
       activeSuggestion = -1;
       suggestionsBox.innerHTML = features.map((f, i) => {
         const p = f.properties || {};
-        const main = escapeHtml(p.label || p.name || '');
-        const sub = escapeHtml(p.context || p.city || 'Paris');
+        const main = p.label || p.name || '';
+        const sub = p.context || p.city || 'Paris';
         return `<div class="suggestion-item" data-index="${i}" role="option">
           <div class="suggestion-main">${main}</div>
           <div class="suggestion-sub">${sub}</div>
         </div>`;
       }).join('');
-      suggestionsBox.querySelectorAll('.suggestion-item').forEach(bindSuggestionItem);
       suggestionsBox.classList.add('open');
-      if(isMobileLayout()){
-        suggestionsBox.classList.remove('mobile-suggestions-fixed');
-        updateMobileSuggestionsPosition();
-      } else {
-        suggestionsBox.classList.remove('mobile-suggestions-fixed');
-      }
+      suggestionsBox.querySelectorAll('.suggestion-item').forEach(bindSuggestionItem);
     }
 
     function setActiveSuggestion(index){
@@ -2694,7 +2571,7 @@
       }
     }
 
-    function handleAddressInput(){
+    addressInput.addEventListener('input', () => {
       const q = addressInput.value.trim();
       clearTimeout(suggestTimer);
       const postcodeOnly = parseParisPostcodeQuery(q) && isArrondissementOnlyQuery(q, parseParisPostcodeQuery(q));
@@ -2702,7 +2579,6 @@
         hideSuggestions();
         return;
       }
-      if(isMobileLayout()) showSuggestionsLoading();
       suggestTimer = setTimeout(async () => {
         const requestId = ++suggestRequestId;
         try {
@@ -2712,11 +2588,8 @@
         } catch {
           if(requestId === suggestRequestId) hideSuggestions();
         }
-      }, 200);
-    }
-
-    addressInput.addEventListener('input', handleAddressInput);
-    addressInput.addEventListener('compositionend', handleAddressInput);
+      }, 250);
+    });
 
     addressInput.addEventListener('keydown', (event)=>{
       if(suggestionsBox.classList.contains('open') && suggestionItems.length){
@@ -2744,8 +2617,11 @@
       }
     });
 
+    suggestionsBox.addEventListener('touchstart', () => {
+      suppressSuggestionBlurHide = true;
+    }, { passive: true });
+
     addressInput.addEventListener('blur', () => {
-      if(isMobileLayout()) return;
       setTimeout(() => {
         if(suppressSuggestionBlurHide){
           suppressSuggestionBlurHide = false;
@@ -2756,19 +2632,7 @@
       }, 220);
     });
 
-    addressInput.addEventListener('focus', () => {
-      if(isMobileLayout()){
-        if(suggestionsBox.classList.contains('open')) updateMobileSuggestionsPosition();
-        return;
-      }
-      resetMobileViewport();
-    });
-
-    document.addEventListener('touchstart', (event) => {
-      if(!isMobileLayout() || !suggestionsBox.classList.contains('open')) return;
-      if(event.target.closest('#address-suggestions') || event.target.closest('#address')) return;
-      hideSuggestions();
-    }, { passive:true });
+    addressInput.addEventListener('focus', resetMobileViewport);
 
     window.addEventListener("pageshow", (event) => {
       if(!event.persisted) return;
