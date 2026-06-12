@@ -14,7 +14,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <!-- build: v17.28 -->
+  <!-- build: v17.29 -->
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
   <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
@@ -415,7 +415,9 @@
     #address-suggestions {
       display:none;
       position:absolute;
-      left:0; right:0; top:calc(100% + 4px);
+      left:0; right:0;
+      top:100%;
+      margin-top:4px;
       z-index:1000;
       max-height:220px;
       overflow:auto;
@@ -919,18 +921,37 @@
         white-space:nowrap;
         font-size:.82rem;
       }
-      .address-wrap { position:relative; min-width:0; overflow:visible; }
+      .address-wrap {
+        position:relative;
+        min-width:0;
+        overflow:visible;
+        display:flex;
+        flex-direction:column;
+      }
       input[type="text"],
       select {
         font-size:16px;
         max-width:100%;
       }
       #address-suggestions {
+        position:relative !important;
+        top:auto !important;
+        left:auto !important;
+        right:auto !important;
+        margin-top:0;
+        margin-bottom:8px;
         z-index:5000;
         max-width:100%;
-        max-height:min(220px, 38vh);
+        max-height:168px;
+        overflow-y:auto;
         word-break:break-word;
         -webkit-overflow-scrolling:touch;
+        overscroll-behavior:contain;
+      }
+      #address-suggestions .suggestion-item {
+        padding:12px 14px;
+        min-height:52px;
+        box-sizing:border-box;
       }
       .suggestion-item { font-size:16px; }
       .panel { min-width:0; }
@@ -1048,8 +1069,8 @@
           </button>
         </div>
         <div class="address-wrap">
-          <input id="address" type="text" placeholder="ex. 10 rue de Rivoli ou 75001" autocomplete="off" />
-          <div id="address-suggestions" role="listbox"></div>
+          <div id="address-suggestions" role="listbox" aria-label="Suggestions d'adresse"></div>
+          <input id="address" type="text" placeholder="ex. 10 rue de Rivoli ou 75001" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
           <p class="hint">Code postal Paris (75001–75020) : tous les parkings de l’arrondissement.</p>
         </div>
         <div class="row">
@@ -1144,7 +1165,7 @@
     let suggestTimer = null;
     let suggestRequestId = 0;
     let suppressSuggestionBlurHide = false;
-    const APP_VERSION = "17.28";
+    const APP_VERSION = "17.29";
 
     function setResultsLayoutActive(active){
       document.body.classList.toggle("has-results", !!active);
@@ -2455,26 +2476,61 @@
 
     function resetMobileViewport(){
       if(!isMobileLayout()) return;
+      if(document.activeElement === document.getElementById("address")) return;
+      if(document.getElementById("address-suggestions")?.classList.contains("open")) return;
       window.scrollTo(0, 0);
       document.documentElement.scrollLeft = 0;
       document.body.scrollLeft = 0;
     }
 
-    window.visualViewport?.addEventListener('resize', resetMobileViewport);
+    window.visualViewport?.addEventListener('resize', () => {
+      if(isMobileLayout() && document.activeElement === document.getElementById("address")) return;
+      resetMobileViewport();
+    });
 
     // --- Suggestions d'adresse (API Adresse data.gouv.fr) ---
     const addressInput = document.getElementById('address');
     const suggestionsBox = document.getElementById('address-suggestions');
+    let suggestionTouch = { x:0, y:0, moved:false };
 
     function bindSuggestionItem(el){
-      const pick = (event) => {
+      el.addEventListener('mousedown', (event) => {
         event.preventDefault();
         suppressSuggestionBlurHide = false;
         selectSuggestion(+el.dataset.index);
-      };
-      el.addEventListener('mousedown', pick);
-      el.addEventListener('touchstart', pick, { passive: false });
+      });
     }
+
+    function setupSuggestionTouchScroll(){
+      if(suggestionsBox._touchScrollBound) return;
+      suggestionsBox._touchScrollBound = true;
+      suggestionsBox.addEventListener('touchstart', (event) => {
+        const t = event.touches[0];
+        if(!t) return;
+        suggestionTouch = { x:t.clientX, y:t.clientY, moved:false };
+        suppressSuggestionBlurHide = true;
+      }, { passive:true });
+      suggestionsBox.addEventListener('touchmove', (event) => {
+        const t = event.touches[0];
+        if(!t) return;
+        if(Math.abs(t.clientX - suggestionTouch.x) > 10 || Math.abs(t.clientY - suggestionTouch.y) > 10){
+          suggestionTouch.moved = true;
+        }
+      }, { passive:true });
+      suggestionsBox.addEventListener('touchend', (event) => {
+        if(suggestionTouch.moved){
+          suppressSuggestionBlurHide = false;
+          return;
+        }
+        const item = event.target.closest('.suggestion-item');
+        if(item){
+          event.preventDefault();
+          suppressSuggestionBlurHide = false;
+          selectSuggestion(+item.dataset.index);
+        }
+      });
+    }
+    setupSuggestionTouchScroll();
 
     function renderSuggestions(features){
       if(!features.length){
@@ -2485,8 +2541,8 @@
       activeSuggestion = -1;
       suggestionsBox.innerHTML = features.map((f, i) => {
         const p = f.properties || {};
-        const main = p.label || p.name || '';
-        const sub = p.context || p.city || 'Paris';
+        const main = escapeHtml(p.label || p.name || '');
+        const sub = escapeHtml(p.context || p.city || 'Paris');
         return `<div class="suggestion-item" data-index="${i}" role="option">
           <div class="suggestion-main">${main}</div>
           <div class="suggestion-sub">${sub}</div>
@@ -2571,7 +2627,7 @@
       }
     }
 
-    addressInput.addEventListener('input', () => {
+    function handleAddressInput(){
       const q = addressInput.value.trim();
       clearTimeout(suggestTimer);
       const postcodeOnly = parseParisPostcodeQuery(q) && isArrondissementOnlyQuery(q, parseParisPostcodeQuery(q));
@@ -2588,8 +2644,11 @@
         } catch {
           if(requestId === suggestRequestId) hideSuggestions();
         }
-      }, 250);
-    });
+      }, 200);
+    }
+
+    addressInput.addEventListener('input', handleAddressInput);
+    addressInput.addEventListener('compositionend', handleAddressInput);
 
     addressInput.addEventListener('keydown', (event)=>{
       if(suggestionsBox.classList.contains('open') && suggestionItems.length){
@@ -2617,11 +2676,8 @@
       }
     });
 
-    suggestionsBox.addEventListener('touchstart', () => {
-      suppressSuggestionBlurHide = true;
-    }, { passive: true });
-
     addressInput.addEventListener('blur', () => {
+      if(isMobileLayout()) return;
       setTimeout(() => {
         if(suppressSuggestionBlurHide){
           suppressSuggestionBlurHide = false;
@@ -2632,7 +2688,15 @@
       }, 220);
     });
 
-    addressInput.addEventListener('focus', resetMobileViewport);
+    addressInput.addEventListener('focus', () => {
+      if(!isMobileLayout()) resetMobileViewport();
+    });
+
+    document.addEventListener('touchstart', (event) => {
+      if(!isMobileLayout() || !suggestionsBox.classList.contains('open')) return;
+      if(event.target.closest('#address-suggestions') || event.target.closest('#address')) return;
+      hideSuggestions();
+    }, { passive:true });
 
     window.addEventListener("pageshow", (event) => {
       if(!event.persisted) return;
