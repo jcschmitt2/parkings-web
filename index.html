@@ -14,7 +14,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <!-- build: v17.30 -->
+  <!-- build: v17.31 -->
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
   <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
@@ -1188,7 +1188,7 @@
     let suggestTimer = null;
     let suggestRequestId = 0;
     let suppressSuggestionBlurHide = false;
-    const APP_VERSION = "17.30";
+    const APP_VERSION = "17.31";
 
     function setResultsLayoutActive(active){
       document.body.classList.toggle("has-results", !!active);
@@ -1239,6 +1239,20 @@
       suggestionItems = [];
       activeSuggestion = -1;
       syncAddressEntryMode();
+    }
+
+    function dismissAddressKeyboard(){
+      const input = document.getElementById("address");
+      if(!input) return;
+      input.blur();
+    }
+
+    function prepareAddressFieldForNewEntry(){
+      if(!document.body.classList.contains("has-results")) return;
+      const input = document.getElementById("address");
+      if(!input) return;
+      input.value = "";
+      hideSuggestions();
     }
 
     function setAddressEntryActive(active){
@@ -2365,6 +2379,7 @@
           markerClass: "result-marker-alt"
         })).join("");
       setMobileView("list");
+      dismissAddressKeyboard();
     }
 
     function showNearestFromOrigin(origin){
@@ -2412,6 +2427,7 @@
         parkingResultCard(best, 0, { title: "Parking le plus proche", markerClass: "result-marker-best" }) +
         alts.map((p, i) => parkingResultCard(p, i + 1)).join("");
       setMobileView("list");
+      dismissAddressKeyboard();
     }
 
     // --- Trouver le plus proche ---
@@ -2425,6 +2441,7 @@
         alert("Entre une adresse ou un code postal (ex. 75001).");
         return;
       }
+      dismissAddressKeyboard();
       const arrPostcode = resolveArrondissementPostcode(addr);
       if(arrPostcode){
         showArrondissementParkings(arrPostcode);
@@ -2662,6 +2679,7 @@
         alert("La base des parkings n’est pas encore chargée.");
         return;
       }
+      dismissAddressKeyboard();
       const arrPostcode = resolveArrondissementPostcode(feature);
       if(arrPostcode){
         showArrondissementParkings(arrPostcode);
@@ -2737,6 +2755,10 @@
     });
 
     addressInput.addEventListener('focus', () => {
+      if(document.body.classList.contains('has-results')){
+        prepareAddressFieldForNewEntry();
+        return;
+      }
       if(isMobileLayout()){
         setAddressEntryActive(true);
         return;
@@ -2745,6 +2767,10 @@
     });
 
     addressInput.addEventListener('touchstart', () => {
+      if(document.body.classList.contains('has-results')){
+        prepareAddressFieldForNewEntry();
+        return;
+      }
       if(isMobileLayout()) setAddressEntryActive(true);
     }, { passive:true });
 
