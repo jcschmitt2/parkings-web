@@ -14,7 +14,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <!-- build: v17.24 -->
+  <!-- build: v17.25 -->
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
   <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
@@ -952,6 +952,14 @@
         border-radius:12px;
         box-shadow:0 8px 24px rgba(0,0,0,.35);
       }
+      #address-suggestions:not(.open) {
+        display:none !important;
+        max-height:0;
+        margin:0;
+        padding:0;
+        border:none;
+        overflow:hidden;
+      }
       #address-suggestions.open {
         display:block !important;
       }
@@ -960,9 +968,7 @@
         min-height:56px;
         box-sizing:border-box;
       }
-      #address.address-mobile-readonly {
-        cursor:pointer;
-      }
+      .suggestion-item { font-size:16px; }
       .panel { min-width:0; }
       .mobile-tabs {
         display:flex;
@@ -1071,7 +1077,7 @@
     <section class="search-strip panel" aria-label="Recherche d'adresse">
       <form id="search-form" class="search-form" action="#" method="get" autocomplete="off">
         <div class="address-row">
-          <label for="address" class="address-label">Adresse à Paris</label>
+          <span class="address-label" id="address-label">Adresse à Paris</span>
           <button type="button" id="btnLocate" class="btn-locate" title="Utiliser ma position actuelle" aria-label="Utiliser ma position pour trouver un parking proche">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="2" x2="5" y1="12" y2="12"/><line x1="19" x2="22" y1="12" y2="12"/><line x1="12" x2="12" y1="2" y2="5"/><line x1="12" x2="12" y1="19" y2="22"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/></svg>
             Ma position
@@ -1079,7 +1085,7 @@
         </div>
         <div class="address-wrap">
           <div id="address-suggestions" role="listbox" aria-label="Suggestions d'adresse"></div>
-          <input id="address" name="parkeco-destination" type="text" placeholder="ex. 10 rue de Rivoli ou 75001" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="search" enterkeyhint="search" data-form-type="other" data-lpignore="true" data-1p-ignore aria-label="Destination à Paris" />
+          <input id="address" type="text" placeholder="ex. 10 rue de Rivoli ou 75001" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-labelledby="address-label" />
           <p class="hint">Code postal Paris (75001–75020) : tous les parkings de l’arrondissement.</p>
         </div>
         <div class="row">
@@ -1174,7 +1180,7 @@
     let suggestTimer = null;
     let suggestRequestId = 0;
     let suppressSuggestionBlurHide = false;
-    const APP_VERSION = "17.24";
+    const APP_VERSION = "17.25";
 
     function setResultsLayoutActive(active){
       document.body.classList.toggle("has-results", !!active);
@@ -1332,7 +1338,6 @@
 
     function syncMobileLayout(){
       const main = document.querySelector(".app-main");
-      setupMobileAddressInput();
       if(!main) return;
       if(!isMobileLayout()){
         main.classList.remove("view-list", "view-map");
@@ -2561,32 +2566,7 @@
         </div>`;
       }).join('');
       suggestionsBox.querySelectorAll('.suggestion-item').forEach(bindSuggestionItem);
-      if(isMobileLayout()){
-        suggestionsBox.classList.remove('open');
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            suggestionsBox.classList.add('open');
-          });
-        });
-      } else {
-        suggestionsBox.classList.add('open');
-      }
-    }
-
-    function setupMobileAddressInput(){
-      if(!isMobileLayout()) {
-        addressInput.removeAttribute('readonly');
-        addressInput.classList.remove('address-mobile-readonly');
-        return;
-      }
-      addressInput.setAttribute('readonly', 'readonly');
-      addressInput.classList.add('address-mobile-readonly');
-    }
-
-    function enableMobileAddressTyping(){
-      if(!isMobileLayout()) return;
-      addressInput.removeAttribute('readonly');
-      addressInput.classList.remove('address-mobile-readonly');
+      suggestionsBox.classList.add('open');
     }
 
     function setActiveSuggestion(index){
@@ -2664,7 +2644,7 @@
       }
     }
 
-    addressInput.addEventListener('input', () => {
+    function handleAddressInput(){
       const q = addressInput.value.trim();
       clearTimeout(suggestTimer);
       const postcodeOnly = parseParisPostcodeQuery(q) && isArrondissementOnlyQuery(q, parseParisPostcodeQuery(q));
@@ -2682,7 +2662,10 @@
           if(requestId === suggestRequestId) hideSuggestions();
         }
       }, 250);
-    });
+    }
+
+    addressInput.addEventListener('input', handleAddressInput);
+    addressInput.addEventListener('keyup', handleAddressInput);
 
     addressInput.addEventListener('keydown', (event)=>{
       if(suggestionsBox.classList.contains('open') && suggestionItems.length){
@@ -2722,15 +2705,8 @@
     });
 
     addressInput.addEventListener('focus', () => {
-      enableMobileAddressTyping();
       if(!isMobileLayout()) resetMobileViewport();
     });
-
-    addressInput.addEventListener('touchstart', () => {
-      enableMobileAddressTyping();
-    }, { passive:true });
-
-    setupMobileAddressInput();
 
     window.addEventListener("pageshow", (event) => {
       if(!event.persisted) return;
