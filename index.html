@@ -14,7 +14,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <!-- build: v17.26 -->
+  <!-- build: v17.27 -->
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
   <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
@@ -414,9 +414,8 @@
     input[type="text"]:focus { border-color:#3b82f6; box-shadow:0 0 0 2px rgba(59,130,246,.25); }
     #address-suggestions {
       display:none;
-      position:absolute;
+      position:relative;
       left:0; right:0;
-      top:100%;
       margin-top:4px;
       z-index:1000;
       max-height:220px;
@@ -440,7 +439,11 @@
     .suggestion-item .suggestion-main { color:#c7d2fe; }
     .suggestion-item .suggestion-sub { font-size:.75rem; color:#9aa9ff; margin-top:2px; }
     .row { display:flex; gap:8px; align-items:center; margin-top:10px; }
-    .search-form { margin:0; }
+    .search-form { display:flex; flex-direction:column; }
+    .address-row { order:1; }
+    .address-wrap { order:2; }
+    #address-suggestions { order:3; }
+    .search-form > .row { order:4; }
     .btn-search {
       flex:1;
       width:100%;
@@ -925,32 +928,11 @@
         position:relative;
         min-width:0;
         overflow:visible;
-        display:flex;
-        flex-direction:column;
       }
       input[type="text"],
       select {
         font-size:16px;
         max-width:100%;
-      }
-      #address-suggestions {
-        position:relative !important;
-        top:auto !important;
-        left:auto !important;
-        right:auto !important;
-        margin-top:0;
-        z-index:5000;
-        max-width:100%;
-        max-height:168px;
-        margin-bottom:8px;
-        overflow-y:auto;
-        word-break:break-word;
-        -webkit-overflow-scrolling:touch;
-        overscroll-behavior:contain;
-        background:#0e1440;
-        border:1px solid #3b82f6;
-        border-radius:12px;
-        box-shadow:0 8px 24px rgba(0,0,0,.35);
       }
       #address-suggestions:not(.open) {
         display:none !important;
@@ -960,13 +942,23 @@
         border:none;
         overflow:hidden;
       }
-      #address-suggestions.open {
-        display:block !important;
-      }
       #address-suggestions.open.mobile-suggestions-fixed {
+        display:block !important;
         position:fixed !important;
         z-index:9000;
         margin:0;
+        max-width:100%;
+        overflow-y:auto;
+        word-break:break-word;
+        -webkit-overflow-scrolling:touch;
+        overscroll-behavior:contain;
+        background:#0e1440;
+        border:1px solid #3b82f6;
+        border-radius:12px;
+        box-shadow:0 8px 24px rgba(0,0,0,.35);
+      }
+      #address-suggestions.open:not(.mobile-suggestions-fixed) {
+        display:none !important;
       }
       #address-suggestions .suggestion-loading {
         padding:14px;
@@ -1086,6 +1078,7 @@
   <div class="app-frame">
     <section class="search-strip panel" aria-label="Recherche d'adresse">
       <form id="search-form" class="search-form" action="#" method="get" autocomplete="off">
+        <div id="address-suggestions" role="listbox" aria-label="Suggestions d'adresse"></div>
         <div class="address-row">
           <span class="address-label" id="address-label">Adresse à Paris</span>
           <button type="button" id="btnLocate" class="btn-locate" title="Utiliser ma position actuelle" aria-label="Utiliser ma position pour trouver un parking proche">
@@ -1094,7 +1087,6 @@
           </button>
         </div>
         <div class="address-wrap">
-          <div id="address-suggestions" role="listbox" aria-label="Suggestions d'adresse"></div>
           <input id="address" type="text" placeholder="ex. 10 rue de Rivoli ou 75001" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-labelledby="address-label" />
           <p class="hint">Code postal Paris (75001–75020) : tous les parkings de l’arrondissement.</p>
         </div>
@@ -1190,7 +1182,7 @@
     let suggestTimer = null;
     let suggestRequestId = 0;
     let suppressSuggestionBlurHide = false;
-    const APP_VERSION = "17.26";
+    const APP_VERSION = "17.27";
 
     function setResultsLayoutActive(active){
       document.body.classList.toggle("has-results", !!active);
@@ -1248,18 +1240,29 @@
 
     function updateMobileSuggestionsPosition(){
       if(!isMobileLayout() || !suggestionsBox.classList.contains("open")) return;
-      const rect = addressInput.getBoundingClientRect();
-      const panelHeight = 168;
+      const addressRow = document.querySelector(".address-row");
+      const searchStrip = document.querySelector(".search-strip");
+      if(!addressRow || !searchStrip) return;
+      const rowRect = addressRow.getBoundingClientRect();
+      const stripRect = searchStrip.getBoundingClientRect();
+      const viewportTop = (window.visualViewport?.offsetTop || 0) + 8;
       const gap = 8;
-      const viewportTop = window.visualViewport?.offsetTop || 0;
-      let top = rect.top - panelHeight - gap;
-      const minTop = viewportTop + 8;
-      if(top < minTop) top = minTop;
+      const panelBottom = rowRect.top - gap;
+      const maxPanelHeight = 168;
+      let panelHeight = Math.min(maxPanelHeight, Math.max(96, panelBottom - viewportTop));
+      let top = panelBottom - panelHeight;
+      if(top < viewportTop){
+        top = viewportTop;
+        panelHeight = Math.max(80, panelBottom - top);
+      }
+      const padLeft = Math.max(8, stripRect.left + 10);
+      const panelWidth = Math.min(stripRect.width - 20, window.innerWidth - padLeft - 8);
       suggestionsBox.classList.add("mobile-suggestions-fixed");
-      suggestionsBox.style.left = `${Math.max(8, rect.left)}px`;
-      suggestionsBox.style.width = `${rect.width}px`;
+      suggestionsBox.style.left = `${padLeft}px`;
+      suggestionsBox.style.width = `${panelWidth}px`;
       suggestionsBox.style.top = `${top}px`;
       suggestionsBox.style.maxHeight = `${panelHeight}px`;
+      suggestionsBox.style.overflowY = "auto";
     }
 
     function showSuggestionsLoading(){
@@ -2608,7 +2611,12 @@
       }).join('');
       suggestionsBox.querySelectorAll('.suggestion-item').forEach(bindSuggestionItem);
       suggestionsBox.classList.add('open');
-      if(isMobileLayout()) updateMobileSuggestionsPosition();
+      if(isMobileLayout()){
+        suggestionsBox.classList.remove('mobile-suggestions-fixed');
+        updateMobileSuggestionsPosition();
+      } else {
+        suggestionsBox.classList.remove('mobile-suggestions-fixed');
+      }
     }
 
     function setActiveSuggestion(index){
