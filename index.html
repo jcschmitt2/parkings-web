@@ -14,7 +14,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <!-- build: v17.22 -->
+  <!-- build: v17.23 -->
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
   <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
@@ -956,23 +956,6 @@
         box-sizing:border-box;
       }
       .suggestion-item { font-size:16px; }
-      body.address-input-active:not(.has-results) .header-subtitle,
-      body.address-input-active:not(.has-results) .header-intro {
-        display:none;
-      }
-      body.address-input-active:not(.has-results) .header-brand {
-        margin-bottom:6px;
-      }
-      body.address-input-active:not(.has-results) .header-logo {
-        width:28px;
-        height:28px;
-      }
-      body.address-input-active:not(.has-results) .header-brand-name {
-        font-size:1.35rem;
-      }
-      body.address-input-active:not(.has-results) .address-wrap .hint {
-        display:none;
-      }
       .panel { min-width:0; }
       .mobile-tabs {
         display:flex;
@@ -1184,7 +1167,7 @@
     let suggestTimer = null;
     let suggestRequestId = 0;
     let suppressSuggestionBlurHide = false;
-    const APP_VERSION = "17.22";
+    const APP_VERSION = "17.23";
 
     function setResultsLayoutActive(active){
       document.body.classList.toggle("has-results", !!active);
@@ -1234,14 +1217,11 @@
       box.innerHTML = "";
       suggestionItems = [];
       activeSuggestion = -1;
-      if(isMobileLayout() && document.activeElement !== document.getElementById("address")){
-        document.body.classList.remove("address-input-active");
-      }
     }
 
     function resetToWelcome(){
       mapFitToken++;
-      document.body.classList.remove("has-results", "detail-open", "address-input-active");
+      document.body.classList.remove("has-results", "detail-open");
       closeParkingDetail();
       clearMarkers();
       LAST_MAP_FIT_LATLNGS = null;
@@ -2503,33 +2483,51 @@
       document.body.scrollLeft = 0;
     }
 
-    function scrollAddressFieldIntoView(){
-      if(!isMobileLayout()) return;
-      const strip = document.querySelector(".search-strip");
-      if(strip) strip.scrollIntoView({ block:"start", behavior:"smooth" });
-    }
-
-    window.visualViewport?.addEventListener('resize', () => {
-      if(isMobileLayout() && document.body.classList.contains("address-input-active")){
-        scrollAddressFieldIntoView();
-        return;
-      }
-      resetMobileViewport();
-    });
+    window.visualViewport?.addEventListener('resize', resetMobileViewport);
 
     // --- Suggestions d'adresse (API Adresse data.gouv.fr) ---
     const addressInput = document.getElementById('address');
     const suggestionsBox = document.getElementById('address-suggestions');
+    let suggestionTouch = { x:0, y:0, moved:false };
 
     function bindSuggestionItem(el){
-      const pick = (event) => {
+      el.addEventListener('mousedown', (event) => {
         event.preventDefault();
         suppressSuggestionBlurHide = false;
         selectSuggestion(+el.dataset.index);
-      };
-      el.addEventListener('mousedown', pick);
-      el.addEventListener('touchstart', pick, { passive: false });
+      });
     }
+
+    function setupSuggestionTouchScroll(){
+      if(suggestionsBox._touchScrollBound) return;
+      suggestionsBox._touchScrollBound = true;
+      suggestionsBox.addEventListener('touchstart', (event) => {
+        const t = event.touches[0];
+        if(!t) return;
+        suggestionTouch = { x:t.clientX, y:t.clientY, moved:false };
+        suppressSuggestionBlurHide = true;
+      }, { passive:true });
+      suggestionsBox.addEventListener('touchmove', (event) => {
+        const t = event.touches[0];
+        if(!t) return;
+        if(Math.abs(t.clientX - suggestionTouch.x) > 10 || Math.abs(t.clientY - suggestionTouch.y) > 10){
+          suggestionTouch.moved = true;
+        }
+      }, { passive:true });
+      suggestionsBox.addEventListener('touchend', (event) => {
+        if(suggestionTouch.moved){
+          suppressSuggestionBlurHide = false;
+          return;
+        }
+        const item = event.target.closest('.suggestion-item');
+        if(item){
+          event.preventDefault();
+          suppressSuggestionBlurHide = false;
+          selectSuggestion(+item.dataset.index);
+        }
+      });
+    }
+    setupSuggestionTouchScroll();
 
     function renderSuggestions(features){
       if(!features.length){
@@ -2549,7 +2547,6 @@
       }).join('');
       suggestionsBox.classList.add('open');
       suggestionsBox.querySelectorAll('.suggestion-item').forEach(bindSuggestionItem);
-      if(isMobileLayout()) setTimeout(scrollAddressFieldIntoView, 80);
     }
 
     function setActiveSuggestion(index){
@@ -2612,7 +2609,6 @@
       const label = p.label || p.name || addressInput.value;
       addressInput.value = label;
       hideSuggestions();
-      document.body.classList.remove("address-input-active");
       if(!runSearch) return;
       if(PARKINGS.length === 0){
         alert("La base des parkings n’est pas encore chargée.");
@@ -2674,10 +2670,6 @@
       }
     });
 
-    suggestionsBox.addEventListener('touchstart', () => {
-      suppressSuggestionBlurHide = true;
-    }, { passive: true });
-
     addressInput.addEventListener('blur', () => {
       setTimeout(() => {
         if(suppressSuggestionBlurHide){
@@ -2685,19 +2677,12 @@
           return;
         }
         hideSuggestions();
-        document.body.classList.remove("address-input-active");
-        resetMobileViewport();
+        if(!isMobileLayout()) resetMobileViewport();
       }, 220);
     });
 
     addressInput.addEventListener('focus', () => {
-      if(isMobileLayout()){
-        document.body.classList.add("address-input-active");
-        setTimeout(scrollAddressFieldIntoView, 80);
-        setTimeout(scrollAddressFieldIntoView, 320);
-        return;
-      }
-      resetMobileViewport();
+      if(!isMobileLayout()) resetMobileViewport();
     });
 
     window.addEventListener("pageshow", (event) => {
