@@ -14,7 +14,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <!-- build: v17.29 -->
+  <!-- build: v17.30 -->
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
   <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
@@ -934,12 +934,13 @@
         max-width:100%;
       }
       #address-suggestions {
+        order:2;
         position:relative !important;
         top:auto !important;
         left:auto !important;
         right:auto !important;
-        margin-top:0;
-        margin-bottom:8px;
+        margin-top:8px;
+        margin-bottom:0;
         z-index:5000;
         max-width:100%;
         max-height:168px;
@@ -947,6 +948,28 @@
         word-break:break-word;
         -webkit-overflow-scrolling:touch;
         overscroll-behavior:contain;
+      }
+      #address { order:1; }
+      .address-wrap .hint { order:3; }
+      body.address-entry-active:not(.has-results) .header-subtitle,
+      body.address-entry-active:not(.has-results) .header-intro {
+        display:none;
+      }
+      body.address-entry-active:not(.has-results) .header-brand {
+        margin-bottom:0;
+      }
+      body.address-entry-active:not(.has-results) .header-logo {
+        width:32px;
+        height:32px;
+      }
+      body.address-entry-active:not(.has-results) .header-brand-name {
+        font-size:1.45rem;
+      }
+      body.address-entry-active:not(.has-results) header {
+        padding-bottom:10px;
+      }
+      body.address-entry-active:not(.has-results) .address-wrap .hint {
+        display:none;
       }
       #address-suggestions .suggestion-item {
         padding:12px 14px;
@@ -1069,8 +1092,8 @@
           </button>
         </div>
         <div class="address-wrap">
-          <div id="address-suggestions" role="listbox" aria-label="Suggestions d'adresse"></div>
           <input id="address" type="text" placeholder="ex. 10 rue de Rivoli ou 75001" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+          <div id="address-suggestions" role="listbox" aria-label="Suggestions d'adresse"></div>
           <p class="hint">Code postal Paris (75001–75020) : tous les parkings de l’arrondissement.</p>
         </div>
         <div class="row">
@@ -1165,7 +1188,7 @@
     let suggestTimer = null;
     let suggestRequestId = 0;
     let suppressSuggestionBlurHide = false;
-    const APP_VERSION = "17.29";
+    const APP_VERSION = "17.30";
 
     function setResultsLayoutActive(active){
       document.body.classList.toggle("has-results", !!active);
@@ -1215,11 +1238,33 @@
       box.innerHTML = "";
       suggestionItems = [];
       activeSuggestion = -1;
+      syncAddressEntryMode();
+    }
+
+    function setAddressEntryActive(active){
+      if(!isMobileLayout() || document.body.classList.contains("has-results")){
+        document.body.classList.remove("address-entry-active");
+        return;
+      }
+      document.body.classList.toggle("address-entry-active", !!active);
+    }
+
+    function syncAddressEntryMode(){
+      const input = document.getElementById("address");
+      const box = document.getElementById("address-suggestions");
+      if(!isMobileLayout() || document.body.classList.contains("has-results")){
+        document.body.classList.remove("address-entry-active");
+        return;
+      }
+      const keepActive = document.activeElement === input
+        || !!input?.value.trim()
+        || box?.classList.contains("open");
+      setAddressEntryActive(keepActive);
     }
 
     function resetToWelcome(){
       mapFitToken++;
-      document.body.classList.remove("has-results", "detail-open");
+      document.body.classList.remove("has-results", "detail-open", "address-entry-active");
       closeParkingDetail();
       clearMarkers();
       LAST_MAP_FIT_LATLNGS = null;
@@ -2677,7 +2722,10 @@
     });
 
     addressInput.addEventListener('blur', () => {
-      if(isMobileLayout()) return;
+      if(isMobileLayout()){
+        setTimeout(() => syncAddressEntryMode(), 240);
+        return;
+      }
       setTimeout(() => {
         if(suppressSuggestionBlurHide){
           suppressSuggestionBlurHide = false;
@@ -2689,13 +2737,22 @@
     });
 
     addressInput.addEventListener('focus', () => {
-      if(!isMobileLayout()) resetMobileViewport();
+      if(isMobileLayout()){
+        setAddressEntryActive(true);
+        return;
+      }
+      resetMobileViewport();
     });
+
+    addressInput.addEventListener('touchstart', () => {
+      if(isMobileLayout()) setAddressEntryActive(true);
+    }, { passive:true });
 
     document.addEventListener('touchstart', (event) => {
       if(!isMobileLayout() || !suggestionsBox.classList.contains('open')) return;
       if(event.target.closest('#address-suggestions') || event.target.closest('#address')) return;
       hideSuggestions();
+      syncAddressEntryMode();
     }, { passive:true });
 
     window.addEventListener("pageshow", (event) => {
