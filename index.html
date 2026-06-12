@@ -14,7 +14,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <!-- build: v17.23 -->
+  <!-- build: v17.24 -->
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
   <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
@@ -415,7 +415,9 @@
     #address-suggestions {
       display:none;
       position:absolute;
-      left:0; right:0; top:calc(100% + 4px);
+      left:0; right:0;
+      top:100%;
+      margin-top:4px;
       z-index:1000;
       max-height:220px;
       overflow:auto;
@@ -932,15 +934,15 @@
         max-width:100%;
       }
       #address-suggestions {
-        order:-1;
-        position:relative;
-        top:auto;
-        left:auto;
-        right:auto;
+        position:relative !important;
+        top:auto !important;
+        left:auto !important;
+        right:auto !important;
+        margin-top:0;
         z-index:5000;
         max-width:100%;
         max-height:168px;
-        margin:0 0 8px;
+        margin-bottom:8px;
         overflow-y:auto;
         word-break:break-word;
         -webkit-overflow-scrolling:touch;
@@ -950,12 +952,17 @@
         border-radius:12px;
         box-shadow:0 8px 24px rgba(0,0,0,.35);
       }
+      #address-suggestions.open {
+        display:block !important;
+      }
       #address-suggestions .suggestion-item {
         padding:12px 14px;
         min-height:56px;
         box-sizing:border-box;
       }
-      .suggestion-item { font-size:16px; }
+      #address.address-mobile-readonly {
+        cursor:pointer;
+      }
       .panel { min-width:0; }
       .mobile-tabs {
         display:flex;
@@ -1062,17 +1069,17 @@
 
   <div class="app-frame">
     <section class="search-strip panel" aria-label="Recherche d'adresse">
-      <form id="search-form" class="search-form" action="#" method="get">
+      <form id="search-form" class="search-form" action="#" method="get" autocomplete="off">
         <div class="address-row">
-          <label for="address">Adresse à Paris</label>
+          <label for="address" class="address-label">Adresse à Paris</label>
           <button type="button" id="btnLocate" class="btn-locate" title="Utiliser ma position actuelle" aria-label="Utiliser ma position pour trouver un parking proche">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="2" x2="5" y1="12" y2="12"/><line x1="19" x2="22" y1="12" y2="12"/><line x1="12" x2="12" y1="2" y2="5"/><line x1="12" x2="12" y1="19" y2="22"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/></svg>
             Ma position
           </button>
         </div>
         <div class="address-wrap">
-          <input id="address" type="text" placeholder="ex. 10 rue de Rivoli ou 75001" autocomplete="off" />
-          <div id="address-suggestions" role="listbox"></div>
+          <div id="address-suggestions" role="listbox" aria-label="Suggestions d'adresse"></div>
+          <input id="address" name="parkeco-destination" type="text" placeholder="ex. 10 rue de Rivoli ou 75001" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" inputmode="search" enterkeyhint="search" data-form-type="other" data-lpignore="true" data-1p-ignore aria-label="Destination à Paris" />
           <p class="hint">Code postal Paris (75001–75020) : tous les parkings de l’arrondissement.</p>
         </div>
         <div class="row">
@@ -1167,7 +1174,7 @@
     let suggestTimer = null;
     let suggestRequestId = 0;
     let suppressSuggestionBlurHide = false;
-    const APP_VERSION = "17.23";
+    const APP_VERSION = "17.24";
 
     function setResultsLayoutActive(active){
       document.body.classList.toggle("has-results", !!active);
@@ -1325,6 +1332,7 @@
 
     function syncMobileLayout(){
       const main = document.querySelector(".app-main");
+      setupMobileAddressInput();
       if(!main) return;
       if(!isMobileLayout()){
         main.classList.remove("view-list", "view-map");
@@ -2478,12 +2486,19 @@
 
     function resetMobileViewport(){
       if(!isMobileLayout()) return;
+      if(document.activeElement === document.getElementById("address")) return;
+      if(document.getElementById("address-suggestions")?.classList.contains("open")) return;
       window.scrollTo(0, 0);
       document.documentElement.scrollLeft = 0;
       document.body.scrollLeft = 0;
     }
 
-    window.visualViewport?.addEventListener('resize', resetMobileViewport);
+    function onVisualViewportResize(){
+      if(isMobileLayout() && document.activeElement === document.getElementById("address")) return;
+      resetMobileViewport();
+    }
+
+    window.visualViewport?.addEventListener('resize', onVisualViewportResize);
 
     // --- Suggestions d'adresse (API Adresse data.gouv.fr) ---
     const addressInput = document.getElementById('address');
@@ -2545,8 +2560,33 @@
           <div class="suggestion-sub">${sub}</div>
         </div>`;
       }).join('');
-      suggestionsBox.classList.add('open');
       suggestionsBox.querySelectorAll('.suggestion-item').forEach(bindSuggestionItem);
+      if(isMobileLayout()){
+        suggestionsBox.classList.remove('open');
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            suggestionsBox.classList.add('open');
+          });
+        });
+      } else {
+        suggestionsBox.classList.add('open');
+      }
+    }
+
+    function setupMobileAddressInput(){
+      if(!isMobileLayout()) {
+        addressInput.removeAttribute('readonly');
+        addressInput.classList.remove('address-mobile-readonly');
+        return;
+      }
+      addressInput.setAttribute('readonly', 'readonly');
+      addressInput.classList.add('address-mobile-readonly');
+    }
+
+    function enableMobileAddressTyping(){
+      if(!isMobileLayout()) return;
+      addressInput.removeAttribute('readonly');
+      addressInput.classList.remove('address-mobile-readonly');
     }
 
     function setActiveSuggestion(index){
@@ -2682,8 +2722,15 @@
     });
 
     addressInput.addEventListener('focus', () => {
+      enableMobileAddressTyping();
       if(!isMobileLayout()) resetMobileViewport();
     });
+
+    addressInput.addEventListener('touchstart', () => {
+      enableMobileAddressTyping();
+    }, { passive:true });
+
+    setupMobileAddressInput();
 
     window.addEventListener("pageshow", (event) => {
       if(!event.persisted) return;
