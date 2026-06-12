@@ -25,3 +25,9 @@ donnée de travail/
 
 # --- Config IDE locale (pas nécessaire sur le web) ---
 .cursor/
+
+# --- Certificats HTTPS test iPhone (générés localement) ---
+.dev-iphone-certs/
+
+# --- Outil tunnel test iPhone (téléchargé localement) ---
+.dev-tools/
