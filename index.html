@@ -14,7 +14,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <!-- build: v17.32 -->
+  <!-- build: v17.34 -->
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
   <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
@@ -971,6 +971,12 @@
       body.address-entry-active:not(.has-results) .address-wrap .hint {
         display:none;
       }
+      body.address-entry-active:not(.has-results) {
+        overflow-y:hidden;
+        height:100dvh;
+        max-height:100dvh;
+        overscroll-behavior:none;
+      }
       #address-suggestions .suggestion-item {
         padding:12px 14px;
         min-height:52px;
@@ -1188,7 +1194,7 @@
     let suggestTimer = null;
     let suggestRequestId = 0;
     let suppressSuggestionBlurHide = false;
-    const APP_VERSION = "17.32";
+    const APP_VERSION = "17.34";
 
     function setResultsLayoutActive(active){
       document.body.classList.toggle("has-results", !!active);
@@ -2536,17 +2542,37 @@
       if(stack?.classList.contains('open')) closeParkingDetail();
     });
 
-    function resetMobileViewport(){
-      if(!isMobileLayout()) return;
-      if(document.activeElement === document.getElementById("address")) return;
-      if(document.getElementById("address-suggestions")?.classList.contains("open")) return;
+    function pinMobileWelcomeScroll(){
+      if(!isMobileLayout() || document.body.classList.contains("has-results")) return;
       window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
       document.documentElement.scrollLeft = 0;
       document.body.scrollLeft = 0;
     }
 
+    function focusAddressKeepingWelcomeTop(){
+      const input = document.getElementById("address");
+      if(!input) return;
+      input.focus({ preventScroll:true });
+      pinMobileWelcomeScroll();
+      requestAnimationFrame(pinMobileWelcomeScroll);
+      setTimeout(pinMobileWelcomeScroll, 0);
+      setTimeout(pinMobileWelcomeScroll, 80);
+    }
+
+    function resetMobileViewport(){
+      if(!isMobileLayout()) return;
+      if(document.activeElement === document.getElementById("address")) return;
+      if(document.getElementById("address-suggestions")?.classList.contains("open")) return;
+      pinMobileWelcomeScroll();
+    }
+
     window.visualViewport?.addEventListener('resize', () => {
-      if(isMobileLayout() && document.activeElement === document.getElementById("address")) return;
+      if(isMobileLayout() && document.activeElement === document.getElementById("address")){
+        if(!document.body.classList.contains("has-results")) pinMobileWelcomeScroll();
+        return;
+      }
       resetMobileViewport();
     });
 
@@ -2739,6 +2765,32 @@
       }
     });
 
+    let addressTouchFocusPending = false;
+
+    addressInput.addEventListener('touchstart', () => {
+      if(!isMobileLayout()) return;
+      addressTouchFocusPending = true;
+      if(!document.body.classList.contains('has-results')){
+        setAddressEntryActive(true);
+        pinMobileWelcomeScroll();
+      }
+    }, { passive:true });
+
+    addressInput.addEventListener('touchend', () => {
+      if(!isMobileLayout() || !addressTouchFocusPending) return;
+      addressTouchFocusPending = false;
+      const hadResults = document.body.classList.contains('has-results');
+      requestAnimationFrame(() => {
+        if(hadResults) prepareAddressFieldForNewEntry();
+        else setAddressEntryActive(true);
+        focusAddressKeepingWelcomeTop();
+      });
+    }, { passive:true });
+
+    addressInput.addEventListener('touchcancel', () => {
+      addressTouchFocusPending = false;
+    }, { passive:true });
+
     addressInput.addEventListener('blur', () => {
       if(isMobileLayout()){
         setTimeout(() => syncAddressEntryMode(), 240);
@@ -2760,9 +2812,8 @@
         return;
       }
       if(isMobileLayout()){
-        setTimeout(() => {
-          if(document.activeElement === addressInput) setAddressEntryActive(true);
-        }, 80);
+        setAddressEntryActive(true);
+        pinMobileWelcomeScroll();
         return;
       }
       resetMobileViewport();
