@@ -14,7 +14,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <!-- build: v17.25 -->
+  <!-- build: v17.26 -->
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
   <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
@@ -963,6 +963,16 @@
       #address-suggestions.open {
         display:block !important;
       }
+      #address-suggestions.open.mobile-suggestions-fixed {
+        position:fixed !important;
+        z-index:9000;
+        margin:0;
+      }
+      #address-suggestions .suggestion-loading {
+        padding:14px;
+        font-size:.9rem;
+        color:#9aa9ff;
+      }
       #address-suggestions .suggestion-item {
         padding:12px 14px;
         min-height:56px;
@@ -1180,7 +1190,7 @@
     let suggestTimer = null;
     let suggestRequestId = 0;
     let suppressSuggestionBlurHide = false;
-    const APP_VERSION = "17.25";
+    const APP_VERSION = "17.26";
 
     function setResultsLayoutActive(active){
       document.body.classList.toggle("has-results", !!active);
@@ -1226,10 +1236,37 @@
     function hideSuggestions(){
       const box = document.getElementById("address-suggestions");
       if(!box) return;
-      box.classList.remove("open");
+      box.classList.remove("open", "mobile-suggestions-fixed");
+      box.style.top = "";
+      box.style.left = "";
+      box.style.width = "";
+      box.style.maxHeight = "";
       box.innerHTML = "";
       suggestionItems = [];
       activeSuggestion = -1;
+    }
+
+    function updateMobileSuggestionsPosition(){
+      if(!isMobileLayout() || !suggestionsBox.classList.contains("open")) return;
+      const rect = addressInput.getBoundingClientRect();
+      const panelHeight = 168;
+      const gap = 8;
+      const viewportTop = window.visualViewport?.offsetTop || 0;
+      let top = rect.top - panelHeight - gap;
+      const minTop = viewportTop + 8;
+      if(top < minTop) top = minTop;
+      suggestionsBox.classList.add("mobile-suggestions-fixed");
+      suggestionsBox.style.left = `${Math.max(8, rect.left)}px`;
+      suggestionsBox.style.width = `${rect.width}px`;
+      suggestionsBox.style.top = `${top}px`;
+      suggestionsBox.style.maxHeight = `${panelHeight}px`;
+    }
+
+    function showSuggestionsLoading(){
+      if(!isMobileLayout()) return;
+      suggestionsBox.innerHTML = '<div class="suggestion-loading">Recherche d’adresses…</div>';
+      suggestionsBox.classList.add("open");
+      updateMobileSuggestionsPosition();
     }
 
     function resetToWelcome(){
@@ -2499,11 +2536,15 @@
     }
 
     function onVisualViewportResize(){
-      if(isMobileLayout() && document.activeElement === document.getElementById("address")) return;
+      if(isMobileLayout() && document.activeElement === document.getElementById("address")){
+        updateMobileSuggestionsPosition();
+        return;
+      }
       resetMobileViewport();
     }
 
     window.visualViewport?.addEventListener('resize', onVisualViewportResize);
+    window.visualViewport?.addEventListener('scroll', onVisualViewportResize);
 
     // --- Suggestions d'adresse (API Adresse data.gouv.fr) ---
     const addressInput = document.getElementById('address');
@@ -2558,8 +2599,8 @@
       activeSuggestion = -1;
       suggestionsBox.innerHTML = features.map((f, i) => {
         const p = f.properties || {};
-        const main = p.label || p.name || '';
-        const sub = p.context || p.city || 'Paris';
+        const main = escapeHtml(p.label || p.name || '');
+        const sub = escapeHtml(p.context || p.city || 'Paris');
         return `<div class="suggestion-item" data-index="${i}" role="option">
           <div class="suggestion-main">${main}</div>
           <div class="suggestion-sub">${sub}</div>
@@ -2567,6 +2608,7 @@
       }).join('');
       suggestionsBox.querySelectorAll('.suggestion-item').forEach(bindSuggestionItem);
       suggestionsBox.classList.add('open');
+      if(isMobileLayout()) updateMobileSuggestionsPosition();
     }
 
     function setActiveSuggestion(index){
@@ -2652,6 +2694,7 @@
         hideSuggestions();
         return;
       }
+      if(isMobileLayout()) showSuggestionsLoading();
       suggestTimer = setTimeout(async () => {
         const requestId = ++suggestRequestId;
         try {
@@ -2661,11 +2704,11 @@
         } catch {
           if(requestId === suggestRequestId) hideSuggestions();
         }
-      }, 250);
+      }, 200);
     }
 
     addressInput.addEventListener('input', handleAddressInput);
-    addressInput.addEventListener('keyup', handleAddressInput);
+    addressInput.addEventListener('compositionend', handleAddressInput);
 
     addressInput.addEventListener('keydown', (event)=>{
       if(suggestionsBox.classList.contains('open') && suggestionItems.length){
@@ -2694,19 +2737,30 @@
     });
 
     addressInput.addEventListener('blur', () => {
+      if(isMobileLayout()) return;
       setTimeout(() => {
         if(suppressSuggestionBlurHide){
           suppressSuggestionBlurHide = false;
           return;
         }
         hideSuggestions();
-        if(!isMobileLayout()) resetMobileViewport();
+        resetMobileViewport();
       }, 220);
     });
 
     addressInput.addEventListener('focus', () => {
-      if(!isMobileLayout()) resetMobileViewport();
+      if(isMobileLayout()){
+        if(suggestionsBox.classList.contains('open')) updateMobileSuggestionsPosition();
+        return;
+      }
+      resetMobileViewport();
     });
+
+    document.addEventListener('touchstart', (event) => {
+      if(!isMobileLayout() || !suggestionsBox.classList.contains('open')) return;
+      if(event.target.closest('#address-suggestions') || event.target.closest('#address')) return;
+      hideSuggestions();
+    }, { passive:true });
 
     window.addEventListener("pageshow", (event) => {
       if(!event.persisted) return;
