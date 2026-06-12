@@ -14,7 +14,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <!-- build: v17.31 -->
+  <!-- build: v17.32 -->
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
   <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
@@ -1188,7 +1188,7 @@
     let suggestTimer = null;
     let suggestRequestId = 0;
     let suppressSuggestionBlurHide = false;
-    const APP_VERSION = "17.31";
+    const APP_VERSION = "17.32";
 
     function setResultsLayoutActive(active){
       document.body.classList.toggle("has-results", !!active);
@@ -2760,19 +2760,13 @@
         return;
       }
       if(isMobileLayout()){
-        setAddressEntryActive(true);
+        setTimeout(() => {
+          if(document.activeElement === addressInput) setAddressEntryActive(true);
+        }, 80);
         return;
       }
       resetMobileViewport();
     });
-
-    addressInput.addEventListener('touchstart', () => {
-      if(document.body.classList.contains('has-results')){
-        prepareAddressFieldForNewEntry();
-        return;
-      }
-      if(isMobileLayout()) setAddressEntryActive(true);
-    }, { passive:true });
 
     document.addEventListener('touchstart', (event) => {
       if(!isMobileLayout() || !suggestionsBox.classList.contains('open')) return;
