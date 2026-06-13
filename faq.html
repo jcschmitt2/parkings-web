@@ -77,6 +77,14 @@
         "@type": "Answer",
         "text": "Dans de nombreux cas, oui. Pour certaines durées de stationnement et certains véhicules, notamment les SUV, un parking public peut être moins cher que le stationnement en voirie, tout en offrant davantage de sécurité et de confort."
       }
+    },
+    {
+      "@type": "Question",
+      "name": "Contacter Parkeco.fr",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Malgré nos vérifications régulières, certaines informations peuvent évoluer. Si vous constatez une erreur ou souhaitez suggérer une amélioration, écrivez-nous à contact@parkeco.fr. Chaque signalement contribue à améliorer ParkEco pour tous les utilisateurs."
+      }
     }
   ]
 }
@@ -144,18 +152,11 @@
       box-shadow:0 10px 30px rgba(0,0,0,.25);
     }
     .faq-title {
-      margin:0 0 6px;
+      margin:0 0 18px;
       font-size:1.2rem;
       font-weight:700;
       color:#fff;
       line-height:1.35;
-    }
-    .faq-subtitle {
-      margin:0 0 18px;
-      font-size:.94rem;
-      font-weight:600;
-      color:#c7d2fe;
-      line-height:1.4;
     }
     .faq-question-heading { margin:0; font-size:inherit; font-weight:inherit; }
     .faq-list { display:flex; flex-direction:column; gap:8px; }
@@ -230,11 +231,16 @@
     .faq-item.is-open .faq-answer-inner { padding:0 14px 14px; }
     .faq-answer-inner p { margin:0 0 10px; }
     .faq-answer-inner p:last-child { margin-bottom:0; }
+    .faq-answer-inner a {
+      color:#7dd3fc;
+      font-weight:600;
+      text-decoration:none;
+    }
+    .faq-answer-inner a:hover { text-decoration:underline; color:#bae6fd; }
     .faq-loading, .faq-error { margin:0; font-size:.86rem; color:#7d8fd6; }
     .faq-error { color:#fca5a5; }
     @media (min-width: 901px) {
       .faq-title { font-size:1.3rem; }
-      .faq-subtitle { font-size:1rem; }
       .faq-question { font-size:.96rem; padding:15px 16px; }
       .faq-answer-inner { font-size:.9rem; }
     }
@@ -264,7 +270,6 @@
   <main class="faq-page-main">
     <section class="faq-panel" aria-labelledby="faq-title">
       <h1 id="faq-title" class="faq-title">Questions fréquentes sur le stationnement à Paris</h1>
-      <p class="faq-subtitle" id="faq-subtitle">Pourquoi utiliser ParkEco ?</p>
       <div id="faq-list" class="faq-list" role="list">
         <p class="faq-loading" id="faq-loading">Chargement des questions…</p>
       </div>
@@ -287,8 +292,6 @@
       }
       const title = document.getElementById("faq-title");
       if(title && page.titre) title.textContent = page.titre;
-      const subtitle = document.getElementById("faq-subtitle");
-      if(subtitle && page.sous_titre) subtitle.textContent = page.sous_titre;
       const back = document.getElementById("faq-back");
       if(back){
         if(page.retour) back.textContent = page.retour;
@@ -317,13 +320,26 @@
         .replace(/"/g, "&quot;");
     }
 
+    function faqContactMailtoHref(){
+      const subject = encodeURIComponent("Question ou suggestion concernant ParkEco");
+      return `mailto:contact@parkeco.fr?subject=${subject}`;
+    }
+
+    function linkFaqContactEmail(html){
+      const href = escapeHtml(faqContactMailtoHref());
+      return html.replace(
+        /contact@parkeco\.fr/g,
+        `<a href="${href}">contact@parkeco.fr</a>`
+      );
+    }
+
     function formatFaqAnswerHtml(answer){
       const text = String(answer || "").trim();
       if(!text) return "<p></p>";
       return text.split(/\n\s*\n/)
         .map(block => block.trim())
         .filter(Boolean)
-        .map(block => `<p>${escapeHtml(block).replace(/\n/g, "<br>")}</p>`)
+        .map(block => `<p>${linkFaqContactEmail(escapeHtml(block).replace(/\n/g, "<br>"))}</p>`)
         .join("");
     }
 
