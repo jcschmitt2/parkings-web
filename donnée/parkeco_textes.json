@@ -1,0 +1,67 @@
+{
+  "_note": "Textes éditables ParkEco. Le champ accueil.*.body est le H1 visible (SEO). FAQ : parkeco_faq.json (séparé). Après modif FAQ : fab_faq_jsonld.py.",
+  "pages": {
+    "index": {
+      "seo": {
+        "title": "Parking public Paris — dès 3 €/h, évitez 18 €/h en voirie | Parkeco",
+        "description": "Trouvez le parking public le plus proche à Paris. Évitez jusqu'à 18 €/h en voirie : parkings sécurisés dès 3 €/h. Base vérifiée, carte et tarifs.",
+        "og_title": "Parking public Paris — dès 3 €/h | Parkeco",
+        "og_description": "Trouvez le parking public le plus proche à Paris. Évitez jusqu'à 18 €/h en voirie : parkings sécurisés dès 3 €/h. Base vérifiée, carte et tarifs."
+      },
+      "accueil": {
+        "mac": {
+          "subtitle": "À Paris, se garer dans la rue coûte généralement plus cher qu'un parking public.",
+          "lead": "Un SUV peut payer jusqu'à 18 €/h dans la rue, alors que certains parkings publics sécurisés sont accessibles dès 3 €/h.",
+          "body": "Trouvez le parking sécurisé le plus proche à Paris et comparez son coût avec celui du stationnement en voirie.",
+          "trust": "référence uniquement des parkings réellement accessibles au public."
+        },
+        "iphone": {
+          "subtitle": "À Paris, se garer dans la rue coûte plus cher qu'un parking public.",
+          "lead": "Un SUV peut payer jusqu'à 18 €/h dans la rue.",
+          "body": "Trouvez le parking le plus proche et comparez son coût avec l'horodateur.",
+          "trust": "référence uniquement des parkings réellement accessibles au public."
+        }
+      },
+      "resultats": {
+        "compact_title": "Se garer à Paris : évitez les 18 €/h en voirie",
+        "tagline": "Le parking public le plus proche et comparez les coûts.",
+        "tagline_note": "Des parkings vérifiés et réellement accessibles au public."
+      },
+      "recherche": {
+        "label_adresse": "Adresse à Paris",
+        "btn_position": "Ma position",
+        "btn_position_title": "Utiliser ma position actuelle",
+        "btn_position_aria": "Utiliser ma position pour trouver un parking proche",
+        "placeholder_adresse": "ex. 10 rue de Rivoli ou 75001",
+        "hint_code_postal": "Code postal Paris (75001–75020) : tous les parkings de l'arrondissement.",
+        "btn_rechercher": "Rechercher",
+        "btn_rechercher_aria": "Rechercher un parking proche"
+      },
+      "onglets_iphone": {
+        "liste": "Liste",
+        "carte": "Carte"
+      },
+      "messages": {
+        "chargement_base": "Chargement de la base…",
+        "invite_recherche": "Entrez une adresse ou un code postal pour trouver un parking."
+      },
+      "faq_bouton": {
+        "label": "ParkEco FAQ",
+        "aria_label": "Questions fréquentes ParkEco"
+      }
+    },
+    "faq": {
+      "seo": {
+        "title": "FAQ — Stationnement à Paris | ParkEco",
+        "description": "Questions fréquentes sur le stationnement à Paris : tarifs voirie, parkings publics, SUV, horodateur. ParkEco vous aide à comparer et trouver un parking proche."
+      },
+      "titre": "Questions fréquentes sur le stationnement à Paris",
+      "sous_titre": "Pourquoi utiliser ParkEco ?",
+      "retour": "← Accueil",
+      "retour_aria": "Retour à ParkEco",
+      "chargement": "Chargement des questions…",
+      "erreur": "Les questions fréquentes ne sont pas disponibles pour le moment.",
+      "vide": "Aucune question disponible pour le moment."
+    }
+  }
+}

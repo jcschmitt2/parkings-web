@@ -14,7 +14,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <!-- build: v17.38 -->
+  <!-- build: v17.45 -->
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
   <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
@@ -78,6 +78,13 @@
     .header-intro--body {
       color:#9aa9ff;
       font-weight:400;
+    }
+    .header-welcome h1.header-intro {
+      font-size:.92rem;
+      font-weight:400;
+      line-height:1.55;
+      color:#9aa9ff;
+      margin:0 0 10px;
     }
     .header-intro--trust {
       margin-top:14px;
@@ -342,6 +349,32 @@
       text-decoration:none;
     }
     .detail-website:hover { text-decoration:underline; color:#bae6fd; }
+    .detail-report-wrap {
+      margin-top:16px;
+      padding-top:12px;
+      padding-bottom:4px;
+      border-top:1px solid #263069;
+      text-align:center;
+    }
+    .detail-report-error {
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:8px 14px;
+      border-radius:10px;
+      border:1px solid #4b5563;
+      background:transparent;
+      color:#9aa9ff;
+      font-size:.8rem;
+      font-weight:600;
+      text-decoration:none;
+      cursor:pointer;
+    }
+    .detail-report-error:hover {
+      border-color:#3b82f6;
+      color:#bfdbfe;
+      background:#1a2253;
+    }
     .detail-tariffs {
       margin-top:10px;
       border:1px solid #2b376f;
@@ -549,6 +582,43 @@
       padding:1px 5px 0;
       border-radius:3px 3px 0 0;
       pointer-events:none;
+    }
+    .faq-launcher {
+      position:fixed;
+      left:max(14px, env(safe-area-inset-left));
+      bottom:max(14px, env(safe-area-inset-bottom));
+      z-index:1100;
+      box-shadow:0 6px 20px rgba(0,0,0,.28);
+    }
+    body.has-results .faq-launcher,
+    body.address-entry-active .faq-launcher,
+    body.detail-open .faq-launcher {
+      display:none;
+    }
+    .btn-faq {
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      padding:9px 16px;
+      border-radius:999px;
+      border:1px solid #3d508f;
+      background:#121733;
+      color:#c7d2fe;
+      font-size:.84rem;
+      font-weight:600;
+      text-decoration:none;
+      transition:background .15s ease, border-color .15s ease, color .15s ease;
+    }
+    .btn-faq:hover {
+      background:#1a2248;
+      border-color:#5b72c9;
+      color:#fff;
+      text-decoration:none;
+    }
+    .btn-faq:focus-visible {
+      outline:2px solid #7dd3fc;
+      outline-offset:2px;
     }
     .leaflet-marker-icon.parking-map-marker {
       background:transparent !important;
@@ -873,6 +943,11 @@
         line-height:1.5;
         margin:0 0 8px;
       }
+      .header-welcome h1.header-intro {
+        font-size:.84rem;
+        line-height:1.5;
+        margin:0 0 8px;
+      }
       .header-intro--trust {
         margin-top:10px;
         font-size:.78rem;
@@ -1015,6 +1090,11 @@
         max-height:100dvh;
         overscroll-behavior:none;
       }
+      .faq-launcher {
+        left:max(10px, env(safe-area-inset-left));
+        bottom:max(10px, env(safe-area-inset-bottom));
+      }
+      .btn-faq { font-size:.82rem; padding:8px 14px; }
       #address-suggestions .suggestion-item {
         padding:12px 14px;
         min-height:52px;
@@ -1097,9 +1177,10 @@
   </style>
 </head>
 <body>
+  <a href="faq.html" id="faq-launcher" class="faq-launcher btn-faq" aria-label="Questions fréquentes ParkEco">ParkEco FAQ</a>
   <header>
     <div id="header-welcome" class="header-welcome">
-      <h1 class="header-brand">
+      <div class="header-brand" aria-label="ParkEco">
         <svg class="header-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" aria-hidden="true">
           <defs>
             <linearGradient id="header-pk-lavender" x1="18%" y1="12%" x2="88%" y2="92%">
@@ -1112,15 +1193,15 @@
           <text x="16" y="21.5" text-anchor="middle" fill="#ffffff" font-family="system-ui,-apple-system,Segoe UI,Roboto,sans-serif" font-size="15" font-weight="800">P</text>
         </svg>
         <span class="header-brand-name">Park<span class="brand-eco">Eco</span></span>
-      </h1>
-      <p class="header-subtitle header-copy--desktop">À Paris, se garer dans la rue coûte généralement plus cher qu'un parking public.</p>
-      <p class="header-intro header-intro--lead header-copy--desktop">Un SUV peut payer jusqu'à 18 €/h dans la rue, alors que certains parkings publics sécurisés sont accessibles dès 3 €/h.</p>
-      <p class="header-intro header-intro--body header-copy--desktop">Trouvez le parking sécurisé le plus proche de votre destination et comparez son coût avec celui du stationnement en voirie.</p>
-      <p class="header-intro header-intro--trust header-copy--desktop"><span class="brand-inline" aria-label="ParkEco"><svg class="brand-inline-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="brand-inline-pk-lavender" x1="18%" y1="12%" x2="88%" y2="92%"><stop offset="0%" stop-color="#c7d2fe"/><stop offset="55%" stop-color="#a7b4ff"/><stop offset="100%" stop-color="#7c89e8"/></linearGradient></defs><circle cx="16" cy="16" r="13" fill="url(#brand-inline-pk-lavender)" stroke="#ffffff" stroke-width="2"/><text x="16" y="21.5" text-anchor="middle" fill="#ffffff" font-family="system-ui,-apple-system,Segoe UI,Roboto,sans-serif" font-size="15" font-weight="800">P</text></svg><span class="brand-inline-name">Park<span class="brand-eco">Eco</span></span></span> référence uniquement des parkings réellement accessibles au public.</p>
-      <p class="header-subtitle header-copy--mobile">À Paris, se garer dans la rue coûte plus cher qu'un parking public.</p>
-      <p class="header-intro header-intro--lead header-copy--mobile">Un SUV peut payer jusqu'à 18 €/h dans la rue.</p>
-      <p class="header-intro header-intro--body header-copy--mobile">Trouvez le parking le plus proche et comparez son coût avec l'horodateur.</p>
-      <p class="header-intro header-intro--trust header-copy--mobile"><span class="brand-inline" aria-label="ParkEco"><svg class="brand-inline-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="brand-inline-pk-lavender-mobile" x1="18%" y1="12%" x2="88%" y2="92%"><stop offset="0%" stop-color="#c7d2fe"/><stop offset="55%" stop-color="#a7b4ff"/><stop offset="100%" stop-color="#7c89e8"/></linearGradient></defs><circle cx="16" cy="16" r="13" fill="url(#brand-inline-pk-lavender-mobile)" stroke="#ffffff" stroke-width="2"/><text x="16" y="21.5" text-anchor="middle" fill="#ffffff" font-family="system-ui,-apple-system,Segoe UI,Roboto,sans-serif" font-size="15" font-weight="800">P</text></svg><span class="brand-inline-name">Park<span class="brand-eco">Eco</span></span></span> référence uniquement des parkings réellement accessibles au public.</p>
+      </div>
+      <p class="header-subtitle header-copy--desktop" id="copy-mac-subtitle">À Paris, se garer dans la rue coûte généralement plus cher qu'un parking public.</p>
+      <p class="header-intro header-intro--lead header-copy--desktop" id="copy-mac-lead">Un SUV peut payer jusqu'à 18 €/h dans la rue, alors que certains parkings publics sécurisés sont accessibles dès 3 €/h.</p>
+      <h1 class="header-intro header-intro--body header-copy--desktop" id="copy-mac-body">Trouvez le parking sécurisé le plus proche à Paris et comparez son coût avec celui du stationnement en voirie.</h1>
+      <p class="header-intro header-intro--trust header-copy--desktop"><span class="brand-inline" aria-label="ParkEco"><svg class="brand-inline-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="brand-inline-pk-lavender" x1="18%" y1="12%" x2="88%" y2="92%"><stop offset="0%" stop-color="#c7d2fe"/><stop offset="55%" stop-color="#a7b4ff"/><stop offset="100%" stop-color="#7c89e8"/></linearGradient></defs><circle cx="16" cy="16" r="13" fill="url(#brand-inline-pk-lavender)" stroke="#ffffff" stroke-width="2"/><text x="16" y="21.5" text-anchor="middle" fill="#ffffff" font-family="system-ui,-apple-system,Segoe UI,Roboto,sans-serif" font-size="15" font-weight="800">P</text></svg><span class="brand-inline-name">Park<span class="brand-eco">Eco</span></span></span> <span id="copy-mac-trust">référence uniquement des parkings réellement accessibles au public.</span></p>
+      <p class="header-subtitle header-copy--mobile" id="copy-iphone-subtitle">À Paris, se garer dans la rue coûte plus cher qu'un parking public.</p>
+      <p class="header-intro header-intro--lead header-copy--mobile" id="copy-iphone-lead">Un SUV peut payer jusqu'à 18 €/h dans la rue.</p>
+      <h1 class="header-intro header-intro--body header-copy--mobile" id="copy-iphone-body">Trouvez le parking le plus proche et comparez son coût avec l'horodateur.</h1>
+      <p class="header-intro header-intro--trust header-copy--mobile"><span class="brand-inline" aria-label="ParkEco"><svg class="brand-inline-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="brand-inline-pk-lavender-mobile" x1="18%" y1="12%" x2="88%" y2="92%"><stop offset="0%" stop-color="#c7d2fe"/><stop offset="55%" stop-color="#a7b4ff"/><stop offset="100%" stop-color="#7c89e8"/></linearGradient></defs><circle cx="16" cy="16" r="13" fill="url(#brand-inline-pk-lavender-mobile)" stroke="#ffffff" stroke-width="2"/><text x="16" y="21.5" text-anchor="middle" fill="#ffffff" font-family="system-ui,-apple-system,Segoe UI,Roboto,sans-serif" font-size="15" font-weight="800">P</text></svg><span class="brand-inline-name">Park<span class="brand-eco">Eco</span></span></span> <span id="copy-iphone-trust">référence uniquement des parkings réellement accessibles au public.</span></p>
     </div>
     <div id="header-compact" class="header-compact">
       <div class="header-compact-brand" aria-label="ParkEco">
@@ -1139,9 +1220,9 @@
           <span class="header-brand-name">Park<span class="brand-eco">Eco</span></span>
         </div>
       </div>
-      <p class="header-compact-title">Se garer à Paris : évitez les 18 €/h en voirie</p>
-      <p class="tagline">Le parking public le plus proche et comparez les coûts.</p>
-      <p class="tagline-note">Des parkings vérifiés et réellement accessibles au public.</p>
+      <p class="header-compact-title" id="copy-results-title">Se garer à Paris : évitez les 18 €/h en voirie</p>
+      <p class="tagline" id="copy-results-tagline">Le parking public le plus proche et comparez les coûts.</p>
+      <p class="tagline-note" id="copy-results-note">Des parkings vérifiés et réellement accessibles au public.</p>
     </div>
   </header>
 
@@ -1149,16 +1230,16 @@
     <section class="search-strip panel" aria-label="Recherche d'adresse">
       <form id="search-form" class="search-form" action="#" method="get">
         <div class="address-row">
-          <label for="address">Adresse à Paris</label>
+          <label for="address" id="text-label-address">Adresse à Paris</label>
           <button type="button" id="btnLocate" class="btn-locate" title="Utiliser ma position actuelle" aria-label="Utiliser ma position pour trouver un parking proche">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="2" x2="5" y1="12" y2="12"/><line x1="19" x2="22" y1="12" y2="12"/><line x1="12" x2="12" y1="2" y2="5"/><line x1="12" x2="12" y1="19" y2="22"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/></svg>
-            Ma position
+            <span id="text-btn-position">Ma position</span>
           </button>
         </div>
         <div class="address-wrap">
           <input id="address" type="text" placeholder="ex. 10 rue de Rivoli ou 75001" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
           <div id="address-suggestions" role="listbox" aria-label="Suggestions d'adresse"></div>
-          <p class="hint">Code postal Paris (75001–75020) : tous les parkings de l’arrondissement.</p>
+          <p class="hint" id="text-hint-code-postal">Code postal Paris (75001–75020) : tous les parkings de l'arrondissement.</p>
         </div>
         <div class="row">
           <button type="submit" id="btn-search" class="btn-search" aria-label="Rechercher un parking proche">Rechercher</button>
@@ -1252,7 +1333,8 @@
     let suggestTimer = null;
     let suggestRequestId = 0;
     let suppressSuggestionBlurHide = false;
-    const APP_VERSION = "17.38";
+    const APP_VERSION = "17.45";
+    let APP_TEXTES = null;
 
     function setResultsLayoutActive(active){
       document.body.classList.toggle("has-results", !!active);
@@ -1288,10 +1370,92 @@
     function resetResultsMessage(){
       const resBox = document.getElementById("results");
       if(!resBox) return;
+      const invite = APP_TEXTES?.messages?.invite_recherche
+        || "Entrez une adresse ou un code postal pour trouver un parking.";
+      const loading = APP_TEXTES?.messages?.chargement_base
+        || "Chargement de la base…";
       if(PARKINGS.length > 0){
-        resBox.innerHTML = `<div class="muted">Entrez une adresse ou un code postal pour trouver un parking.</div>`;
+        resBox.innerHTML = `<div class="muted">${invite}</div>`;
       } else {
-        resBox.innerHTML = `<div class="muted">Chargement de la base…</div>`;
+        resBox.innerHTML = `<div class="muted">${loading}</div>`;
+      }
+    }
+
+    function setTextById(id, value){
+      if(value == null) return;
+      const el = document.getElementById(id);
+      if(el) el.textContent = value;
+    }
+
+    function applyIndexTextes(page){
+      if(!page) return;
+      const seo = page.seo || {};
+      if(seo.title) document.title = seo.title;
+      if(seo.description){
+        const desc = document.querySelector('meta[name="description"]');
+        if(desc) desc.setAttribute("content", seo.description);
+      }
+      if(seo.og_title){
+        const ogTitle = document.querySelector('meta[property="og:title"]');
+        if(ogTitle) ogTitle.setAttribute("content", seo.og_title);
+      }
+      if(seo.og_description){
+        const ogDesc = document.querySelector('meta[property="og:description"]');
+        if(ogDesc) ogDesc.setAttribute("content", seo.og_description);
+      }
+      const mac = page.accueil?.mac || {};
+      const iphone = page.accueil?.iphone || {};
+      setTextById("copy-mac-subtitle", mac.subtitle);
+      setTextById("copy-mac-lead", mac.lead);
+      setTextById("copy-mac-body", mac.body);
+      setTextById("copy-mac-trust", mac.trust);
+      setTextById("copy-iphone-subtitle", iphone.subtitle);
+      setTextById("copy-iphone-lead", iphone.lead);
+      setTextById("copy-iphone-body", iphone.body);
+      setTextById("copy-iphone-trust", iphone.trust);
+      const res = page.resultats || {};
+      setTextById("copy-results-title", res.compact_title);
+      setTextById("copy-results-tagline", res.tagline);
+      setTextById("copy-results-note", res.tagline_note);
+      const search = page.recherche || {};
+      setTextById("text-label-address", search.label_adresse);
+      setTextById("text-btn-position", search.btn_position);
+      setTextById("text-hint-code-postal", search.hint_code_postal);
+      const locateBtn = document.getElementById("btnLocate");
+      if(locateBtn){
+        if(search.btn_position_title) locateBtn.title = search.btn_position_title;
+        if(search.btn_position_aria) locateBtn.setAttribute("aria-label", search.btn_position_aria);
+      }
+      const addressInput = document.getElementById("address");
+      if(addressInput && search.placeholder_adresse){
+        addressInput.placeholder = search.placeholder_adresse;
+      }
+      const searchBtn = document.getElementById("btn-search");
+      if(searchBtn){
+        if(search.btn_rechercher) searchBtn.textContent = search.btn_rechercher;
+        if(search.btn_rechercher_aria) searchBtn.setAttribute("aria-label", search.btn_rechercher_aria);
+      }
+      const tabs = page.onglets_iphone || {};
+      setTextById("tab-list", tabs.liste);
+      setTextById("tab-map", tabs.carte);
+      const faqBtn = page.faq_bouton || {};
+      const faqLauncher = document.getElementById("faq-launcher");
+      if(faqLauncher){
+        if(faqBtn.label) faqLauncher.textContent = faqBtn.label;
+        if(faqBtn.aria_label) faqLauncher.setAttribute("aria-label", faqBtn.aria_label);
+      }
+    }
+
+    async function loadTextes(){
+      try {
+        const res = await fetch(encodeURI("donnée/parkeco_textes.json"));
+        if(!res.ok) throw new Error(`parkeco_textes.json HTTP ${res.status}`);
+        const data = await res.json();
+        APP_TEXTES = data.pages?.index || null;
+        applyIndexTextes(APP_TEXTES);
+        resetResultsMessage();
+      } catch(err) {
+        console.warn("Textes non chargés depuis parkeco_textes.json", err);
       }
     }
 
@@ -1683,6 +1847,19 @@
       return `<a class="detail-website" href="${safeUrl}" target="_blank" rel="noreferrer">Site du parking ↗</a>`;
     }
 
+    function parkingReportErrorMailto(p){
+      const name = displayParkingName(p.name);
+      const subject = `signaler une erreur pour le parking "${name}"`;
+      return `mailto:contact@parkeco.fr?subject=${encodeURIComponent(subject)}`;
+    }
+
+    function parkingReportErrorHtml(p){
+      const href = escapeHtml(parkingReportErrorMailto(p));
+      return `<div class="detail-report-wrap">
+        <a class="detail-report-error" href="${href}">Signaler une erreur</a>
+      </div>`;
+    }
+
     function parkingPhotoHtml(p, className = "parking-photo"){
       if(!p.photoUrl) return "";
       const alt = escapeHtml(`Entrée — ${p.name}`);
@@ -1947,7 +2124,8 @@
           ${googleRatingHtml(p)}
           ${parkingWebsiteHtml(p)}
           ${parkingTariffsHtml(p)}
-        </div>`;
+        </div>
+        ${parkingReportErrorHtml(p)}`;
 
       footer.hidden = false;
       renderDetailFooterNav(p);
@@ -2142,6 +2320,7 @@
       syncMobileLayout();
       if(!map && (!isMobileLayout() || document.body.classList.contains("has-results"))) initMap();
       if(map) refreshMapAfterLayoutChange(false);
+      loadTextes();
       loadDefaultBase();
     }
 
@@ -2174,7 +2353,6 @@
 
     const DATA_APP_PARKINGS_JSON = encodeURI("donnée/app_parkings.json");
     const DATA_STREET_TARIFFS_JSON = encodeURI("donnée/tarifs_paris_arrondissements.json");
-
     function showLoadError(title, detail){
       const results = document.getElementById("results");
       if(!results) return;

@@ -1,0 +1,34 @@
+[
+  {
+    "question": "Pourquoi utiliser ParkEco ?",
+    "answer": "Les applications traditionnelles mélangent souvent parkings publics, parkings privés, parkings d'hôtel, parkings sur abonnement ou encore stationnement en voirie.\n\nParkEco référence uniquement des parkings réellement accessibles au public, afin de faciliter la recherche d'un stationnement adapté à votre destination."
+  },
+  {
+    "question": "Quel est le coût du stationnement en voirie à Paris ?",
+    "answer": "Le coût du stationnement en voirie à Paris dépend de l'arrondissement et du type de véhicule.\n\nPour les visiteurs, les véhicules légers paient jusqu'à 6 €/h dans les arrondissements centraux (1er au 11e) et jusqu'à 4 €/h dans les arrondissements périphériques (12e au 20e).\n\nLes véhicules lourds, notamment certains SUV thermiques de plus de 1,6 tonne ainsi que certains véhicules électriques ou hybrides rechargeables de plus de 2 tonnes, sont soumis à un tarif majoré pouvant atteindre 18 €/h dans les arrondissements centraux et 12 €/h dans les arrondissements périphériques.\n\nLes véhicules électriques légers de moins de 2 tonnes peuvent bénéficier de la gratuité du stationnement en voirie à Paris, sous certaines conditions définies par la Ville de Paris."
+  },
+  {
+    "question": "Comment trouver le parking le plus proche ?",
+    "answer": "Saisissez une adresse ou un code postal parisien. ParkEco affiche les parkings publics les plus proches, ainsi que leur distance et le temps de marche jusqu'à votre destination."
+  },
+  {
+    "question": "Comment est calculée la distance à pied ?",
+    "answer": "La distance et le temps de marche sont calculés entre votre destination et chaque parking afin de vous aider à choisir le stationnement le plus pratique."
+  },
+  {
+    "question": "Quels arrondissements de Paris sont couverts ?",
+    "answer": "ParkEco couvre l'ensemble des 20 arrondissements de Paris et enrichit régulièrement sa base de données."
+  },
+  {
+    "question": "D'où proviennent les informations sur les parkings ?",
+    "answer": "Les informations proviennent de sources publiques, d'opérateurs de parkings et de vérifications régulières effectuées par ParkEco."
+  },
+  {
+    "question": "Les tarifs affichés sont-ils garantis ?",
+    "answer": "Les tarifs, horaires et conditions d'accès peuvent évoluer. ParkEco s'efforce de maintenir des informations à jour, mais il est recommandé de vérifier les conditions directement auprès de l'exploitant du parking."
+  },
+  {
+    "question": "Un parking public est-il moins cher que le stationnement en voirie ?",
+    "answer": "Dans de nombreux cas, oui. Pour certaines durées de stationnement et certains véhicules, notamment les SUV, un parking public peut être moins cher que le stationnement en voirie, tout en offrant davantage de sécurité et de confort."
+  }
+]

@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <title>FAQ — Stationnement à Paris | ParkEco</title>
+  <meta name="description" content="Questions fréquentes sur le stationnement à Paris : tarifs voirie, parkings publics, SUV, horodateur. ParkEco vous aide à comparer et trouver un parking proche." />
+  <link rel="canonical" href="https://parkeco.fr/faq.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="/favicon.ico" sizes="48x48" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <!-- faq-jsonld:start -->
+  <script type="application/ld+json" id="faq-jsonld">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Pourquoi utiliser ParkEco ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Les applications traditionnelles mélangent souvent parkings publics, parkings privés, parkings d'hôtel, parkings sur abonnement ou encore stationnement en voirie. ParkEco référence uniquement des parkings réellement accessibles au public, afin de faciliter la recherche d'un stationnement adapté à votre destination."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Quel est le coût du stationnement en voirie à Paris ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Le coût du stationnement en voirie à Paris dépend de l'arrondissement et du type de véhicule. Pour les visiteurs, les véhicules légers paient jusqu'à 6 €/h dans les arrondissements centraux (1er au 11e) et jusqu'à 4 €/h dans les arrondissements périphériques (12e au 20e). Les véhicules lourds, notamment certains SUV thermiques de plus de 1,6 tonne ainsi que certains véhicules électriques ou hybrides rechargeables de plus de 2 tonnes, sont soumis à un tarif majoré pouvant atteindre 18 €/h dans les arrondissements centraux et 12 €/h dans les arrondissements périphériques. Les véhicules électriques légers de moins de 2 tonnes peuvent bénéficier de la gratuité du stationnement en voirie à Paris, sous certaines conditions définies par la Ville de Paris."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Comment trouver le parking le plus proche ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Saisissez une adresse ou un code postal parisien. ParkEco affiche les parkings publics les plus proches, ainsi que leur distance et le temps de marche jusqu'à votre destination."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Comment est calculée la distance à pied ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "La distance et le temps de marche sont calculés entre votre destination et chaque parking afin de vous aider à choisir le stationnement le plus pratique."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Quels arrondissements de Paris sont couverts ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "ParkEco couvre l'ensemble des 20 arrondissements de Paris et enrichit régulièrement sa base de données."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "D'où proviennent les informations sur les parkings ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Les informations proviennent de sources publiques, d'opérateurs de parkings et de vérifications régulières effectuées par ParkEco."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Les tarifs affichés sont-ils garantis ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Les tarifs, horaires et conditions d'accès peuvent évoluer. ParkEco s'efforce de maintenir des informations à jour, mais il est recommandé de vérifier les conditions directement auprès de l'exploitant du parking."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Un parking public est-il moins cher que le stationnement en voirie ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Dans de nombreux cas, oui. Pour certaines durées de stationnement et certains véhicules, notamment les SUV, un parking public peut être moins cher que le stationnement en voirie, tout en offrant davantage de sécurité et de confort."
+      }
+    }
+  ]
+}
+  </script>
+  <!-- faq-jsonld:end -->
+  <style>
+    :root { --bg:#0b1020; --card:#121733; --text:#e7eaff; --accent:#7dd3fc; }
+    * { box-sizing:border-box; }
+    html, body {
+      margin:0;
+      min-height:100dvh;
+      font-family:system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg,#0b1020,#0e153a);
+    }
+    a { color:var(--accent); text-decoration:none; }
+    a:hover { text-decoration:underline; }
+    .faq-page-header {
+      padding:18px max(18px, env(safe-area-inset-right)) 14px max(18px, env(safe-area-inset-left));
+      padding-top:max(18px, env(safe-area-inset-top));
+      border-bottom:1px solid #263069;
+      background:rgba(11,16,32,.95);
+    }
+    .faq-page-top {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:14px;
+    }
+    .faq-back {
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:8px 12px;
+      border-radius:999px;
+      border:1px solid #2b376f;
+      background:#0e1440;
+      color:#9aa9ff;
+      font-size:.84rem;
+      font-weight:600;
+      text-decoration:none;
+    }
+    .faq-back:hover { color:#fff; text-decoration:none; border-color:#5b72c9; }
+    .faq-brand {
+      display:flex;
+      align-items:center;
+      gap:5px;
+      font-size:1.35rem;
+      font-weight:700;
+      color:#fff;
+    }
+    .faq-brand-logo { width:32px; height:32px; flex-shrink:0; }
+    .brand-eco { color:#c7d2fe; }
+    .faq-page-main {
+      max-width:760px;
+      margin:0 auto;
+      padding:20px max(16px, env(safe-area-inset-right)) 32px max(16px, env(safe-area-inset-left));
+    }
+    .faq-panel {
+      background:var(--card);
+      border:1px solid #263069;
+      border-radius:16px;
+      padding:20px 18px 16px;
+      box-shadow:0 10px 30px rgba(0,0,0,.25);
+    }
+    .faq-title {
+      margin:0 0 6px;
+      font-size:1.2rem;
+      font-weight:700;
+      color:#fff;
+      line-height:1.35;
+    }
+    .faq-subtitle {
+      margin:0 0 18px;
+      font-size:.94rem;
+      font-weight:600;
+      color:#c7d2fe;
+      line-height:1.4;
+    }
+    .faq-question-heading { margin:0; font-size:inherit; font-weight:inherit; }
+    .faq-list { display:flex; flex-direction:column; gap:8px; }
+    .faq-item {
+      border:1px solid #2b376f;
+      border-radius:12px;
+      background:#0f1530;
+      overflow:hidden;
+      transition:border-color .2s ease, box-shadow .2s ease;
+    }
+    .faq-item.is-open {
+      border-color:#3d508f;
+      box-shadow:0 4px 16px rgba(0,0,0,.18);
+    }
+    .faq-question {
+      width:100%;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      margin:0;
+      padding:14px;
+      border:0;
+      background:transparent;
+      color:#e7eaff;
+      font:inherit;
+      font-size:.92rem;
+      font-weight:600;
+      line-height:1.4;
+      text-align:left;
+      cursor:pointer;
+    }
+    .faq-question:hover { color:#fff; }
+    .faq-question:focus-visible { outline:2px solid #7dd3fc; outline-offset:-2px; }
+    .faq-icon {
+      flex-shrink:0;
+      width:20px;
+      height:20px;
+      margin-top:1px;
+      border-radius:999px;
+      border:1px solid #3d508f;
+      background:#121733;
+      position:relative;
+      transition:transform .25s ease, background .2s ease;
+    }
+    .faq-icon::before,
+    .faq-icon::after {
+      content:"";
+      position:absolute;
+      top:50%;
+      left:50%;
+      background:#9aa9ff;
+      border-radius:1px;
+    }
+    .faq-icon::before { width:10px; height:2px; transform:translate(-50%, -50%); }
+    .faq-icon::after { width:2px; height:10px; transform:translate(-50%, -50%); transition:opacity .2s ease; }
+    .faq-item.is-open .faq-icon { transform:rotate(180deg); background:#1a2248; }
+    .faq-item.is-open .faq-icon::after { opacity:0; }
+    .faq-answer {
+      display:grid;
+      grid-template-rows:0fr;
+      transition:grid-template-rows .28s ease;
+    }
+    .faq-item.is-open .faq-answer { grid-template-rows:1fr; }
+    .faq-answer-inner {
+      overflow:hidden;
+      padding:0 14px;
+      color:#9aa9ff;
+      font-size:.86rem;
+      line-height:1.55;
+    }
+    .faq-item.is-open .faq-answer-inner { padding:0 14px 14px; }
+    .faq-answer-inner p { margin:0 0 10px; }
+    .faq-answer-inner p:last-child { margin-bottom:0; }
+    .faq-loading, .faq-error { margin:0; font-size:.86rem; color:#7d8fd6; }
+    .faq-error { color:#fca5a5; }
+    @media (min-width: 901px) {
+      .faq-title { font-size:1.3rem; }
+      .faq-subtitle { font-size:1rem; }
+      .faq-question { font-size:.96rem; padding:15px 16px; }
+      .faq-answer-inner { font-size:.9rem; }
+    }
+  </style>
+</head>
+<body>
+  <header class="faq-page-header">
+    <div class="faq-page-top">
+      <a href="/" class="faq-back" id="faq-back" aria-label="Retour à ParkEco">← Accueil</a>
+      <div class="faq-brand" aria-label="ParkEco">
+        <svg class="faq-brand-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" aria-hidden="true">
+          <defs>
+            <linearGradient id="faq-pk-lavender" x1="18%" y1="12%" x2="88%" y2="92%">
+              <stop offset="0%" stop-color="#c7d2fe"/>
+              <stop offset="55%" stop-color="#a7b4ff"/>
+              <stop offset="100%" stop-color="#7c89e8"/>
+            </linearGradient>
+          </defs>
+          <circle cx="16" cy="16" r="13" fill="url(#faq-pk-lavender)" stroke="#ffffff" stroke-width="2"/>
+          <text x="16" y="21.5" text-anchor="middle" fill="#ffffff" font-family="system-ui,-apple-system,Segoe UI,Roboto,sans-serif" font-size="15" font-weight="800">P</text>
+        </svg>
+        <span>Park<span class="brand-eco">Eco</span></span>
+      </div>
+    </div>
+  </header>
+
+  <main class="faq-page-main">
+    <section class="faq-panel" aria-labelledby="faq-title">
+      <h1 id="faq-title" class="faq-title">Questions fréquentes sur le stationnement à Paris</h1>
+      <p class="faq-subtitle" id="faq-subtitle">Pourquoi utiliser ParkEco ?</p>
+      <div id="faq-list" class="faq-list" role="list">
+        <p class="faq-loading" id="faq-loading">Chargement des questions…</p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const DATA_FAQ_JSON = encodeURI("donnée/parkeco_faq.json");
+    const DATA_TEXTES_JSON = encodeURI("donnée/parkeco_textes.json");
+    let FAQ_PAGE_TEXTES = null;
+
+    function applyFaqPageTextes(page){
+      if(!page) return;
+      FAQ_PAGE_TEXTES = page;
+      const seo = page.seo || {};
+      if(seo.title) document.title = seo.title;
+      if(seo.description){
+        const desc = document.querySelector('meta[name="description"]');
+        if(desc) desc.setAttribute("content", seo.description);
+      }
+      const title = document.getElementById("faq-title");
+      if(title && page.titre) title.textContent = page.titre;
+      const subtitle = document.getElementById("faq-subtitle");
+      if(subtitle && page.sous_titre) subtitle.textContent = page.sous_titre;
+      const back = document.getElementById("faq-back");
+      if(back){
+        if(page.retour) back.textContent = page.retour;
+        if(page.retour_aria) back.setAttribute("aria-label", page.retour_aria);
+      }
+      const loading = document.getElementById("faq-loading");
+      if(loading && page.chargement) loading.textContent = page.chargement;
+    }
+
+    async function loadPageTextes(){
+      try {
+        const res = await fetch(DATA_TEXTES_JSON);
+        if(!res.ok) throw new Error(`parkeco_textes.json HTTP ${res.status}`);
+        const data = await res.json();
+        applyFaqPageTextes(data.pages?.faq);
+      } catch(err) {
+        console.warn("Textes page FAQ non chargés", err);
+      }
+    }
+
+    function escapeHtml(value){
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function formatFaqAnswerHtml(answer){
+      const text = String(answer || "").trim();
+      if(!text) return "<p></p>";
+      return text.split(/\n\s*\n/)
+        .map(block => block.trim())
+        .filter(Boolean)
+        .map(block => `<p>${escapeHtml(block).replace(/\n/g, "<br>")}</p>`)
+        .join("");
+    }
+
+    function FAQItem(item, index){
+      const question = escapeHtml(item.question || "");
+      const answerId = `faq-answer-${index}`;
+      const questionId = `faq-question-${index}`;
+      const el = document.createElement("div");
+      el.className = "faq-item";
+      el.setAttribute("role", "listitem");
+      el.innerHTML = `
+        <h2 class="faq-question-heading">
+          <button type="button" class="faq-question" id="${questionId}" aria-expanded="false" aria-controls="${answerId}">
+            <span class="faq-question-text">${question}</span>
+            <span class="faq-icon" aria-hidden="true"></span>
+          </button>
+        </h2>
+        <div id="${answerId}" class="faq-answer" role="region" aria-labelledby="${questionId}" hidden>
+          <div class="faq-answer-inner">${formatFaqAnswerHtml(item.answer)}</div>
+        </div>`;
+      const btn = el.querySelector(".faq-question");
+      const panel = el.querySelector(".faq-answer");
+      btn.addEventListener("click", () => {
+        const open = !el.classList.contains("is-open");
+        el.classList.toggle("is-open", open);
+        btn.setAttribute("aria-expanded", open ? "true" : "false");
+        panel.hidden = !open;
+      });
+      return el;
+    }
+
+    function FAQSection(items){
+      const list = document.getElementById("faq-list");
+      if(!list) return;
+      list.innerHTML = "";
+      if(!items.length){
+        const vide = FAQ_PAGE_TEXTES?.vide || "Aucune question disponible pour le moment.";
+        list.innerHTML = `<p class="faq-error">${escapeHtml(vide)}</p>`;
+        return;
+      }
+      items.forEach((item, index) => list.appendChild(FAQItem(item, index)));
+    }
+
+    async function loadFaq(){
+      const list = document.getElementById("faq-list");
+      try {
+        const res = await fetch(DATA_FAQ_JSON);
+        if(!res.ok) throw new Error(`parkeco_faq.json HTTP ${res.status}`);
+        const items = await res.json();
+        if(!Array.isArray(items)) throw new Error("Format FAQ invalide");
+        FAQSection(items);
+      } catch(err) {
+        console.warn("FAQ non chargée", err);
+        if(list){
+          const erreur = FAQ_PAGE_TEXTES?.erreur
+            || "Les questions fréquentes ne sont pas disponibles pour le moment.";
+          list.innerHTML = `<p class="faq-error">${escapeHtml(erreur)}</p>`;
+        }
+      }
+    }
+
+    loadPageTextes();
+    loadFaq();
+  </script>
+</body>
+</html>
