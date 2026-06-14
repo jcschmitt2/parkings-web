@@ -14,7 +14,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <!-- build: v17.45 -->
+  <!-- build: v17.49 -->
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
   <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
@@ -717,6 +717,23 @@
       position:relative;
       z-index:1;
     }
+    .marker.marker-overview-dot {
+      width:12px !important;
+      height:12px !important;
+      min-width:12px;
+      font-size:0;
+      line-height:0;
+      border-width:1.5px;
+      box-shadow:0 2px 8px rgba(0,0,0,.35);
+      opacity:.95;
+    }
+    .marker.marker-overview-dot.marker-selected {
+      width:16px !important;
+      height:16px !important;
+      min-width:16px;
+      border-width:2px;
+      opacity:1;
+    }
     .marker.marker-selected {
       width:38px;
       height:38px;
@@ -1333,7 +1350,8 @@
     let suggestTimer = null;
     let suggestRequestId = 0;
     let suppressSuggestionBlurHide = false;
-    const APP_VERSION = "17.45";
+    const APP_VERSION = "17.49";
+    const OVERVIEW_NAME_ZOOM = 14;
     let APP_TEXTES = null;
 
     function setResultsLayoutActive(active){
@@ -1362,6 +1380,7 @@
       try {
         map.invalidateSize({ animate:false });
         if(shouldRefit && LAST_MAP_FIT_LATLNGS?.length) scheduleMapFit();
+        else scheduleWelcomeOverviewMap();
       } catch (err) {
         console.warn("Carte : rafraîchissement ignoré", err);
       }
@@ -1521,11 +1540,101 @@
       if(map){
         try {
           map.setView([48.8566, 2.3522], 13, { animate:false });
-          setTimeout(() => refreshMapAfterLayoutChange(false), 120);
+          setTimeout(() => {
+            refreshMapAfterLayoutChange(false);
+            scheduleWelcomeOverviewMap();
+          }, 120);
         } catch (err) {
           console.warn("Carte : réinitialisation ignorée", err);
         }
       }
+    }
+
+    function isWelcomeOverviewMode(){
+      return !document.body.classList.contains("has-results") && !isMobileLayout();
+    }
+
+    function shouldShowOverviewMarkerName(selected){
+      if(!map) return !!selected;
+      return selected || map.getZoom() >= OVERVIEW_NAME_ZOOM;
+    }
+
+    function hasWelcomeOverviewMarkers(){
+      for(const marker of MARKERS_BY_PARKING_ID.values()){
+        if(marker?._parkingMeta?.type === "overview") return true;
+      }
+      return false;
+    }
+
+    function buildOverviewMapIcon(selected, showName, parkingName){
+      const selectedClass = selected ? " marker-selected" : "";
+      const dotSize = selected ? 16 : 12;
+      const pinClass = selected ? "marker-pin-wrap is-selected marker-overview" : "marker-pin-wrap marker-overview";
+      const name = showName ? markerNameHtml(parkingName) : "";
+      const nameH = name ? (selected ? 30 : 24) : 0;
+      const gapExtra = selected ? 8 : 4;
+      const nameMaxW = selected ? 156 : 130;
+      const hitMin = 28;
+      const totalW = Math.max(hitMin, dotSize + 8, name ? nameMaxW : 0);
+      const totalH = Math.max(hitMin, nameH + dotSize + gapExtra);
+      const anchorY = name ? (nameH + gapExtra / 2 + dotSize / 2) : (totalH / 2);
+      const visual = `${name}<div class="marker marker-overview-dot marker-alt${selectedClass}" aria-hidden="true"></div>`;
+      return L.divIcon({
+        className: parkingMapMarkerClass(selected),
+        html: buildMarkerPinHtml(pinClass, totalW, totalH, visual),
+        iconSize: [totalW, totalH],
+        iconAnchor: [totalW / 2, anchorY]
+      });
+    }
+
+    function refreshOverviewMarkerLabels(){
+      if(!isWelcomeOverviewMode() || !map) return;
+      MARKERS_BY_PARKING_ID.forEach((marker, id) => {
+        const meta = marker._parkingMeta;
+        if(!meta || meta.type !== "overview") return;
+        const selected = id === SELECTED_PARKING_ID;
+        marker.setIcon(buildOverviewMapIcon(selected, shouldShowOverviewMarkerName(selected), meta.parkingName));
+      });
+    }
+
+    function showWelcomeOverviewMap(){
+      if(!PARKINGS.length || !isWelcomeOverviewMode()) return;
+      if(!map){
+        initMap();
+        if(!map) return;
+      }
+      clearMarkers();
+      const optionsById = {};
+      PARKINGS.forEach(p => {
+        if(p?.id) optionsById[p.id] = { title: p.name || "Parking" };
+      });
+      registerResultParkings(PARKINGS, optionsById);
+      const showNames = shouldShowOverviewMarkerName(false);
+      altMarkers = PARKINGS.filter(p => p.lat != null && p.lon != null).map(p => {
+        const m = createParkingMarker(p.lat, p.lon, {
+          title: p.name,
+          icon: buildOverviewMapIcon(false, showNames, p.name)
+        }).addTo(map);
+        registerMapMarker(p.id, m, "overview", "", null, p.name);
+        return m;
+      });
+      map.invalidateSize({ animate:false });
+    }
+
+    function scheduleWelcomeOverviewMap(attempt = 0){
+      if(!isWelcomeOverviewMode() || !PARKINGS.length) return;
+      const mapEl = document.getElementById("map");
+      if(!mapEl || mapEl.offsetWidth < 20 || mapEl.offsetHeight < 20){
+        if(attempt < 24) setTimeout(() => scheduleWelcomeOverviewMap(attempt + 1), 80);
+        return;
+      }
+      if(!map) initMap();
+      if(!map){
+        if(attempt < 24) setTimeout(() => scheduleWelcomeOverviewMap(attempt + 1), 80);
+        return;
+      }
+      if(!hasWelcomeOverviewMarkers()) showWelcomeOverviewMap();
+      else refreshOverviewMarkerLabels();
     }
 
     function isMobileLayout(){
@@ -1616,6 +1725,7 @@
         document.body.classList.remove("detail-open");
         if(!map) initMap();
         refreshMapAfterLayoutChange(!!LAST_MAP_FIT_LATLNGS?.length);
+        scheduleWelcomeOverviewMap();
         return;
       }
       if(!main.classList.contains("view-list") && !main.classList.contains("view-map")){
@@ -1959,6 +2069,8 @@
         marker.setZIndexOffset(selected ? 1000 : 0);
         if(meta.type === "best"){
           marker.setIcon(buildBestMapIcon(selected, meta.distanceM, meta.parkingName));
+        } else if(meta.type === "overview"){
+          marker.setIcon(buildOverviewMapIcon(selected, shouldShowOverviewMarkerName(selected), meta.parkingName));
         } else {
           marker.setIcon(buildAltMapIcon(meta.label, selected, meta.distanceM, meta.parkingName));
         }
@@ -2313,7 +2425,11 @@
         if(!id) return;
         if(DETAIL_PARKING_BY_ID.has(id)) openParkingDetail(id);
       });
-      setTimeout(() => map.invalidateSize(), 0);
+      map.on("zoomend", refreshOverviewMarkerLabels);
+      setTimeout(() => {
+        map.invalidateSize();
+        scheduleWelcomeOverviewMap();
+      }, 0);
     }
 
     function bootApp(){
@@ -2336,6 +2452,7 @@
       if(!map) return;
       map.invalidateSize({ animate:false });
       if(isMapPanelVisible() && LAST_MAP_FIT_LATLNGS?.length) scheduleMapFit();
+      else scheduleWelcomeOverviewMap();
     });
     syncMobileLayout();
     document.getElementById("tab-list")?.addEventListener("click", () => setMobileView("list"));
@@ -2351,7 +2468,7 @@
       return buildAltMapIcon(label, false, distanceM, parkingName);
     }
 
-    const DATA_APP_PARKINGS_JSON = encodeURI("donnée/app_parkings.json");
+    const DATA_APP_PARKINGS_JSON = encodeURI(`donnée/app_parkings.json?v=${APP_VERSION}`);
     const DATA_STREET_TARIFFS_JSON = encodeURI("donnée/tarifs_paris_arrondissements.json");
     function showLoadError(title, detail){
       const results = document.getElementById("results");
@@ -2381,6 +2498,7 @@
           `FindParking — base chargée: ${PARKINGS.length} parkings, ${withPhoto} avec photo ` +
           `(bundle du ${bundle.builtAt || "?"})`
         );
+        scheduleWelcomeOverviewMap();
       } catch(err) {
         console.error("Chargement automatique impossible", err);
         const origin = window.location.origin || "";
