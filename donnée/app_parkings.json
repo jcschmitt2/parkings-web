@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "builtAt": "2026-06-14T06:30:00+00:00",
+  "builtAt": "2026-06-14T16:39:19+00:00",
   "count": 167,
   "parkings": [
     {
@@ -2811,13 +2811,22 @@
       "lon": 2.3720255,
       "operator": "",
       "capacity": null,
-      "price1hEur": null,
+      "price1hEur": 4.8,
       "entranceAddr": "rue des trois bornes 75011 paris",
       "websiteUrl": "",
       "googleRating": 4.0,
       "googleRatingsCount": 126,
       "photoUrl": "donnée/images/pk_0120_trois-bornes/interieur_1.jpg",
-      "price3hEur": 17.0
+      "price15mnEur": 1.6,
+      "price30mnEur": 2.6,
+      "price1h30Eur": 6.8,
+      "price2hEur": 8.8,
+      "price3hEur": 13.0,
+      "price4hEur": 17.4,
+      "price7hEur": 30.0,
+      "price8hEur": 34.0,
+      "price9hEur": 39.0,
+      "price24hEur": 39.0
     },
     {
       "id": "pk_0121_turbigo-saint-denis",
