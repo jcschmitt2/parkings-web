@@ -5,15 +5,15 @@ ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 # shellcheck source=parkeco_stop_serveur.sh
 source "$SCRIPT_DIR/parkeco_stop_serveur.sh"
 cd "$ROOT"
-PORT=8766
+PORT=8767
 CERT_DIR="$ROOT/.dev-iphone-certs"
 CERT="$CERT_DIR/cert.pem"
 KEY="$CERT_DIR/key.pem"
 LOG="/tmp/parking-https-iphone-$PORT.log"
 
 if lsof -iTCP:"$PORT" -sTCP:LISTEN >/dev/null 2>&1; then
-  echo "Ancien serveur détecté — arrêt automatique…"
-  parkeco_stop_serveur || exit 1
+  echo "Ancien serveur iPhone détecté — arrêt automatique…"
+  parkeco_stop_port "$PORT" || exit 1
 fi
 
 MAC_IP=""
@@ -77,5 +77,5 @@ echo "════════════════════════�
 echo ""
 
 read -r -p "Serveur actif. Appuyez sur Entrée pour arrêter…"
-parkeco_stop_serveur
+parkeco_stop_port "$PORT"
 echo "Serveur iPhone arrêté."

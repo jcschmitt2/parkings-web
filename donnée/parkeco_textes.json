@@ -28,12 +28,12 @@
         "tagline_note": "Des parkings vérifiés et réellement accessibles au public."
       },
       "recherche": {
-        "label_adresse": "Adresse à Paris",
+        "label_adresse": "Où souhaitez-vous vous garer ?",
         "btn_position": "Ma position",
         "btn_position_title": "Utiliser ma position actuelle",
         "btn_position_aria": "Utiliser ma position pour trouver un parking proche",
-        "placeholder_adresse": "ex. 10 rue de Rivoli ou 75001",
-        "hint_code_postal": "Code postal Paris (75001–75020) : tous les parkings de l'arrondissement.",
+        "placeholder_adresse": "ex. 10 rue de Rivoli ou bastille ou 75015",
+        "hint_code_postal": "Adresse, lieu, arrondissement",
         "btn_rechercher": "Rechercher",
         "btn_rechercher_aria": "Rechercher un parking proche"
       },
