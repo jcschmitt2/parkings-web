@@ -182,6 +182,14 @@ def inject_seo_results_heading(html: str, landing: dict) -> str:
     return html
 
 
+def demote_welcome_headings_for_seo(html: str) -> str:
+    """Un seul H1 par landing SEO : les intros d'accueil passent en <p>."""
+    for el_id in ("copy-mac-body", "copy-iphone-body"):
+        pattern = rf'<h1([^>]*id="{el_id}"[^>]*)>(.*?)</h1>'
+        html = re.sub(pattern, r"<p\1>\2</p>", html, count=1, flags=re.DOTALL)
+    return html
+
+
 def build_landing_html(template: str, landing: dict) -> str:
     slug = landing["slug"]
     canonical = f"{SITE_ORIGIN}/{slug}"
@@ -198,6 +206,7 @@ def build_landing_html(template: str, landing: dict) -> str:
     )
     html = replace_meta_property(html, "og:url", canonical)
     html = inject_seo_results_heading(html, landing)
+    html = demote_welcome_headings_for_seo(html)
     inject = (
         f'  <base href="/" />\n'
         f'  <script>window.PARKECO_SEO_LANDING = {json.dumps(runtime, ensure_ascii=False)};</script>\n'
