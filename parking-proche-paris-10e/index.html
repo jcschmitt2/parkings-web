@@ -17,7 +17,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <!-- build: v17.65 -->
+  <!-- build: v17.72 -->
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
   <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
@@ -448,7 +448,7 @@
     .btn-locate:hover { background:#243067; }
     .btn-locate:disabled { opacity:.6; cursor:wait; }
     .address-wrap { position:relative; }
-    input[type="text"] { width:100%; padding:10px 12px; border-radius:12px; border:1px solid #2b376f; background:#0e1440; color:var(--text); font-size:.85rem; line-height:1.35; outline:none; }
+    input[type="text"] { width:100%; padding:10px 42px 10px 12px; border-radius:12px; border:1px solid #2b376f; background:#0e1440; color:var(--text); font-size:.85rem; line-height:1.35; outline:none; }
     input[type="text"]:focus { border-color:#3b82f6; box-shadow:0 0 0 2px rgba(59,130,246,.25); }
     #address-suggestions {
       display:none;
@@ -477,16 +477,36 @@
     .suggestion-item.active { background:#1a2253; color:#e7eaff; }
     .suggestion-item .suggestion-main { color:#c7d2fe; }
     .suggestion-item .suggestion-sub { font-size:.75rem; color:#9aa9ff; margin-top:2px; }
-    .row { display:flex; gap:8px; align-items:center; margin-top:10px; }
     .search-form { margin:0; }
     .btn-search {
-      flex:1;
-      width:100%;
-      font-weight:600;
+      position:absolute;
+      top:6px;
+      right:6px;
+      width:30px;
+      height:30px;
+      border-radius:999px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:0;
       background:#3b82f6;
       color:#fff;
+      border:1px solid #60a5fa;
+      z-index:2;
     }
     .btn-search:hover { background:#2563eb; }
+    .btn-search svg { width:15px; height:15px; display:block; }
+    .sr-only {
+      position:absolute;
+      width:1px;
+      height:1px;
+      padding:0;
+      margin:-1px;
+      overflow:hidden;
+      clip:rect(0, 0, 0, 0);
+      white-space:nowrap;
+      border:0;
+    }
     button, .ghost { cursor:pointer; border:none; border-radius:12px; padding:10px 12px; background:#2b376f; color:#e7eaff; }
     button:hover { background:#35428a; }
     .ghost { background:transparent; border:1px dashed #2b376f; }
@@ -1265,11 +1285,12 @@
         </div>
         <div class="address-wrap">
           <input id="address" type="text" placeholder="ex. 10 rue de Rivoli ou bastille ou 75015" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+          <button type="submit" id="btn-search" class="btn-search" aria-label="Rechercher un parking proche">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <span class="sr-only" id="text-btn-search">Rechercher</span>
+          </button>
           <div id="address-suggestions" role="listbox" aria-label="Suggestions d'adresse"></div>
           <p class="hint" id="text-hint-code-postal">Adresse, lieu, arrondissement</p>
-        </div>
-        <div class="row">
-          <button type="submit" id="btn-search" class="btn-search" aria-label="Rechercher un parking proche">Rechercher</button>
         </div>
       </form>
     </section>
@@ -1360,7 +1381,7 @@
     let suggestTimer = null;
     let suggestRequestId = 0;
     let suppressSuggestionBlurHide = false;
-    const APP_VERSION = "17.65";
+    const APP_VERSION = "17.72";
     let DEFAULT_SEARCH_HINT_TEXT = "Adresse, lieu, arrondissement";
     let bootGeneration = 0;
     const OVERVIEW_NAME_ZOOM = 14;
@@ -1916,7 +1937,7 @@
       }
       const searchBtn = document.getElementById("btn-search");
       if(searchBtn){
-        if(search.btn_rechercher) searchBtn.textContent = search.btn_rechercher;
+        if(search.btn_rechercher) setTextById("text-btn-search", search.btn_rechercher);
         if(search.btn_rechercher_aria) searchBtn.setAttribute("aria-label", search.btn_rechercher_aria);
       }
       const tabs = page.onglets_iphone || {};
@@ -1975,6 +1996,23 @@
       return cleaned.toLowerCase() === getSeoLandingDefaultQuery(landing).toLowerCase();
     }
 
+    function formatOriginDisplayLabel(label){
+      const text = (label || "").trim();
+      if(!text) return "";
+      if(/\b750\d{2}\b/.test(text) && text.split(",").length <= 2){
+        const m = text.match(/^(.+?\b750\d{2}\b(?:\s+Paris)?)/i);
+        return (m ? m[1] : text).trim();
+      }
+      const parts = text.split(",").map(s => s.trim()).filter(Boolean);
+      if(parts.length >= 2 && /^\d+[a-zA-Z]?$/.test(parts[0])){
+        const postcode = parts.map(p => p.match(/\b(75116|750\d{2})\b/)?.[1]).find(Boolean);
+        const street = parts[1];
+        if(postcode) return `${parts[0]} ${street} ${postcode} Paris`.trim();
+        return `${parts[0]} ${street}, Paris`.trim();
+      }
+      return parts[0] || text;
+    }
+
     function getPlaceDisplayName(origin){
       const landing = resolveSeoLandingConfig();
       const addr = document.getElementById("address")?.value?.trim() || "";
@@ -1984,8 +2022,8 @@
         const postcode = resolveArrondissementPostcode(addr);
         if(postcode) return arrondissementLabel(postcode);
         const fromOrigin = origin?.label || "";
-        if(fromOrigin) return fromOrigin.split(",")[0].trim();
-        return addr.split(",")[0].trim();
+        if(fromOrigin) return formatOriginDisplayLabel(fromOrigin);
+        return formatOriginDisplayLabel(addr) || addr.split(",")[0].trim();
       }
 
       if(landing?.placeLabel) return landing.placeLabel;
@@ -2216,21 +2254,44 @@
       return main.classList.contains("view-map");
     }
 
-    function getMapFitOptions(latLngCount){
-      if(isMobileLayout()){
-        return {
-          padRatio: 0.14,
-          paddingTopLeft: [20, 52],
-          paddingBottomRight: [20, 28],
-          maxZoom: latLngCount > 6 ? 15 : 16
-        };
+    function mapFitPadding(){
+      const p = 4;
+      return { paddingTopLeft: [p, p], paddingBottomRight: [p, p], maxZoom: 20 };
+    }
+
+    function boundsForMapFit(latLngs, mapEl, padOpts){
+      const bounds = L.latLngBounds(latLngs);
+      if(!bounds.isValid()) return bounds;
+      const center = bounds.getCenter();
+      let latSpan = (bounds.getNorth() - bounds.getSouth()) * 1.1;
+      let lngSpan = (bounds.getEast() - bounds.getWest()) * 1.1;
+      const minSpan = 0.0007;
+      if(latSpan < minSpan) latSpan = minSpan;
+      if(lngSpan < minSpan) lngSpan = minSpan;
+
+      const cosLat = Math.cos(center.lat * Math.PI / 180) || 1;
+      const latM = latSpan * 111320;
+      const lngM = lngSpan * 111320 * cosLat;
+
+      const padTL = padOpts.paddingTopLeft || [0, 0];
+      const padBR = padOpts.paddingBottomRight || [0, 0];
+      const w = Math.max(20, mapEl.offsetWidth - padTL[0] - padBR[0]);
+      const h = Math.max(20, mapEl.offsetHeight - padTL[1] - padBR[1]);
+      const mapAspect = w / h;
+      const boundsAspect = lngM / latM;
+
+      if(boundsAspect < mapAspect){
+        lngSpan = (latM * mapAspect) / (111320 * cosLat);
+      } else {
+        latSpan = (lngM / mapAspect) / 111320;
       }
-      return {
-        padRatio: 0.12,
-        paddingTopLeft: [32, 56],
-        paddingBottomRight: [32, 32],
-        maxZoom: latLngCount > 6 ? 15 : 17
-      };
+
+      const halfLat = latSpan / 2;
+      const halfLng = lngSpan / 2;
+      return L.latLngBounds(
+        [center.lat - halfLat, center.lng - halfLng],
+        [center.lat + halfLat, center.lng + halfLng]
+      );
     }
 
     function applyMapFit(){
@@ -2239,14 +2300,16 @@
       if(!mapEl || mapEl.offsetWidth < 20 || mapEl.offsetHeight < 20) return;
       map.invalidateSize({ animate:false });
       const latLngs = LAST_MAP_FIT_LATLNGS;
+      const padOpts = mapFitPadding();
+      const { paddingTopLeft, paddingBottomRight, maxZoom } = padOpts;
       if(latLngs.length === 1){
-        map.setView(latLngs[0], isMobileLayout() ? 15 : 16, { animate:false });
+        map.setView(latLngs[0], isMobileLayout() ? 16 : 17, { animate:false });
         return;
       }
-      const bounds = L.latLngBounds(latLngs);
-      if(!bounds.isValid()) return;
-      const { padRatio, paddingTopLeft, paddingBottomRight, maxZoom } = getMapFitOptions(latLngs.length);
-      map.fitBounds(bounds.pad(padRatio), {
+
+      const fitBounds = boundsForMapFit(latLngs, mapEl, padOpts);
+      if(!fitBounds.isValid()) return;
+      map.fitBounds(fitBounds, {
         paddingTopLeft,
         paddingBottomRight,
         maxZoom,
@@ -3196,11 +3259,53 @@
       }
     }
 
-    // --- Géocodage via Nominatim ---
+    function withParisSearchQuery(q){
+      const cleaned = String(q || "").trim();
+      if(!cleaned) return cleaned;
+      const hasParis = /\bparis\b/i.test(cleaned) || /\b750\d{2}\b/.test(cleaned) || /\b75116\b/.test(cleaned);
+      return hasParis ? cleaned : `${cleaned}, Paris`;
+    }
+
+    function isParisGouvFeature(feature){
+      const p = feature?.properties || {};
+      const cp = String(p.postcode || "");
+      if(/^750\d{2}$/.test(cp) || cp === "75116") return true;
+      return (p.city || "").toLowerCase() === "paris";
+    }
+
+    async function geocodeAddressViaGouv(q){
+      const searchQ = withParisSearchQuery(q);
+      const params = new URLSearchParams({
+        q: searchQ,
+        limit: "8",
+        autocomplete: "0",
+        lat: "48.8566",
+        lon: "2.3522",
+        postcode: "75001,75002,75003,75004,75005,75006,75007,75008,75009,75010,75011,75012,75013,75014,75015,75016,75017,75018,75019,75020"
+      });
+      const res = await fetch("https://api-adresse.data.gouv.fr/search/?" + params.toString());
+      if(!res.ok) throw new Error("Géocodage refusé");
+      const data = await res.json();
+      const features = (data.features || []).filter(isParisGouvFeature);
+      if(features.length){
+        const best = features[0];
+        const p = best.properties || {};
+        const coords = best.geometry?.coordinates;
+        if(coords && coords.length >= 2){
+          return {
+            lat: coords[1],
+            lon: coords[0],
+            label: (p.label || p.name || searchQ).trim()
+          };
+        }
+      }
+      return geocodeAddress(searchQ);
+    }
+
+    // --- Géocodage via Nominatim (secours) ---
     async function geocodeAddress(q){
       const cleaned = q.trim();
-      const hasParis = /\bparis\b/i.test(cleaned) || /\b750\d{2}\b/.test(cleaned);
-      const parisQuery = hasParis ? cleaned : `${cleaned}, Paris`;
+      const parisQuery = withParisSearchQuery(cleaned);
       const variants = [
         parisQuery,
         `${cleaned}, 75005 Paris`,
@@ -3517,6 +3622,8 @@
         document.getElementById('results').innerHTML = `<div class="muted">Recherche en cours…</div>`;
         setResultsLayoutActive(true);
         closeParkingDetail();
+        const addressEl = document.getElementById("address");
+        if(addressEl && knownPlace.properties.label) addressEl.value = knownPlace.properties.label;
         showNearestFromOrigin({
           lat: coords[1],
           lon: coords[0],
@@ -3529,7 +3636,9 @@
       closeParkingDetail();
 
       try {
-        const origin = await geocodeAddress(addr);
+        const origin = await geocodeAddressViaGouv(addr);
+        const addressEl = document.getElementById("address");
+        if(addressEl && origin.label) addressEl.value = origin.label;
         showNearestFromOrigin(origin);
       } catch(err){
         document.getElementById('results').innerHTML =
