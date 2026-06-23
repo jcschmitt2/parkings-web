@@ -17,7 +17,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <!-- build: v17.72 -->
+  <!-- build: v17.74 -->
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
   <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
@@ -257,7 +257,6 @@
       border-top:1px solid #263069;
       background:rgba(11,16,32,.45);
     }
-    .detail-footer .go-actions { margin-top:0; flex-wrap:nowrap; align-items:center; }
     .detail-footer-bar {
       display:flex;
       align-items:center;
@@ -265,20 +264,32 @@
       gap:8px;
       flex-wrap:nowrap;
     }
-    .detail-footer-bar .go-actions { min-width:0; flex:1; }
-    .detail-footer-bar .go-label { flex-shrink:0; line-height:1; }
-    .detail-footer-bar .go-btn {
-      width:34px;
+    .btn-go-google {
+      flex:1 1 0;
+      min-width:0;
       height:34px;
-      padding:0;
-      flex-shrink:0;
+      padding:0 10px;
+      border-radius:10px;
+      border:1px solid #60a5fa;
+      background:#2563eb;
+      color:#fff;
+      font-size:.74rem;
+      font-weight:600;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      line-height:1;
+      white-space:nowrap;
+      cursor:pointer;
+      transition:background .15s, border-color .15s;
     }
-    .detail-footer-bar .go-btn svg {
-      width:20px;
-      height:20px;
-    }
+    .btn-go-google:hover { background:#1d4ed8; border-color:#93c5fd; text-decoration:none; }
+    .btn-go-google svg { width:16px; height:16px; flex-shrink:0; display:block; }
     .btn-gain-open {
-      flex-shrink:0;
+      flex:1 1 0;
+      min-width:0;
       height:34px;
       padding:0 10px;
       border-radius:10px;
@@ -536,24 +547,6 @@
     .walk-time { font-size:1.05rem; font-weight:600; color:#c7d2fe; display:flex; align-items:center; gap:8px; }
     .walk-icon { font-size:2rem; line-height:1; }
     .detail-dist .walk-time { font-size:1.08rem; }
-    .go-actions { display:flex; align-items:center; gap:8px; margin-top:8px; flex-wrap:wrap; }
-    .go-label { font-size:.78rem; font-weight:600; color:#c7d2fe; }
-    .go-btn {
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      padding:7px;
-      border-radius:10px;
-      text-decoration:none;
-      border:1px solid #2b376f;
-      background:#131a44;
-      color:#e0e7ff;
-      transition:background .15s, border-color .15s;
-    }
-    .go-btn:hover { background:#1a2253; border-color:#3b4a8f; text-decoration:none; }
-    .go-btn svg { width:22px; height:22px; flex-shrink:0; display:block; }
-    .go-btn-apple:hover { border-color:#6b7280; }
-    .go-btn-google:hover { border-color:#4285f4; }
     .muted { color:#9aa9ff; font-size:.85rem; }
     .google-rating {
       font-size:.82rem;
@@ -1381,7 +1374,7 @@
     let suggestTimer = null;
     let suggestRequestId = 0;
     let suppressSuggestionBlurHide = false;
-    const APP_VERSION = "17.72";
+    const APP_VERSION = "17.74";
     let DEFAULT_SEARCH_HINT_TEXT = "Adresse, lieu, arrondissement";
     let bootGeneration = 0;
     const OVERVIEW_NAME_ZOOM = 14;
@@ -2371,12 +2364,6 @@
       if(point?.lat == null || point?.lon == null) return "";
       return `${point.lat},${point.lon}`;
     }
-    function appleMapsUrl(lat, lon, origin){
-      const dest = `${lat},${lon}`;
-      const from = mapsCoordsPoint(origin);
-      if(from) return `http://maps.apple.com/?saddr=${from}&daddr=${dest}&dirflg=w`;
-      return `http://maps.apple.com/?daddr=${dest}&dirflg=w`;
-    }
     function googleMapsUrl(lat, lon, origin){
       const dest = `${lat},${lon}`;
       const from = mapsCoordsPoint(origin);
@@ -2410,20 +2397,14 @@
       const navOrigin = CURRENT_GPS_POSITION;
       footer.innerHTML = `
         <div class="detail-footer-bar">
-          <div class="go-actions">
-            <span class="go-label">y aller</span>
-            <a class="go-btn go-btn-apple" href="${appleMapsUrl(p.lat,p.lon,navOrigin)}" target="_blank" rel="noreferrer" title="Itinéraire Apple Plans" aria-label="y aller avec Apple Plans">
-              ${ICON_APPLE}
-            </a>
-            <a class="go-btn go-btn-google" href="${googleMapsUrl(p.lat,p.lon,navOrigin)}" target="_blank" rel="noreferrer" title="Itinéraire Google Maps" aria-label="y aller avec Google Maps">
-              ${ICON_GOOGLE}
-            </a>
-          </div>
+          <a class="btn-go-google" href="${googleMapsUrl(p.lat,p.lon,navOrigin)}" title="Itinéraire piéton Google Maps" aria-label="Y aller avec Google Maps">
+            ${ICON_GOOGLE}
+            <span>Y aller</span>
+          </a>
           <button type="button" class="btn-gain-open" id="btn-gain-open">Calculer mon économie</button>
         </div>`;
       document.getElementById("btn-gain-open")?.addEventListener("click", () => openGainPanel(p));
     }
-    const ICON_APPLE = `<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>`;
     const ICON_GOOGLE = `<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#EA4335" d="M12 11.5v8.3c3.1-.1 5.6-2.6 5.6-5.7 0-1-.3-2-.8-2.8L12 11.5z"/><path fill="#34A853" d="M6.4 14.1c-.5.8-.8 1.8-.8 2.8 0 3.1 2.5 5.6 5.6 5.7v-8.3L6.4 14.1z"/><path fill="#FBBC05" d="M12 4.2c1.7 0 3.2.6 4.4 1.6l3.3-3.3C17.5 1.2 14.9 0 12 0 7.7 0 3.8 2.6 1.9 6.5l4.1 3.2C7.1 6.6 9.4 4.2 12 4.2z"/><path fill="#4285F4" d="M23.5 12c0-.8-.1-1.6-.3-2.3H12v4.6h6.5c-.3 1.5-1.2 2.8-2.4 3.7l3.8 3c2.2-2 3.6-5 3.6-8z"/><path fill="#4285F4" d="M12 24c3.2 0 5.9-1.1 7.9-2.9l-3.8-3c-1.1.8-2.5 1.2-4.1 1.2-2.6 0-4.9-1.6-5.9-3.9l-4.1 3.2C3.8 21.4 7.7 24 12 24z"/></svg>`;
 
     function escapeHtml(value){
