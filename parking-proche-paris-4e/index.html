@@ -26,7 +26,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <!-- build: v17.75 -->
+  <!-- build: v17.76 -->
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
   <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
@@ -469,6 +469,7 @@
     .btn-locate:disabled { opacity:.6; cursor:wait; }
     .address-wrap { position:relative; }
     input[type="text"] { width:100%; padding:10px 42px 10px 12px; border-radius:12px; border:1px solid #2b376f; background:#0e1440; color:var(--text); font-size:.85rem; line-height:1.35; outline:none; }
+    .address-wrap.has-voice input[type="text"] { padding-right:76px; }
     input[type="text"]:focus { border-color:#3b82f6; box-shadow:0 0 0 2px rgba(59,130,246,.25); }
     #address-suggestions {
       display:none;
@@ -498,6 +499,34 @@
     .suggestion-item .suggestion-main { color:#c7d2fe; }
     .suggestion-item .suggestion-sub { font-size:.75rem; color:#9aa9ff; margin-top:2px; }
     .search-form { margin:0; }
+    .btn-voice {
+      position:absolute;
+      top:6px;
+      right:40px;
+      width:30px;
+      height:30px;
+      border-radius:999px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:0;
+      background:#2b376f;
+      color:#c7d2fe;
+      border:1px solid #3b4a8f;
+      z-index:2;
+    }
+    .btn-voice:hover { background:#35428a; }
+    .btn-voice svg { width:15px; height:15px; display:block; }
+    .btn-voice.is-listening {
+      background:#b91c1c;
+      border-color:#f87171;
+      color:#fff;
+      animation:voice-pulse 1.1s ease-in-out infinite;
+    }
+    @keyframes voice-pulse {
+      0%, 100% { box-shadow:0 0 0 0 rgba(248,113,113,.45); }
+      50% { box-shadow:0 0 0 5px rgba(248,113,113,0); }
+    }
     .btn-search {
       position:absolute;
       top:6px;
@@ -1287,6 +1316,10 @@
         </div>
         <div class="address-wrap">
           <input id="address" type="text" placeholder="ex. 10 rue de Rivoli ou bastille ou 75015" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+          <button type="button" id="btn-voice" class="btn-voice" title="Dicter une adresse" aria-label="Dicter une adresse" aria-pressed="false">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19v3"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><rect x="9" y="2" width="6" height="12" rx="3"/></svg>
+            <span class="sr-only" id="text-btn-voice">Dicter une adresse</span>
+          </button>
           <button type="submit" id="btn-search" class="btn-search" aria-label="Rechercher un parking proche">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
             <span class="sr-only" id="text-btn-search">Rechercher</span>
@@ -1383,7 +1416,7 @@
     let suggestTimer = null;
     let suggestRequestId = 0;
     let suppressSuggestionBlurHide = false;
-    const APP_VERSION = "17.75";
+    const APP_VERSION = "17.76";
     let DEFAULT_SEARCH_HINT_TEXT = "Adresse, lieu, arrondissement";
     let bootGeneration = 0;
     const OVERVIEW_NAME_ZOOM = 14;
@@ -1941,6 +1974,12 @@
       if(searchBtn){
         if(search.btn_rechercher) setTextById("text-btn-search", search.btn_rechercher);
         if(search.btn_rechercher_aria) searchBtn.setAttribute("aria-label", search.btn_rechercher_aria);
+      }
+      const voiceBtn = document.getElementById("btn-voice");
+      if(voiceBtn){
+        if(search.btn_voice) setTextById("text-btn-voice", search.btn_voice);
+        if(search.btn_voice_title) voiceBtn.title = search.btn_voice_title;
+        if(search.btn_voice_aria) voiceBtn.setAttribute("aria-label", search.btn_voice_aria);
       }
       const tabs = page.onglets_iphone || {};
       setTextById("tab-list", tabs.liste);
@@ -4135,6 +4174,79 @@
       hideSuggestions();
       syncAddressEntryMode();
     }, { passive:true });
+
+    function initVoiceSearch(){
+      const btn = document.getElementById("btn-voice");
+      const wrap = document.querySelector(".address-wrap");
+      const input = document.getElementById("address");
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if(!btn || !input || !SpeechRecognition){
+        btn?.remove();
+        return;
+      }
+      wrap?.classList.add("has-voice");
+      const recognition = new SpeechRecognition();
+      recognition.lang = "fr-FR";
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      let listening = false;
+      let gotTranscript = false;
+
+      function setListening(active){
+        listening = active;
+        btn.classList.toggle("is-listening", active);
+        btn.setAttribute("aria-pressed", active ? "true" : "false");
+      }
+
+      btn.addEventListener("click", () => {
+        if(listening){
+          recognition.stop();
+          return;
+        }
+        gotTranscript = false;
+        hideSuggestions();
+        try {
+          recognition.start();
+        } catch(err) {
+          console.warn("Speech recognition start", err);
+        }
+      });
+
+      recognition.onstart = () => setListening(true);
+
+      recognition.onresult = (event) => {
+        let transcript = "";
+        for(let i = event.resultIndex; i < event.results.length; i++){
+          transcript += event.results[i][0].transcript;
+        }
+        const text = transcript.trim();
+        if(text){
+          gotTranscript = true;
+          input.value = text;
+          handleAddressInput();
+        }
+      };
+
+      recognition.onend = () => {
+        setListening(false);
+        if(!gotTranscript) return;
+        const text = input.value.trim();
+        if(!text) return;
+        hideSuggestions();
+        findNearest();
+      };
+
+      recognition.onerror = (event) => {
+        setListening(false);
+        if(event.error === "not-allowed"){
+          alert("Autorisez l’accès au micro dans les réglages du navigateur.");
+        } else if(event.error !== "aborted" && event.error !== "no-speech"){
+          console.warn("Speech recognition:", event.error);
+        }
+      };
+    }
+
+    initVoiceSearch();
 
   </script>
 </body>

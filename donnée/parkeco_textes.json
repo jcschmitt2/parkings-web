@@ -35,7 +35,10 @@
         "placeholder_adresse": "ex. 10 rue de Rivoli ou bastille ou 75015",
         "hint_code_postal": "Adresse, lieu, arrondissement",
         "btn_rechercher": "Rechercher",
-        "btn_rechercher_aria": "Rechercher un parking proche"
+        "btn_rechercher_aria": "Rechercher un parking proche",
+        "btn_voice": "Dicter une adresse",
+        "btn_voice_title": "Dicter une adresse à l'oral",
+        "btn_voice_aria": "Dicter une adresse pour lancer la recherche"
       },
       "onglets_iphone": {
         "liste": "Liste",
