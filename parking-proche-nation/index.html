@@ -26,7 +26,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <!-- build: v17.83 -->
+  <!-- build: v17.84 -->
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
   <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
@@ -1021,28 +1021,22 @@
     }
     @media (max-width: 900px) {
       html, body {
-        height:auto;
-        min-height:100dvh;
-        overflow-x:hidden;
-        overflow-y:auto;
-        -webkit-overflow-scrolling:touch;
-      }
-      body.has-results,
-      body.address-entry-active:not(.has-results) {
+        height:100%;
         height:100dvh;
         max-height:100dvh;
-        overflow-y:hidden;
+        width:100%;
+        overflow:hidden;
+        overflow-x:hidden;
       }
       .header-copy--desktop { display:none; }
       .header-copy--mobile { display:block; }
-      body:not(.has-results) {
-        overflow-y:auto;
-        height:auto;
-        min-height:100dvh;
-      }
       body:not(.has-results) .mobile-tabs,
       body:not(.has-results) .app-main {
         display:none !important;
+      }
+      body:not(.has-results):not(.address-entry-active) .app-frame {
+        flex:1 1 0;
+        min-height:0;
       }
       header {
         padding:10px max(14px, env(safe-area-inset-right)) 8px max(14px, env(safe-area-inset-left));
@@ -1122,11 +1116,22 @@
       .search-strip {
         position:relative;
         z-index:1200;
+        flex-shrink:0;
         padding:10px 12px;
         min-width:0;
         overflow:visible;
       }
-      .news-panel { grid-column:auto; grid-row:auto; align-self:auto; overflow:visible; }
+      .news-panel {
+        grid-column:auto;
+        grid-row:auto;
+        align-self:stretch;
+        flex:1 1 0;
+        min-height:0;
+        overflow-y:auto;
+        -webkit-overflow-scrolling:touch;
+        overscroll-behavior:contain;
+        padding-bottom:max(56px, calc(env(safe-area-inset-bottom) + 48px));
+      }
       body.has-results #news-panel,
       body.address-entry-active:not(.has-results) #news-panel { display:none !important; }
       .address-row { min-width:0; }
@@ -1476,7 +1481,7 @@
     let suggestTimer = null;
     let suggestRequestId = 0;
     let suppressSuggestionBlurHide = false;
-    const APP_VERSION = "17.83";
+    const APP_VERSION = "17.84";
     let DEFAULT_SEARCH_HINT_TEXT = "Adresse, lieu, arrondissement";
     let bootGeneration = 0;
     const OVERVIEW_NAME_ZOOM = 14;
