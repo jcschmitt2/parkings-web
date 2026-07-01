@@ -26,7 +26,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <!-- build: v17.76 -->
+  <!-- build: v17.82 -->
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
   <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
@@ -161,6 +161,45 @@
     .app-main { display:contents; }
     .sidebar { grid-column:1; grid-row:2; min-height:0; }
     .map-panel { grid-column:2; grid-row:1 / span 2; min-height:0; }
+    #news-panel[hidden] { display:none; }
+    .news-panel { grid-column:1; grid-row:2; min-height:0; align-self:stretch; overflow-y:auto; }
+    body.has-results #news-panel { display:none !important; }
+    .news-title { margin:0 0 12px; font-size:1.02rem; font-weight:700; color:#c7d2fe; }
+    .news-list { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px; }
+    .news-item { padding:11px 13px; background:#0e1440; border:1px solid #2b376f; border-radius:12px; border-left:3px solid #22c55e; }
+    .news-item--news { border-left-color:#f59e0b; }
+    .news-item--guide { border-left-color:#22c55e; }
+    .news-item-head { display:flex; flex-wrap:wrap; align-items:center; gap:6px 8px; margin:0 0 6px; }
+    .news-item-type {
+      display:inline-flex;
+      padding:2px 8px;
+      border-radius:999px;
+      font-size:.68rem;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:.02em;
+      background:#14532d;
+      color:#bbf7d0;
+      border:1px solid #22c55e;
+    }
+    .news-item--news .news-item-type { background:#451a03; color:#fde68a; border-color:#f59e0b; }
+    .news-item-date { font-size:.72rem; color:#7d8fd6; }
+    .news-item-title { font-size:.92rem; font-weight:600; color:#e7eaff; line-height:1.3; margin:0 0 5px; }
+    .news-item-resume { font-size:.8rem; color:#9aa9ff; line-height:1.45; margin:0 0 9px; }
+    .news-read {
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      font-size:.78rem;
+      font-weight:600;
+      color:#bfdbfe;
+      background:#1a2253;
+      border:1px solid #3b82f6;
+      border-radius:999px;
+      padding:5px 13px;
+      text-decoration:none;
+    }
+    .news-read:hover { background:#243067; }
     .detail-stack {
       grid-column:1;
       grid-row:2;
@@ -1074,6 +1113,9 @@
         min-width:0;
         overflow:visible;
       }
+      .news-panel { grid-column:auto; grid-row:auto; align-self:auto; overflow:visible; }
+      body.has-results #news-panel,
+      body.address-entry-active:not(.has-results) #news-panel { display:none !important; }
       .address-row { min-width:0; }
       .address-row label {
         min-width:0;
@@ -1330,6 +1372,11 @@
       </form>
     </section>
 
+    <section id="news-panel" class="news-panel panel" aria-label="Actualité du stationnement à Paris" hidden>
+      <h2 class="news-title" id="news-title">Actualité du stationnement à Paris</h2>
+      <ul class="news-list" id="news-list"></ul>
+    </section>
+
     <nav class="mobile-tabs" id="mobile-tabs" aria-label="Affichage">
       <button type="button" id="tab-list" class="mobile-tab is-active" aria-selected="true">Liste</button>
       <button type="button" id="tab-map" class="mobile-tab" aria-selected="false">Carte</button>
@@ -1416,7 +1463,7 @@
     let suggestTimer = null;
     let suggestRequestId = 0;
     let suppressSuggestionBlurHide = false;
-    const APP_VERSION = "17.76";
+    const APP_VERSION = "17.82";
     let DEFAULT_SEARCH_HINT_TEXT = "Adresse, lieu, arrondissement";
     let bootGeneration = 0;
     const OVERVIEW_NAME_ZOOM = 14;
@@ -4247,6 +4294,67 @@
     }
 
     initVoiceSearch();
+
+    async function initActualites(){
+      if(window.PARKECO_SEO_LANDING) return;
+      const panel = document.getElementById("news-panel");
+      const list = document.getElementById("news-list");
+      const titleEl = document.getElementById("news-title");
+      if(!panel || !list) return;
+      const NEWS_TYPE_LABELS = {
+        news: "News",
+        guide: "Guide"
+      };
+      const NEWS_TYPE_CLASS = {
+        news: "news-item--news",
+        guide: "news-item--guide"
+      };
+      const NEWS_TYPE_ALIASES = { alerte: "news", tarifs: "guide" };
+      const NEWS_MONTHS = ["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];
+      function fmtNewsDate(iso){
+        if(!iso) return "";
+        const parts = iso.split("-").map(Number);
+        if(parts.length < 3) return iso;
+        return `${parts[2]} ${NEWS_MONTHS[parts[1] - 1] || ""} ${parts[0]}`.trim();
+      }
+      try {
+        const url = encodeURI("donnée/parkeco_actualites.json") + "?v=" + APP_VERSION;
+        const res = await fetch(url, { cache:"no-store" });
+        if(!res.ok) return;
+        const data = await res.json();
+        if(data.titre_section && titleEl) titleEl.textContent = data.titre_section;
+        const articles = Array.isArray(data.articles) ? data.articles.slice() : [];
+        const valid = articles.filter(a => a && a.slug && a.titre);
+        valid.sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")));
+        const top = valid.slice(0, 3);
+        if(!top.length) return;
+        list.innerHTML = top.map(a => {
+          const rawType = a.type || "guide";
+          const type = NEWS_TYPE_ALIASES[rawType] || rawType;
+          const typeLabel = NEWS_TYPE_LABELS[type] || "Actualité";
+          const typeClass = NEWS_TYPE_CLASS[type] || "news-item--guide";
+          const dateLabel = fmtNewsDate(a.date);
+          const resume = a.resume
+            ? `<p class="news-item-resume">${escapeHtml(a.resume)}</p>`
+            : "";
+          const href = "/actu/" + encodeURIComponent(a.slug) + "/";
+          return `<li class="news-item ${typeClass}">
+            <div class="news-item-head">
+              <span class="news-item-type">${escapeHtml(typeLabel)}</span>
+              ${dateLabel ? `<time class="news-item-date" datetime="${escapeHtml(a.date || "")}">${escapeHtml(dateLabel)}</time>` : ""}
+            </div>
+            <p class="news-item-title">${escapeHtml(a.titre)}</p>
+            ${resume}
+            <a class="news-read" href="${href}">Lire l'article</a>
+          </li>`;
+        }).join("");
+        panel.hidden = false;
+      } catch(err){
+        console.warn("Actualités non chargées", err);
+      }
+    }
+
+    initActualites();
 
   </script>
 </body>

@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 from chemins_projet import DATA_DIR
+from construction_base.fab_actualites import generate_article_pages, load_actualites
 
 LANDINGS_JSON = DATA_DIR / "parkeco_seo_landings.json"
 INDEX_HTML = ROOT / "index.html"
@@ -215,38 +216,142 @@ def build_landing_html(template: str, landing: dict) -> str:
     return html
 
 
-def write_sitemap(landings: list[dict]) -> None:
-    today = date.today().isoformat()
-    static_urls = [
-        ("https://parkeco.fr/", "weekly", "1.0"),
-        ("https://parkeco.fr/faq.html", "monthly", "0.8"),
-    ]
+CANONICAL_RE = re.compile(r'<link\s+rel="canonical"\s+href="([^"]+)"\s*/?>', re.I)
+EXCLUDE_PARTS = frozenset({
+    "sauvegarde locale",
+    "appli",
+    "construction_base",
+    "autre_programme_de_construction",
+    "donnée de travail",
+    ".dev-iphone-certs",
+    ".git",
+    "node_modules",
+})
+ROOT_HTML_PAGES = frozenset({"index.html", "faq.html"})
+
+
+def extract_canonical(html: str) -> str | None:
+    match = CANONICAL_RE.search(html)
+    return match.group(1).strip() if match else None
+
+
+def path_to_public_url(rel_path: Path) -> str | None:
+    parts = rel_path.parts
+    if len(parts) == 1 and rel_path.name == "index.html":
+        return f"{SITE_ORIGIN}/"
+    if len(parts) == 1 and rel_path.name == "faq.html":
+        return f"{SITE_ORIGIN}/faq.html"
+    if len(parts) == 2 and rel_path.name == "index.html":
+        return f"{SITE_ORIGIN}/{parts[0]}"
+    if len(parts) == 3 and parts[0] == "actu" and rel_path.name == "index.html":
+        return f"{SITE_ORIGIN}/actu/{parts[1]}"
+    return None
+
+
+def discover_public_html_files() -> list[Path]:
+    pages: list[Path] = []
+    for path in sorted(ROOT.rglob("*.html")):
+        if any(part in EXCLUDE_PARTS for part in path.parts):
+            continue
+        rel = path.relative_to(ROOT)
+        if len(rel.parts) == 1:
+            if rel.name in ROOT_HTML_PAGES:
+                pages.append(rel)
+            continue
+        if len(rel.parts) == 2 and rel.name == "index.html" and rel.parts[0].startswith("parking-proche-"):
+            pages.append(rel)
+            continue
+        if len(rel.parts) == 3 and rel.parts[0] == "actu" and rel.name == "index.html":
+            pages.append(rel)
+    return pages
+
+
+def sitemap_meta_for_url(url: str) -> tuple[str, str]:
+    if url == f"{SITE_ORIGIN}/":
+        return "weekly", "1.0"
+    if url.endswith("/faq.html"):
+        return "monthly", "0.8"
+    if "/actu/" in url:
+        return "monthly", "0.7"
+    if "/parking-proche-paris-" in url:
+        return "weekly", "0.85"
+    if "/parking-proche-" in url:
+        return "weekly", "0.9"
+    return "monthly", "0.5"
+
+
+def lastmod_for_page(rel_path: Path, article_dates: dict[str, str]) -> str:
+    if len(rel_path.parts) == 3 and rel_path.parts[0] == "actu":
+        slug = rel_path.parts[1]
+        if slug in article_dates:
+            return article_dates[slug]
+    return date.fromtimestamp((ROOT / rel_path).stat().st_mtime).isoformat()
+
+
+def build_sitemap_entries(article_dates: dict[str, str] | None = None) -> list[dict]:
+    article_dates = article_dates or {}
+    seen: set[str] = set()
+    entries: list[dict] = []
+    for rel in discover_public_html_files():
+        html = (ROOT / rel).read_text(encoding="utf-8")
+        url = extract_canonical(html) or path_to_public_url(rel)
+        if not url or not url.startswith(SITE_ORIGIN):
+            print(f"  ⚠ ignoré (URL invalide) : {rel}")
+            continue
+        if url in seen:
+            print(f"  ⚠ doublon ignoré : {url} ({rel})")
+            continue
+        seen.add(url)
+        changefreq, priority = sitemap_meta_for_url(url)
+        entries.append(
+            {
+                "loc": url,
+                "lastmod": lastmod_for_page(rel, article_dates),
+                "changefreq": changefreq,
+                "priority": priority,
+            }
+        )
+    entries.sort(key=lambda e: (-float(e["priority"]), e["loc"]))
+    return entries
+
+
+def verify_sitemap_coverage(entries: list[dict]) -> None:
+    sitemap_urls = {e["loc"] for e in entries}
+    expected: list[str] = []
+    missing: list[str] = []
+    for rel in discover_public_html_files():
+        html = (ROOT / rel).read_text(encoding="utf-8")
+        url = extract_canonical(html) or path_to_public_url(rel)
+        if url:
+            expected.append(url)
+            if url not in sitemap_urls:
+                missing.append(f"{url} ({rel})")
+    extra = sorted(sitemap_urls - set(expected))
+    if missing:
+        print("  ⚠ URLs manquantes dans le sitemap :")
+        for item in missing:
+            print(f"    - {item}")
+    if extra:
+        print("  ⚠ URLs en trop dans le sitemap :")
+        for url in extra:
+            print(f"    - {url}")
+    if not missing and not extra:
+        print(f"  ✓ couverture complète : {len(sitemap_urls)} URLs publiques")
+
+
+def write_sitemap(entries: list[dict]) -> None:
     lines = [
         '<?xml version="1.0" encoding="UTF-8"?>',
         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
     ]
-    for loc, changefreq, priority in static_urls:
+    for entry in entries:
         lines.extend(
             [
                 "  <url>",
-                f"    <loc>{loc}</loc>",
-                f"    <lastmod>{today}</lastmod>",
-                f"    <changefreq>{changefreq}</changefreq>",
-                f"    <priority>{priority}</priority>",
-                "  </url>",
-            ]
-        )
-    for landing in landings:
-        loc = f"{SITE_ORIGIN}/{landing['slug']}"
-        changefreq = landing.get("changefreq", "weekly")
-        priority = str(landing.get("priority", 0.9))
-        lines.extend(
-            [
-                "  <url>",
-                f"    <loc>{loc}</loc>",
-                f"    <lastmod>{today}</lastmod>",
-                f"    <changefreq>{changefreq}</changefreq>",
-                f"    <priority>{priority}</priority>",
+                f"    <loc>{entry['loc']}</loc>",
+                f"    <lastmod>{entry['lastmod']}</lastmod>",
+                f"    <changefreq>{entry['changefreq']}</changefreq>",
+                f"    <priority>{entry['priority']}</priority>",
                 "  </url>",
             ]
         )
@@ -269,9 +374,20 @@ def main() -> None:
         (out_dir / "index.html").write_text(page_html, encoding="utf-8")
         print(f"Écrit : {out_dir / 'index.html'}")
 
-    write_sitemap(landings)
+    article_entries = generate_article_pages()
+    article_dates = {
+        a["slug"]: a["date"]
+        for a in load_actualites().get("articles", [])
+        if a.get("slug") and a.get("date")
+    }
+
+    sitemap_entries = build_sitemap_entries(article_dates)
+    write_sitemap(sitemap_entries)
     print(f"Écrit : {SITEMAP_XML}")
     print(f"  - landings SEO : {len(landings)} (dont {len(build_arrondissement_landings())} arrondissements)")
+    print(f"  - articles d'actualité : {len(article_entries)}")
+    print(f"  - URLs dans le sitemap : {len(sitemap_entries)}")
+    verify_sitemap_coverage(sitemap_entries)
 
 
 if __name__ == "__main__":
