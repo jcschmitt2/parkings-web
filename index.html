@@ -23,7 +23,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <!-- build: v17.95 -->
+  <!-- build: v17.96 -->
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
   <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
@@ -1522,7 +1522,7 @@
     let suggestTimer = null;
     let suggestRequestId = 0;
     let suppressSuggestionBlurHide = false;
-    const APP_VERSION = "17.95";
+    const APP_VERSION = "17.96";
     let DEFAULT_SEARCH_HINT_TEXT = "Adresse, lieu, arrondissement";
     let bootGeneration = 0;
     const OVERVIEW_NAME_ZOOM = 14;
@@ -4520,9 +4520,8 @@
         const articles = Array.isArray(data.articles) ? data.articles.slice() : [];
         const valid = articles.filter(a => a && a.slug && a.titre);
         valid.sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")));
-        const top = valid.slice(0, 3);
-        if(!top.length) return;
-        list.innerHTML = top.map(a => {
+        if(!valid.length) return;
+        list.innerHTML = valid.map(a => {
           const rawType = a.type || "guide";
           const type = NEWS_TYPE_ALIASES[rawType] || rawType;
           const typeLabel = NEWS_TYPE_LABELS[type] || "Actualité";

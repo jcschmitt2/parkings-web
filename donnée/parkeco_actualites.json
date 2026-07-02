@@ -1,5 +1,5 @@
 {
-  "_note": "Actualités affichées sur l'accueil parkeco.fr (3 plus récentes) + page par article dans /actu/<slug>/. type : news | guide (news = info flash orange, guide = info générale verte). Donne un Word par article, il sera converti en entrée ci-dessous. Après modif : python3 construction_base/fab_seo_pages.py",
+  "_note": "Actualités affichées sur l'accueil parkeco.fr (tous les articles) + page par article dans /actu/<slug>/. type : news | guide (news = info flash orange, guide = info générale verte). Donne un Word par article, il sera converti en entrée ci-dessous. Après modif : python3 construction_base/fab_seo_pages.py",
   "titre_section": "Actualité du stationnement à Paris",
   "articles": [
     {
