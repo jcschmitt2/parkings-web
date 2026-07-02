@@ -26,7 +26,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <!-- build: v17.90 -->
+  <!-- build: v17.91 -->
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
   <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
@@ -232,7 +232,7 @@
     .results-scroll { flex:1; min-height:0; overflow-y:auto; padding-right:4px; -webkit-overflow-scrolling:touch; }
     .results-scroll.is-hidden { visibility:hidden; pointer-events:none; }
     .seo-know-more {
-      margin-top:14px;
+      margin-top:10px;
       border:1px solid #2b376f;
       border-radius:12px;
       background:#0e1440;
@@ -263,6 +263,13 @@
       font-size:.88rem;
       line-height:1.55;
       color:#dbe2ff;
+      max-height:min(38vh, 280px);
+      overflow-y:auto;
+      -webkit-overflow-scrolling:touch;
+    }
+    .seo-know-more:not([open]) .seo-know-more-body {
+      max-height:none;
+      overflow:visible;
     }
     .seo-know-more-body > p { margin:0 0 12px; }
     .seo-know-more-faq h3 {
@@ -1448,7 +1455,8 @@
         <div class="results-area">
           <div class="results-scroll" id="results-scroll">
             <div class="list" id="results"><div class="muted results-summary" style="margin-bottom:10px;"><h1 class="results-seo-heading">Champs-Élysées : parkings publics</h1></div><div class="muted">Chargement de la base…</div></div>
-            <details class="seo-know-more">
+          </div>
+          <details class="seo-know-more">
   <summary class="seo-know-more-summary">En savoir plus sur le stationnement aux Champs-Élysées</summary>
   <div class="seo-know-more-body">
     <p>L&#x27;avenue des Champs-Élysées, dans le 8e arrondissement, est l&#x27;une des zones les plus chères de Paris pour le stationnement en voirie, avec une forte affluence touristique toute l&#x27;année. Les parkings souterrains de l&#x27;avenue permettent d&#x27;éviter la recherche de place, souvent longue aux heures de pointe et le week-end.</p>
@@ -1456,7 +1464,6 @@
     <div class="seo-know-more-faq"><h3>Existe-t-il des parkings adaptés aux gros véhicules type SUV ?</h3><p>Plusieurs parkings du secteur disposent de places dimensionnées pour les grands gabarits ; il est conseillé de vérifier les hauteurs et largeurs avant réservation.</p></div>
   </div>
 </details>
-          </div>
         </div>
       </div>
 
@@ -1532,7 +1539,7 @@
     let suggestTimer = null;
     let suggestRequestId = 0;
     let suppressSuggestionBlurHide = false;
-    const APP_VERSION = "17.90";
+    const APP_VERSION = "17.91";
     let DEFAULT_SEARCH_HINT_TEXT = "Adresse, lieu, arrondissement";
     let bootGeneration = 0;
     const OVERVIEW_NAME_ZOOM = 14;
@@ -3362,37 +3369,14 @@
     }
 
     function scrollSeoKnowMoreIntoView(details){
-      const scroll = document.getElementById("results-scroll");
       const body = details?.querySelector(".seo-know-more-body");
-      if(!scroll || !body) return;
-      const scrollRect = scroll.getBoundingClientRect();
-      const bodyRect = body.getBoundingClientRect();
-      const relativeTop = bodyRect.top - scrollRect.top + scroll.scrollTop;
-      scroll.scrollTo({ top: Math.max(0, relativeTop - 12), behavior: "smooth" });
-    }
-
-    function revealSeoKnowMorePeek(){
-      if(!resolveSeoLandingConfig()) return;
-      const scroll = document.getElementById("results-scroll");
-      const accordion = scroll?.querySelector(".seo-know-more");
-      if(!scroll || !accordion) return;
-      requestAnimationFrame(() => {
-        const scrollRect = scroll.getBoundingClientRect();
-        const accordionRect = accordion.getBoundingClientRect();
-        if(accordionRect.top >= scrollRect.top && accordionRect.bottom <= scrollRect.bottom) return;
-        const relativeBottom = accordionRect.bottom - scrollRect.top + scroll.scrollTop;
-        scroll.scrollTo({
-          top: Math.max(0, relativeBottom - scroll.clientHeight + 8),
-          behavior: "smooth"
-        });
-      });
+      if(body) body.scrollTop = 0;
     }
 
     function initSeoKnowMoreAccordion(){
-      const scroll = document.getElementById("results-scroll");
-      if(!scroll || scroll.dataset.seoKnowMoreBound) return;
-      scroll.dataset.seoKnowMoreBound = "1";
-      scroll.addEventListener("toggle", (event) => {
+      if(document.documentElement.dataset.seoKnowMoreBound) return;
+      document.documentElement.dataset.seoKnowMoreBound = "1";
+      document.addEventListener("toggle", (event) => {
         const details = event.target;
         if(!(details instanceof HTMLDetailsElement)) return;
         if(!details.classList.contains("seo-know-more") || !details.open) return;
@@ -3706,7 +3690,6 @@
         })).join("");
       setMobileView("list");
       dismissAddressKeyboard();
-      revealSeoKnowMorePeek();
     }
 
     const SEARCH_RADIUS_M = 1000;
@@ -3780,7 +3763,6 @@
         alts.map((p, i) => parkingResultCard(p, i + 1)).join("");
       setMobileView("list");
       dismissAddressKeyboard();
-      revealSeoKnowMorePeek();
     }
 
     // --- Trouver le plus proche ---
