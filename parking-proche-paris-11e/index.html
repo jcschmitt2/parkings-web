@@ -26,7 +26,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <!-- build: v17.89 -->
+  <!-- build: v17.90 -->
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
   <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
@@ -1532,7 +1532,7 @@
     let suggestTimer = null;
     let suggestRequestId = 0;
     let suppressSuggestionBlurHide = false;
-    const APP_VERSION = "17.89";
+    const APP_VERSION = "17.90";
     let DEFAULT_SEARCH_HINT_TEXT = "Adresse, lieu, arrondissement";
     let bootGeneration = 0;
     const OVERVIEW_NAME_ZOOM = 14;
@@ -3371,6 +3371,23 @@
       scroll.scrollTo({ top: Math.max(0, relativeTop - 12), behavior: "smooth" });
     }
 
+    function revealSeoKnowMorePeek(){
+      if(!resolveSeoLandingConfig()) return;
+      const scroll = document.getElementById("results-scroll");
+      const accordion = scroll?.querySelector(".seo-know-more");
+      if(!scroll || !accordion) return;
+      requestAnimationFrame(() => {
+        const scrollRect = scroll.getBoundingClientRect();
+        const accordionRect = accordion.getBoundingClientRect();
+        if(accordionRect.top >= scrollRect.top && accordionRect.bottom <= scrollRect.bottom) return;
+        const relativeBottom = accordionRect.bottom - scrollRect.top + scroll.scrollTop;
+        scroll.scrollTo({
+          top: Math.max(0, relativeBottom - scroll.clientHeight + 8),
+          behavior: "smooth"
+        });
+      });
+    }
+
     function initSeoKnowMoreAccordion(){
       const scroll = document.getElementById("results-scroll");
       if(!scroll || scroll.dataset.seoKnowMoreBound) return;
@@ -3689,6 +3706,7 @@
         })).join("");
       setMobileView("list");
       dismissAddressKeyboard();
+      revealSeoKnowMorePeek();
     }
 
     const SEARCH_RADIUS_M = 1000;
@@ -3762,6 +3780,7 @@
         alts.map((p, i) => parkingResultCard(p, i + 1)).join("");
       setMobileView("list");
       dismissAddressKeyboard();
+      revealSeoKnowMorePeek();
     }
 
     // --- Trouver le plus proche ---
