@@ -248,6 +248,23 @@ def path_to_public_url(rel_path: Path) -> str | None:
     return None
 
 
+def normalize_sitemap_url(url: str) -> str:
+    """Force un slash final pour les URLs de page (sauf home et fichiers .ext)."""
+    if not url.startswith(SITE_ORIGIN):
+        return url
+    if url == f"{SITE_ORIGIN}/":
+        return url
+    path = url[len(SITE_ORIGIN):]
+    if not path:
+        return f"{SITE_ORIGIN}/"
+    if path.endswith("/"):
+        return url
+    tail = path.rsplit("/", 1)[-1]
+    if "." in tail:
+        return url
+    return f"{url}/"
+
+
 def discover_public_html_files() -> list[Path]:
     pages: list[Path] = []
     for path in sorted(ROOT.rglob("*.html")):
@@ -295,6 +312,8 @@ def build_sitemap_entries(article_dates: dict[str, str] | None = None) -> list[d
     for rel in discover_public_html_files():
         html = (ROOT / rel).read_text(encoding="utf-8")
         url = extract_canonical(html) or path_to_public_url(rel)
+        if url:
+            url = normalize_sitemap_url(url)
         if not url or not url.startswith(SITE_ORIGIN):
             print(f"  ⚠ ignoré (URL invalide) : {rel}")
             continue
@@ -322,6 +341,8 @@ def verify_sitemap_coverage(entries: list[dict]) -> None:
     for rel in discover_public_html_files():
         html = (ROOT / rel).read_text(encoding="utf-8")
         url = extract_canonical(html) or path_to_public_url(rel)
+        if url:
+            url = normalize_sitemap_url(url)
         if url:
             expected.append(url)
             if url not in sitemap_urls:
