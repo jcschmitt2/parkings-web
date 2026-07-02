@@ -26,7 +26,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <!-- build: v17.91 -->
+  <!-- build: v17.94 -->
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
   <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
@@ -231,13 +231,13 @@
     }
     .results-scroll { flex:1; min-height:0; overflow-y:auto; padding-right:4px; -webkit-overflow-scrolling:touch; }
     .results-scroll.is-hidden { visibility:hidden; pointer-events:none; }
+    #seo-know-more-slot:empty { display:none; }
     .seo-know-more {
-      margin-top:10px;
+      margin-top:14px;
       border:1px solid #2b376f;
       border-radius:12px;
       background:#0e1440;
       overflow:hidden;
-      flex-shrink:0;
     }
     .seo-know-more-summary {
       padding:12px 14px;
@@ -263,13 +263,6 @@
       font-size:.88rem;
       line-height:1.55;
       color:#dbe2ff;
-      max-height:min(38vh, 280px);
-      overflow-y:auto;
-      -webkit-overflow-scrolling:touch;
-    }
-    .seo-know-more:not([open]) .seo-know-more-body {
-      max-height:none;
-      overflow:visible;
     }
     .seo-know-more-body > p { margin:0 0 12px; }
     .seo-know-more-faq h3 {
@@ -1455,15 +1448,15 @@
         <div class="results-area">
           <div class="results-scroll" id="results-scroll">
             <div class="list" id="results"><div class="muted results-summary" style="margin-bottom:10px;"><h1 class="results-seo-heading">Nation : parkings publics</h1></div><div class="muted">Chargement de la base…</div></div>
-          </div>
-          <details class="seo-know-more">
+            <div id="seo-know-more-slot"><details class="seo-know-more">
   <summary class="seo-know-more-summary">En savoir plus sur le stationnement à Nation</summary>
   <div class="seo-know-more-body">
     <p>La Place de la Nation, à la frontière des 11e, 12e et 20e arrondissements, est un carrefour majeur de l&#x27;est parisien avec un trafic dense toute la journée. Le stationnement en voirie y est limité et souvent saturé ; les parkings publics du secteur offrent une solution plus fiable pour un stationnement prolongé.</p>
     <div class="seo-know-more-faq"><h3>Le secteur est-il bien desservi en transports ?</h3><p>Oui, Nation est un pôle multimodal important, ce qui en fait un point de départ pratique pour visiter l&#x27;est parisien après avoir garé son véhicule.</p></div>
     <div class="seo-know-more-faq"><h3>Les tarifs de stationnement sont-ils élevés à Nation ?</h3><p>Comme dans la plupart des zones centrales et semi-centrales de Paris, le stationnement en voirie reste coûteux et limité en durée.</p></div>
   </div>
-</details>
+</details></div>
+          </div>
         </div>
       </div>
 
@@ -1539,7 +1532,7 @@
     let suggestTimer = null;
     let suggestRequestId = 0;
     let suppressSuggestionBlurHide = false;
-    const APP_VERSION = "17.91";
+    const APP_VERSION = "17.94";
     let DEFAULT_SEARCH_HINT_TEXT = "Adresse, lieu, arrondissement";
     let bootGeneration = 0;
     const OVERVIEW_NAME_ZOOM = 14;
@@ -1994,6 +1987,7 @@
         searchQuery: "75020",
       },
     };
+    const SEO_ACCORDIONS_BY_SLUG = {"parking-proche-accor-arena": {"title": "En savoir plus sur le stationnement à l'Accor Arena", "intro": "L'Accor Arena (Bercy), dans le 12e arrondissement, accueille concerts et événements sportifs qui saturent rapidement le stationnement en voirie du quartier de Bercy les soirs de spectacle. Réserver un parking couvert à proximité évite la recherche de place et les tarifs événementiels souvent appliqués en surface.", "faqs": [{"question": "Faut-il arriver en avance pour se garer un soir de concert ?", "answer": "Oui, les parkings proches de l'Accor Arena se remplissent vite avant un événement ; il est conseillé d'arriver au moins 45 minutes avant."}, {"question": "Y a-t-il des parkings ouverts tard le soir ?", "answer": "Oui, plusieurs parkings du quartier de Bercy restent accessibles après les événements pour permettre la sortie des véhicules."}]}, "parking-proche-bastille": {"title": "En savoir plus sur le stationnement à Bastille", "intro": "La Place de la Bastille, entre les 4e, 11e et 12e arrondissements, fait partie des zones de stationnement les plus tendues et coûteuses de Paris, notamment autour de l'Opéra Bastille. Les parkings publics du secteur offrent souvent une alternative plus économique que la voirie pour un stationnement de plusieurs heures.", "faqs": [{"question": "Le stationnement est-il gratuit le dimanche ?", "answer": "Oui, comme partout à Paris, mais les places restent très demandées dans ce secteur central."}, {"question": "Un parking ouvert 24h/24 près de Bastille ?", "answer": "Oui, plusieurs parkings du secteur le sont."}]}, "parking-proche-champs-elysees": {"title": "En savoir plus sur le stationnement aux Champs-Élysées", "intro": "L'avenue des Champs-Élysées, dans le 8e arrondissement, est l'une des zones les plus chères de Paris pour le stationnement en voirie, avec une forte affluence touristique toute l'année. Les parkings souterrains de l'avenue permettent d'éviter la recherche de place, souvent longue aux heures de pointe et le week-end.", "faqs": [{"question": "Le stationnement est-il difficile en soirée ?", "answer": "Oui, l'avenue et ses rues adjacentes sont très fréquentées le soir, notamment près des salles de spectacle et restaurants."}, {"question": "Existe-t-il des parkings adaptés aux gros véhicules type SUV ?", "answer": "Plusieurs parkings du secteur disposent de places dimensionnées pour les grands gabarits ; il est conseillé de vérifier les hauteurs et largeurs avant réservation."}]}, "parking-proche-chatelet": {"title": "En savoir plus sur le stationnement à Châtelet", "intro": "Châtelet, au cœur du 1er et du 4e arrondissement, est l'un des carrefours les plus animés de Paris, à proximité immédiate de l'Hôtel de Ville et du Forum des Halles. Le stationnement en voirie y est rare et cher ; les parkings souterrains du secteur restent la solution la plus fiable pour un séjour de plusieurs heures.", "faqs": [{"question": "Y a-t-il un parking proche du Forum des Halles ?", "answer": "Oui, plusieurs parkings publics desservent directement le quartier des Halles et sont accessibles à pied en quelques minutes."}, {"question": "Le quartier est-il piéton ?", "answer": "Une partie du secteur autour des Halles est en zone à circulation restreinte, ce qui rend le stationnement en voirie encore plus limité."}]}, "parking-proche-gare-de-lest": {"title": "En savoir plus sur le stationnement à Gare de l'Est", "intro": "Le quartier de la Gare de l'Est, dans le 10e arrondissement, connaît un fort passage de voyageurs et de véhicules toute la journée, rendant le stationnement en voirie difficile aux abords immédiats de la gare. Les parkings publics du secteur permettent de laisser son véhicule en sécurité pour prendre un train sans stress de créneau horaire.", "faqs": [{"question": "Peut-on stationner plusieurs jours près de la gare ?", "answer": "Oui, plusieurs parkings du secteur proposent des tarifs dégressifs adaptés aux stationnements longue durée, utiles avant un départ en train."}, {"question": "Le quartier est-il sûr pour laisser son véhicule la nuit ?", "answer": "Les parkings couverts et surveillés du secteur sont recommandés pour un stationnement de nuit, plus sûrs que la voirie aux abords de la gare."}]}, "parking-proche-gare-de-lyon": {"title": "En savoir plus sur le stationnement à Gare de Lyon", "intro": "La Gare de Lyon, dans le 12e arrondissement, est l'un des points d'accès majeurs vers le sud de la France, avec un trafic dense en journée. Le stationnement en voirie autour de la gare est très contraint ; les parkings publics à proximité facilitent les correspondances avec un dépôt rapide du véhicule.", "faqs": [{"question": "Existe-t-il des offres pour un stationnement de plusieurs jours ?", "answer": "Oui, plusieurs parkings proches de la gare proposent des forfaits adaptés à un départ prolongé."}, {"question": "Comment accéder facilement aux quais depuis un parking ?", "answer": "Les parkings les plus proches de la gare permettent un accès à pied en quelques minutes aux quais et à la sortie principale."}]}, "parking-proche-gare-du-nord": {"title": "En savoir plus sur le stationnement à Gare du Nord", "intro": "La Gare du Nord, dans le 10e arrondissement, est la gare la plus fréquentée d'Europe, avec un trafic piéton et automobile important toute la journée. Le stationnement en voirie y est rare et surveillé ; un parking public sécurisé reste la solution la plus simple avant un départ en train ou Eurostar.", "faqs": [{"question": "Un parking est-il utile pour un départ en Eurostar ?", "answer": "Oui, cela évite le stress de trouver une place en voirie avant un départ international, souvent avec peu de marge horaire."}, {"question": "Les parkings du secteur sont-ils surveillés ?", "answer": "La plupart des parkings publics près de la Gare du Nord sont surveillés et couverts, plus sûrs qu'un stationnement de rue dans ce quartier passant."}]}, "parking-proche-louvre": {"title": "En savoir plus sur le stationnement au Louvre", "intro": "Le musée du Louvre, dans le 1er arrondissement, attire une forte affluence touristique toute l'année, rendant le stationnement en voirie quasiment impossible aux abords immédiats. Le parking souterrain du Carrousel du Louvre et d'autres parkings publics du secteur permettent un accès direct au musée sans recherche de place.", "faqs": [{"question": "Y a-t-il un parking directement sous le musée ?", "answer": "Oui, le parking du Carrousel du Louvre offre un accès direct aux salles du musée depuis le sous-sol."}, {"question": "Le secteur est-il accessible en horaires tardifs ?", "answer": "Certains parkings du quartier restent ouverts tard, utiles lors des nocturnes du musée certains jours de la semaine."}]}, "parking-proche-marais": {"title": "En savoir plus sur le stationnement au Marais", "intro": "Le quartier du Marais, à cheval sur les 3e et 4e arrondissements, mêle ruelles historiques étroites et forte fréquentation touristique et nocturne. Le stationnement en voirie y est particulièrement difficile ; les parkings publics du secteur offrent une alternative pratique pour visiter le quartier sans tourner en voiture.", "faqs": [{"question": "Les rues du Marais sont-elles adaptées aux gros véhicules ?", "answer": "Non, de nombreuses rues sont étroites et peu adaptées aux SUV ; un parking couvert est vivement recommandé."}, {"question": "Le quartier est-il animé le week-end ?", "answer": "Oui, le Marais est très fréquenté les week-ends, ce qui rend le stationnement en voirie encore plus rare à ces moments-là."}]}, "parking-proche-montparnasse": {"title": "En savoir plus sur le stationnement à Montparnasse", "intro": "Le quartier de la gare Montparnasse, entre les 14e et 15e arrondissements, combine trafic ferroviaire important et quartier d'affaires dense. Le stationnement en voirie y est très contraint en journée ; les parkings publics proches de la gare et de la tour Montparnasse facilitent les correspondances rapides.", "faqs": [{"question": "Un parking est-il utile avant un train vers l'ouest de la France ?", "answer": "Oui, la gare Montparnasse dessert notamment la Bretagne et le sud-ouest, et un parking à proximité évite la recherche de place avant un départ."}, {"question": "Le secteur est-il accessible aux horaires de bureau ?", "answer": "Le quartier étant très fréquenté par les actifs en journée, réserver un parking à l'avance est conseillé aux heures de pointe."}]}, "parking-proche-nation": {"title": "En savoir plus sur le stationnement à Nation", "intro": "La Place de la Nation, à la frontière des 11e, 12e et 20e arrondissements, est un carrefour majeur de l'est parisien avec un trafic dense toute la journée. Le stationnement en voirie y est limité et souvent saturé ; les parkings publics du secteur offrent une solution plus fiable pour un stationnement prolongé.", "faqs": [{"question": "Le secteur est-il bien desservi en transports ?", "answer": "Oui, Nation est un pôle multimodal important, ce qui en fait un point de départ pratique pour visiter l'est parisien après avoir garé son véhicule."}, {"question": "Les tarifs de stationnement sont-ils élevés à Nation ?", "answer": "Comme dans la plupart des zones centrales et semi-centrales de Paris, le stationnement en voirie reste coûteux et limité en durée."}]}, "parking-proche-notre-dame": {"title": "En savoir plus sur le stationnement à Notre-Dame", "intro": "Le quartier de Notre-Dame, dans le 4e arrondissement, sur l'Île de la Cité, attire un flux touristique constant, ce qui rend le stationnement en voirie quasiment inexistant à proximité immédiate. Les parkings publics des rives voisines permettent un accès à pied rapide à la cathédrale et au quartier historique.", "faqs": [{"question": "Peut-on se garer directement sur l'Île de la Cité ?", "answer": "Le stationnement y est très limité ; il est généralement plus simple de se garer sur les rives proches et de rejoindre le site à pied."}, {"question": "Le quartier est-il accessible aux véhicules toute l'année ?", "answer": "Certaines restrictions de circulation peuvent s'appliquer selon les périodes ; un parking public reste la solution la plus sûre."}]}, "parking-proche-opera": {"title": "En savoir plus sur le stationnement à l'Opéra", "intro": "Le quartier de l'Opéra Garnier, dans le 9e arrondissement, est un secteur commerçant et touristique très fréquenté, avec un stationnement en voirie rare et coûteux, notamment près des grands magasins voisins. Les parkings publics du secteur permettent d'éviter la recherche de place aux heures d'affluence.", "faqs": [{"question": "Le secteur est-il très fréquenté le week-end ?", "answer": "Oui, la proximité des grands magasins rend le quartier particulièrement chargé le samedi, ce qui complique encore le stationnement en voirie."}, {"question": "Un parking est-il utile avant un spectacle à l'Opéra ?", "answer": "Oui, cela évite la recherche de place en soirée, souvent plus difficile en semaine avec les sorties de bureaux."}]}, "parking-proche-parc-des-princes": {"title": "En savoir plus sur le stationnement au Parc des Princes", "intro": "Le Parc des Princes, dans le 16e arrondissement, voit sa circulation et son stationnement fortement perturbés les soirs de match, avec des restrictions de circulation fréquentes autour du stade. Réserver un parking à l'avance permet d'éviter les zones bloquées et la saturation de la voirie avant un événement.", "faqs": [{"question": "Faut-il réserver son parking avant un match ?", "answer": "Fortement recommandé, les parkings proches du stade se remplissent rapidement avant le coup d'envoi."}, {"question": "Y a-t-il des restrictions de circulation les soirs de match ?", "answer": "Oui, certaines rues autour du stade peuvent être fermées à la circulation ; un parking un peu plus éloigné mais accessible à pied est parfois plus pratique."}]}, "parking-proche-place-italie": {"title": "En savoir plus sur le stationnement à Place d'Italie", "intro": "La Place d'Italie, dans le 13e arrondissement, est un pôle commercial et résidentiel important du sud parisien, avec un stationnement en voirie limité aux abords du centre commercial et des grands axes environnants. Les parkings publics du secteur offrent une alternative pratique pour les visites prolongées.", "faqs": [{"question": "Un parking est-il utile pour faire ses courses au centre commercial ?", "answer": "Oui, plusieurs parkings du secteur sont directement accessibles depuis ou à proximité du centre commercial Italie 2."}, {"question": "Le quartier est-il résidentiel ou commerçant ?", "answer": "Les deux : le secteur mêle immeubles résidentiels et zones commerçantes, ce qui rend le stationnement en voirie disputé toute la semaine."}]}, "parking-proche-porte-de-versailles": {"title": "En savoir plus sur le stationnement à Porte de Versailles", "intro": "Le Parc des Expositions de la Porte de Versailles, dans le 15e arrondissement, accueille de grands salons professionnels qui saturent fortement le stationnement en voirie du secteur durant leur durée. Réserver un parking à l'avance est particulièrement conseillé pendant les périodes de salons.", "faqs": [{"question": "Les tarifs augmentent-ils pendant les salons ?", "answer": "Le stationnement en voirie devient très rare pendant les grands salons ; un parking réservé à l'avance évite les mauvaises surprises."}, {"question": "Y a-t-il un accès direct au parc des expositions depuis les parkings ?", "answer": "Plusieurs parkings du secteur permettent un accès piéton rapide aux différents halls d'exposition."}]}, "parking-proche-republique": {"title": "En savoir plus sur le stationnement à République", "intro": "La Place de la République, entre les 3e, 10e et 11e arrondissements, est un carrefour majeur souvent utilisé comme point de départ de rassemblements, ce qui peut ponctuellement perturber la circulation et le stationnement en voirie. Les parkings publics du secteur restent une option fiable indépendamment de l'actualité du quartier.", "faqs": [{"question": "La place est-elle parfois fermée à la circulation ?", "answer": "Oui, lors de rassemblements ou manifestations, certaines rues autour de la place peuvent être temporairement fermées."}, {"question": "Un parking est-il utile pour visiter le canal Saint-Martin voisin ?", "answer": "Oui, plusieurs parkings du secteur permettent de rejoindre le canal Saint-Martin à pied en quelques minutes."}]}, "parking-proche-saint-lazare": {"title": "En savoir plus sur le stationnement à Saint-Lazare", "intro": "La gare Saint-Lazare, dans le 8e arrondissement, dessert la Normandie et l'ouest parisien avec un trafic voyageurs important en semaine. Le stationnement en voirie autour de la gare est très limité aux heures de pointe ; les parkings publics proches facilitent un dépôt rapide avant un train.", "faqs": [{"question": "Le quartier est-il fréquenté toute la journée ?", "answer": "Oui, le secteur combine trafic ferroviaire et zone de bureaux, avec une forte affluence en semaine du matin au soir."}, {"question": "Un stationnement de longue durée est-il possible ?", "answer": "Plusieurs parkings du secteur proposent des tarifs adaptés à un stationnement de plusieurs jours, utiles avant un départ prolongé."}]}, "parking-proche-tour-eiffel": {"title": "En savoir plus sur le stationnement à la Tour Eiffel", "intro": "La Tour Eiffel, dans le 7e arrondissement, est l'un des sites les plus visités de Paris, avec un stationnement en voirie extrêmement limité et surveillé aux abords du Champ-de-Mars. Les parkings publics du secteur permettent d'éviter la recherche de place, particulièrement longue en haute saison touristique.", "faqs": [{"question": "Le secteur est-il accessible en soirée pour voir la tour illuminée ?", "answer": "Oui, plusieurs parkings du quartier restent ouverts en soirée, un atout pour profiter des illuminations sans souci de stationnement."}, {"question": "Les tarifs sont-ils plus élevés qu'ailleurs à Paris ?", "answer": "Le secteur étant très touristique, le stationnement en voirie y est parmi les plus chers et les plus disputés de la capitale."}]}, "parking-proche-paris-1er": {"title": "En savoir plus sur le stationnement dans le 1er arrondissement", "intro": "Le 1er arrondissement, le plus petit de Paris, regroupe le Louvre, les Tuileries et le quartier des Halles, avec une densité touristique très élevée toute l'année. Le stationnement en voirie y est parmi les plus rares et coûteux de la capitale ; les parkings publics du secteur restent la solution la plus fiable.", "faqs": [{"question": "L'arrondissement est-il facile d'accès en voiture ?", "answer": "La circulation y est dense et certaines zones sont restreintes ; un parking couvert évite la recherche de place en surface."}, {"question": "Quels sont les principaux points d'intérêt du 1er ?", "answer": "Le Louvre, le jardin des Tuileries, le Palais-Royal et les Halles sont les principaux pôles d'attraction du secteur."}]}, "parking-proche-paris-2e": {"title": "En savoir plus sur le stationnement dans le 2e arrondissement", "intro": "Le 2e arrondissement, autour de la Bourse et du Sentier, est un secteur d'affaires et commerçant dense en semaine, avec un stationnement en voirie limité aux heures de bureau. Les parkings publics du quartier facilitent les visites professionnelles ou les achats dans les passages couverts voisins.", "faqs": [{"question": "Le quartier est-il calme le week-end ?", "answer": "Oui, l'activité y est nettement plus faible le week-end, ce qui facilite parfois le stationnement en voirie à ces moments-là."}, {"question": "Y a-t-il des passages couverts à visiter dans le secteur ?", "answer": "Oui, plusieurs passages couverts historiques se trouvent dans ou à proximité du 2e arrondissement."}]}, "parking-proche-paris-3e": {"title": "En savoir plus sur le stationnement dans le 3e arrondissement", "intro": "Le 3e arrondissement, qui englobe une partie du Marais et le quartier du Temple, combine ruelles historiques et forte fréquentation touristique et nocturne. Le stationnement en voirie y est difficile ; les parkings publics du secteur permettent de visiter le quartier sans chercher de place en rue.", "faqs": [{"question": "Les rues du secteur sont-elles adaptées aux grands véhicules ?", "answer": "De nombreuses rues sont étroites, un parking couvert est recommandé pour les véhicules de grand gabarit."}, {"question": "Le quartier est-il animé en soirée ?", "answer": "Oui, notamment autour du haut Marais, très fréquenté en soirée et le week-end."}]}, "parking-proche-paris-4e": {"title": "En savoir plus sur le stationnement dans le 4e arrondissement", "intro": "Le 4e arrondissement regroupe Notre-Dame, l'Hôtel de Ville, une partie du Marais et l'Île Saint-Louis, avec une affluence touristique parmi les plus fortes de Paris. Le stationnement en voirie y est rare et cher ; les parkings publics des rives voisines restent la solution la plus pratique.", "faqs": [{"question": "Peut-on se garer facilement près de l'Île Saint-Louis ?", "answer": "Le stationnement y est très limité ; les parkings des quartiers voisins offrent un accès à pied rapide."}, {"question": "Le secteur est-il piéton par endroits ?", "answer": "Certaines rues autour de l'Hôtel de Ville et des Halles sont en zone à circulation restreinte."}]}, "parking-proche-paris-5e": {"title": "En savoir plus sur le stationnement dans le 5e arrondissement", "intro": "Le 5e arrondissement, quartier latin historique autour de la Sorbonne et du Panthéon, combine vie étudiante dense et flux touristique important. Le stationnement en voirie y est limité par des rues souvent étroites ; les parkings publics du secteur facilitent les visites du quartier.", "faqs": [{"question": "Le quartier est-il adapté aux SUV ?", "answer": "Certaines rues du quartier latin sont étroites et pentues ; un parking couvert est conseillé pour les grands gabarits."}, {"question": "Le secteur est-il fréquenté toute l'année ?", "answer": "Oui, la présence des universités maintient une forte activité même en dehors des périodes touristiques classiques."}]}, "parking-proche-paris-6e": {"title": "En savoir plus sur le stationnement dans le 6e arrondissement", "intro": "Le 6e arrondissement, autour de Saint-Germain-des-Prés et du jardin du Luxembourg, est un secteur résidentiel huppé avec un stationnement en voirie très limité et recherché. Les parkings publics du quartier offrent une alternative fiable pour visiter ce secteur prisé.", "faqs": [{"question": "Le jardin du Luxembourg est-il accessible en voiture ?", "answer": "Le stationnement autour du jardin est très contraint ; un parking à proximité facilite l'accès à pied."}, {"question": "Le quartier est-il calme ou animé ?", "answer": "Saint-Germain-des-Prés reste très fréquenté toute l'année, notamment autour des cafés et galeries du secteur."}]}, "parking-proche-paris-7e": {"title": "En savoir plus sur le stationnement dans le 7e arrondissement", "intro": "Le 7e arrondissement abrite la Tour Eiffel, les Invalides et de nombreux ministères, avec des mesures de sécurité pouvant restreindre ponctuellement le stationnement en voirie. Les parkings publics du secteur offrent une solution stable indépendamment de ces contraintes.", "faqs": [{"question": "Y a-t-il des restrictions de stationnement près des Invalides ?", "answer": "Oui, des périmètres de sécurité peuvent limiter le stationnement en voirie près de certains bâtiments officiels."}, {"question": "Le secteur est-il fréquenté toute l'année ?", "answer": "Oui, la présence de la Tour Eiffel et des Invalides maintient une affluence touristique constante."}]}, "parking-proche-paris-8e": {"title": "En savoir plus sur le stationnement dans le 8e arrondissement", "intro": "Le 8e arrondissement, autour des Champs-Élysées et de la gare Saint-Lazare, est l'un des secteurs les plus chers de Paris pour le stationnement en voirie, avec une forte densité de bureaux et de commerces. Les parkings publics du quartier permettent d'éviter une recherche de place souvent longue.", "faqs": [{"question": "Le secteur est-il plus fréquenté en semaine ou le week-end ?", "answer": "Les deux : bureaux en semaine, shopping et sorties le week-end, ce qui maintient une pression constante sur le stationnement."}, {"question": "Un parking est-il utile avant un train à Saint-Lazare ?", "answer": "Oui, cela évite le stress de trouver une place en voirie avant un départ."}]}, "parking-proche-paris-9e": {"title": "En savoir plus sur le stationnement dans le 9e arrondissement", "intro": "Le 9e arrondissement, autour de l'Opéra Garnier et des grands magasins, est un secteur commerçant très fréquenté, avec un stationnement en voirie rare notamment le samedi. Les parkings publics du quartier facilitent les visites shopping ou culturelles sans recherche de place.", "faqs": [{"question": "Le quartier est-il chargé pendant les fêtes de fin d'année ?", "answer": "Oui, la proximité des grands magasins rend le secteur particulièrement saturé en décembre."}, {"question": "Un parking est-il utile avant un spectacle à l'Opéra ?", "answer": "Oui, cela évite la recherche de place en soirée, souvent difficile en semaine."}]}, "parking-proche-paris-10e": {"title": "En savoir plus sur le stationnement dans le 10e arrondissement", "intro": "Le 10e arrondissement, qui abrite les gares du Nord et de l'Est ainsi que le canal Saint-Martin, connaît un trafic dense lié au transit ferroviaire et à la vie de quartier animée du canal. Le stationnement en voirie y est contraint ; les parkings publics du secteur facilitent les correspondances et les visites du canal.", "faqs": [{"question": "Le secteur est-il pratique avant un départ en train ?", "answer": "Oui, plusieurs parkings desservent directement les abords des gares du Nord et de l'Est."}, {"question": "Le canal Saint-Martin est-il facile d'accès en voiture ?", "answer": "Le stationnement en voirie y est limité, notamment le week-end ; un parking à proximité facilite la visite du secteur."}]}, "parking-proche-paris-11e": {"title": "En savoir plus sur le stationnement dans le 11e arrondissement", "intro": "Le 11e arrondissement, entre Bastille, République et Nation, est l'un des quartiers les plus densément peuplés de Paris, avec une vie nocturne animée et un stationnement en voirie très disputé. Les parkings publics du secteur offrent une alternative fiable, notamment en soirée.", "faqs": [{"question": "Le quartier est-il animé le soir ?", "answer": "Oui, notamment autour de la rue de la Roquette et d'Oberkampf, très fréquentées en soirée."}, {"question": "Le stationnement en voirie est-il difficile en journée ?", "answer": "Oui, la forte densité résidentielle du secteur rend les places rares toute la journée."}]}, "parking-proche-paris-12e": {"title": "En savoir plus sur le stationnement dans le 12e arrondissement", "intro": "Le 12e arrondissement, qui comprend la gare de Lyon, Bercy et l'Accor Arena, connaît un trafic variable selon les événements et les correspondances ferroviaires. Les parkings publics du secteur permettent de s'adapter aussi bien à un départ en train qu'à une soirée de concert.", "faqs": [{"question": "Le secteur est-il plus chargé les soirs d'événements ?", "answer": "Oui, notamment autour de l'Accor Arena et du quartier de Bercy Village."}, {"question": "Un parking est-il utile avant un train vers le sud de la France ?", "answer": "Oui, la gare de Lyon dessert notamment Lyon et le sud-est, avec un trafic important en journée."}]}, "parking-proche-paris-13e": {"title": "En savoir plus sur le stationnement dans le 13e arrondissement", "intro": "Le 13e arrondissement, autour de la Place d'Italie et de la Bibliothèque nationale de France, mêle quartiers résidentiels, tours modernes et quartier chinois animé. Le stationnement en voirie y est contraint aux abords des zones commerçantes ; les parkings publics facilitent les visites prolongées.", "faqs": [{"question": "Le quartier chinois est-il fréquenté toute l'année ?", "answer": "Oui, particulièrement animé lors du Nouvel An chinois, période où le stationnement en voirie devient encore plus rare."}, {"question": "Un parking est-il utile pour faire ses courses à Italie 2 ?", "answer": "Oui, plusieurs parkings du secteur sont directement accessibles depuis le centre commercial."}]}, "parking-proche-paris-14e": {"title": "En savoir plus sur le stationnement dans le 14e arrondissement", "intro": "Le 14e arrondissement, au sud de Montparnasse, est un secteur résidentiel avec quelques pôles d'activité autour de la gare Montparnasse et de l'avenue du Général Leclerc. Le stationnement en voirie y est plus accessible qu'en centre-ville mais reste limité aux abords des axes principaux.", "faqs": [{"question": "Le secteur est-il plus calme que le centre de Paris ?", "answer": "Oui, globalement plus résidentiel, avec une pression de stationnement moindre qu'au centre, sauf près de la gare Montparnasse."}, {"question": "Un parking est-il utile avant un train vers l'ouest ?", "answer": "Oui, plusieurs parkings du secteur permettent un accès rapide à la gare Montparnasse."}]}, "parking-proche-paris-15e": {"title": "En savoir plus sur le stationnement dans le 15e arrondissement", "intro": "Le 15e arrondissement, le plus peuplé de Paris, comprend le Parc des Expositions de la Porte de Versailles et une partie de Montparnasse. Le stationnement en voirie y est disputé, notamment pendant les grands salons professionnels ; les parkings publics du secteur restent la solution la plus fiable en période de forte affluence.", "faqs": [{"question": "Les tarifs de stationnement changent-ils pendant les salons ?", "answer": "Le stationnement en voirie devient très rare pendant les grands salons de la Porte de Versailles ; réserver un parking à l'avance est conseillé."}, {"question": "Le secteur est-il résidentiel ?", "answer": "Oui, une grande partie de l'arrondissement est résidentielle, avec un stationnement en voirie disputé au quotidien par les riverains."}]}, "parking-proche-paris-16e": {"title": "En savoir plus sur le stationnement dans le 16e arrondissement", "intro": "Le 16e arrondissement, l'un des plus vastes de Paris, comprend le Parc des Princes, le Trocadéro et le Bois de Boulogne. Le stationnement en voirie y est généralement plus disponible qu'au centre, sauf les soirs de match ou d'événement au stade.", "faqs": [{"question": "Le secteur est-il calme en dehors des matchs ?", "answer": "Oui, le quartier est globalement résidentiel et moins saturé que le centre de Paris en dehors des soirs d'événements sportifs."}, {"question": "Un parking est-il utile pour visiter le Trocadéro ?", "answer": "Oui, plusieurs parkings du secteur permettent de rejoindre à pied l'esplanade et sa vue sur la Tour Eiffel."}]}, "parking-proche-paris-17e": {"title": "En savoir plus sur le stationnement dans le 17e arrondissement", "intro": "Le 17e arrondissement, entre quartiers résidentiels et zones d'affaires près de la Porte Maillot, présente une disponibilité de stationnement variable selon les secteurs. Les parkings publics du quartier facilitent l'accès aux zones de bureaux et aux axes de sortie de Paris.", "faqs": [{"question": "Le secteur est-il proche des grands axes routiers ?", "answer": "Oui, le 17e est proche du périphérique et de la Porte Maillot, pratique pour les déplacements vers l'ouest parisien."}, {"question": "Le stationnement est-il plus facile qu'au centre de Paris ?", "answer": "Globalement oui, sauf dans les rues les plus proches des zones de bureaux en semaine."}]}, "parking-proche-paris-18e": {"title": "En savoir plus sur le stationnement dans le 18e arrondissement", "intro": "Le 18e arrondissement, qui abrite Montmartre et le Sacré-Cœur, connaît une très forte affluence touristique concentrée sur la butte, avec un stationnement en voirie quasiment impossible aux abords immédiats. Les parkings publics des quartiers voisins restent la solution la plus pratique.", "faqs": [{"question": "Peut-on se garer près du Sacré-Cœur ?", "answer": "Le stationnement y est très limité et les rues sont escarpées ; un parking en contrebas de la butte est généralement plus simple."}, {"question": "Le quartier est-il fréquenté toute l'année ?", "answer": "Oui, Montmartre attire des visiteurs toute l'année, avec des pics en haute saison touristique."}]}, "parking-proche-paris-19e": {"title": "En savoir plus sur le stationnement dans le 19e arrondissement", "intro": "Le 19e arrondissement, qui comprend le parc de la Villette et les Buttes-Chaumont, est un secteur en partie résidentiel avec une disponibilité de stationnement généralement meilleure qu'au centre de Paris, sauf lors d'événements au parc de la Villette.", "faqs": [{"question": "Le parc de la Villette est-il facile d'accès en voiture ?", "answer": "Oui, plusieurs parkings publics desservent le secteur, utiles notamment lors d'événements culturels ou de concerts en plein air."}, {"question": "Le stationnement en voirie est-il plus accessible qu'au centre ?", "answer": "Généralement oui, en dehors des jours de grands événements au parc."}]}, "parking-proche-paris-20e": {"title": "En savoir plus sur le stationnement dans le 20e arrondissement", "intro": "Le 20e arrondissement, qui abrite le cimetière du Père-Lachaise et le quartier de Belleville, est un secteur résidentiel animé avec un stationnement en voirie disputé, notamment près des zones commerçantes. Les parkings publics du secteur offrent une alternative pratique pour les visites du Père-Lachaise ou de Belleville.", "faqs": [{"question": "Un parking est-il utile pour visiter le Père-Lachaise ?", "answer": "Oui, plusieurs parkings du secteur permettent de rejoindre les entrées du cimetière à pied."}, {"question": "Le quartier de Belleville est-il animé ?", "answer": "Oui, notamment en soirée et le week-end, ce qui rend le stationnement en voirie plus disputé à ces moments-là."}]}};
     // SEO_LANDINGS:END
     let APP_TEXTES = null;
 
@@ -2041,6 +2035,7 @@
       } else {
         resBox.innerHTML = `<div class="muted">${loading}</div>`;
       }
+      clearSeoKnowMoreSlot();
     }
 
     function setTextById(id, value){
@@ -2267,6 +2262,7 @@
       DETAIL_PARKING_BY_ID.clear();
       closeParkingDetail();
       hideSuggestions();
+      clearSeoKnowMoreSlot();
     }
 
     function resetToWelcome(){
@@ -3368,9 +3364,100 @@
       if(query) await findNearest();
     }
 
+    function normalizeSeoMatchText(value){
+      return String(value || "")
+        .normalize("NFD")
+        .replace(/\p{M}/gu, "")
+        .toLowerCase()
+        .trim();
+    }
+
+    function findSeoAccordionSlugForContext(origin){
+      if(resolveSeoLandingConfig()) return null;
+      if(typeof SEO_ACCORDIONS_BY_SLUG !== "object" || !SEO_ACCORDIONS_BY_SLUG) return null;
+
+      const addr = document.getElementById("address")?.value?.trim() || "";
+      const addrN = normalizeSeoMatchText(addr);
+      const labelN = normalizeSeoMatchText(origin?.label || "");
+      const lat = origin?.lat;
+      const lon = origin?.lon;
+
+      const postcode = resolveArrondissementPostcode(addr);
+      if(postcode){
+        for(const [path, cfg] of Object.entries(SEO_LANDING_BY_PATH || {})){
+          const slug = path.slice(1);
+          if(cfg.postcode === postcode && SEO_ACCORDIONS_BY_SLUG[slug]) return slug;
+        }
+      }
+
+      let bestSlug = null;
+      let bestDist = Infinity;
+      for(const [path, cfg] of Object.entries(SEO_LANDING_BY_PATH || {})){
+        const slug = path.slice(1);
+        if(!SEO_ACCORDIONS_BY_SLUG[slug]) continue;
+
+        const candidates = [cfg.placeLabel, cfg.searchQuery, cfg.hintLabel]
+          .filter(Boolean)
+          .map(normalizeSeoMatchText);
+        for(const candidate of candidates){
+          const short = candidate.split(",")[0].trim();
+          if(short.length < 3) continue;
+          if(addrN.includes(short) || labelN.includes(short)) return slug;
+          if(short.includes(addrN) && addrN.length >= 3) return slug;
+        }
+
+        if(cfg.lat != null && cfg.lon != null && lat != null && lon != null){
+          const dist = haversineMeters(lat, lon, cfg.lat, cfg.lon);
+          if(dist <= 600 && dist < bestDist){
+            bestDist = dist;
+            bestSlug = slug;
+          }
+        }
+      }
+      return bestSlug;
+    }
+
+    function buildSeoAccordionHtmlFromData(data){
+      if(!data) return "";
+      const faqs = (data.faqs || []).map((item) =>
+        `<div class="seo-know-more-faq"><h3>${escapeHtml(item.question || "")}</h3>` +
+        `<p>${escapeHtml(item.answer || "")}</p></div>`
+      ).join("");
+      return `<details class="seo-know-more">
+  <summary class="seo-know-more-summary">${escapeHtml(data.title || "")}</summary>
+  <div class="seo-know-more-body">
+    <p>${escapeHtml(data.intro || "")}</p>
+    ${faqs}
+  </div>
+</details>`;
+    }
+
+    function clearSeoKnowMoreSlot(){
+      if(resolveSeoLandingConfig()) return;
+      const slot = document.getElementById("seo-know-more-slot");
+      if(slot) slot.innerHTML = "";
+    }
+
+    function updateSeoKnowMoreAccordion(origin){
+      const slot = document.getElementById("seo-know-more-slot");
+      if(!slot || resolveSeoLandingConfig()) return;
+      const slug = findSeoAccordionSlugForContext(origin);
+      if(!slug){
+        slot.innerHTML = "";
+        return;
+      }
+      const data = SEO_ACCORDIONS_BY_SLUG[slug];
+      slot.innerHTML = buildSeoAccordionHtmlFromData(data);
+    }
+
     function scrollSeoKnowMoreIntoView(details){
+      const scroll = document.getElementById("results-scroll");
       const body = details?.querySelector(".seo-know-more-body");
-      if(body) body.scrollTop = 0;
+      if(!scroll || !body) return;
+      const scrollRect = scroll.getBoundingClientRect();
+      const bodyRect = body.getBoundingClientRect();
+      const relativeTop = bodyRect.top - scrollRect.top + scroll.scrollTop;
+      scroll.scrollTo({ top: Math.max(0, relativeTop - 12), behavior: "smooth" });
     }
 
     function initSeoKnowMoreAccordion(){
@@ -3690,6 +3777,7 @@
         })).join("");
       setMobileView("list");
       dismissAddressKeyboard();
+      updateSeoKnowMoreAccordion(null);
     }
 
     const SEARCH_RADIUS_M = 1000;
@@ -3763,6 +3851,7 @@
         alts.map((p, i) => parkingResultCard(p, i + 1)).join("");
       setMobileView("list");
       dismissAddressKeyboard();
+      updateSeoKnowMoreAccordion(origin);
     }
 
     // --- Trouver le plus proche ---

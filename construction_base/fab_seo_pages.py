@@ -158,12 +158,21 @@ def build_seo_landing_js(landings: list[dict]) -> str:
     return "\n".join(lines)
 
 
-def patch_index_seo_block(index_html: str, landings: list[dict]) -> str:
+def build_seo_accordions_js(accordions: dict[str, dict]) -> str:
+    return f"    const SEO_ACCORDIONS_BY_SLUG = {json.dumps(accordions, ensure_ascii=False)};"
+
+
+def patch_index_seo_block(index_html: str, landings: list[dict], accordions: dict[str, dict]) -> str:
     pattern = re.compile(
         rf"{re.escape(SEO_BLOCK_BEGIN)}.*?{re.escape(SEO_BLOCK_END)}",
         re.DOTALL,
     )
-    replacement = f"{SEO_BLOCK_BEGIN}\n{build_seo_landing_js(landings)}\n    {SEO_BLOCK_END}"
+    replacement = (
+        f"{SEO_BLOCK_BEGIN}\n"
+        f"{build_seo_landing_js(landings)}\n"
+        f"{build_seo_accordions_js(accordions)}\n"
+        f"    {SEO_BLOCK_END}"
+    )
     if not pattern.search(index_html):
         raise SystemExit(f"Bloc {SEO_BLOCK_BEGIN} introuvable dans index.html")
     return pattern.sub(replacement, index_html, count=1)
@@ -426,7 +435,7 @@ def main() -> None:
     landings = load_landings()
     accordions = load_accordions()
     index_html = INDEX_HTML.read_text(encoding="utf-8")
-    index_html = patch_index_seo_block(index_html, landings)
+    index_html = patch_index_seo_block(index_html, landings, accordions)
     INDEX_HTML.write_text(index_html, encoding="utf-8")
 
     for landing in landings:
