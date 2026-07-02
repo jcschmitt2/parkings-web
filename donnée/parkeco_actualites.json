@@ -3,6 +3,28 @@
   "titre_section": "Actualité du stationnement à Paris",
   "articles": [
     {
+      "slug": "stationnement-pas-gratuit-aout-paris",
+      "type": "news",
+      "titre": "Stationnement à Paris : non, il n'est plus gratuit au mois d'août",
+      "date": "2026-07-02",
+      "resume": "Chaque été, de nombreux automobilistes pensent encore que le stationnement en voirie est gratuit pendant tout le mois d'août à Paris. Pourtant, cette règle appartient désormais au passé.",
+      "contenu_html": "<p>Chaque été, de nombreux automobilistes pensent encore que le stationnement en voirie est gratuit pendant tout le mois d'août à Paris. Pourtant, cette règle appartient désormais au passé.</p><p>Depuis plusieurs années, la Ville de Paris a supprimé la gratuité estivale du stationnement payant. Les horodateurs restent donc en service tout au long du mois d'août, exactement comme le reste de l'année.</p><p>Cette ancienne habitude continue pourtant de piéger de nombreux conducteurs. En laissant leur véhicule sans payer, ils s'exposent à un forfait post-stationnement (FPS), parfois pour quelques heures seulement d'oubli.</p><p>Avant de vous garer, il est donc préférable de vérifier les règles en vigueur et de comparer les différentes solutions de stationnement. Dans certains quartiers, un parking public peut même revenir moins cher que le stationnement en voirie, notamment pour les véhicules soumis au tarif majoré — voir notre <a href=\"/actu/tarifs-stationnement-paris-2026/\">guide des tarifs du stationnement à Paris en 2026</a>.</p><h2>Comment éviter une mauvaise surprise ?</h2><ol><li>Ne partez plus du principe que le stationnement est gratuit au mois d'août.</li><li>Vérifiez le tarif applicable dans votre arrondissement.</li><li>Si vous prévoyez de rester plusieurs heures, comparez avec les parkings publics à proximité.</li><li>Pensez également aux restrictions temporaires liées aux travaux, aux événements ou aux dispositifs comme <a href=\"/actu/paris-respire-stationnement/\">Paris Respire</a>.</li></ol>",
+      "encadres": [
+        {
+          "kind": "savoir",
+          "texte": "À Paris, certains véhicules, notamment les SUV les plus lourds, sont soumis à une tarification spécifique en voirie pouvant atteindre 18 € de l'heure dans les arrondissements centraux. Dans certains cas, un parking public sécurisé constitue une solution plus économique."
+        },
+        {
+          "kind": "parker",
+          "texte": "ParkEco permet de comparer rapidement les parkings publics autour de votre destination, avec leurs tarifs, leur distance à pied et les informations utiles pour choisir la solution la plus adaptée."
+        }
+      ],
+      "cta": {
+        "label": "Trouver un parking public à Paris",
+        "href": "/"
+      }
+    },
+    {
       "slug": "canicule-stationnement-gratuit-paris",
       "type": "news",
       "titre": "Canicule : stationnement résidentiel gratuit à Paris",
