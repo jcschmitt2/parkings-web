@@ -26,7 +26,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <!-- build: v17.85 -->
+  <!-- build: v17.89 -->
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
   <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
@@ -133,7 +133,6 @@
     }
     .brand-eco { color:#c7d2fe; }
     .header-intro:last-child { margin-bottom:0; }
-    .header-copy--mobile { display:none; }
     .header-compact-brand { display:none; }
     .header-compact-title {
       margin:0 0 6px;
@@ -232,6 +231,47 @@
     }
     .results-scroll { flex:1; min-height:0; overflow-y:auto; padding-right:4px; -webkit-overflow-scrolling:touch; }
     .results-scroll.is-hidden { visibility:hidden; pointer-events:none; }
+    .seo-know-more {
+      margin-top:14px;
+      border:1px solid #2b376f;
+      border-radius:12px;
+      background:#0e1440;
+      overflow:hidden;
+      flex-shrink:0;
+    }
+    .seo-know-more-summary {
+      padding:12px 14px;
+      cursor:pointer;
+      font-weight:600;
+      font-size:.9rem;
+      color:#c7d2fe;
+      list-style:none;
+      position:relative;
+    }
+    .seo-know-more-summary::-webkit-details-marker { display:none; }
+    .seo-know-more-summary::after {
+      content:"▸";
+      position:absolute;
+      top:14px;
+      right:14px;
+      color:#7b8fd4;
+      transition:transform .15s ease;
+    }
+    .seo-know-more[open] .seo-know-more-summary::after { transform:rotate(90deg); }
+    .seo-know-more-body {
+      padding:0 14px 14px;
+      font-size:.88rem;
+      line-height:1.55;
+      color:#dbe2ff;
+    }
+    .seo-know-more-body > p { margin:0 0 12px; }
+    .seo-know-more-faq h3 {
+      margin:14px 0 6px;
+      font-size:.9rem;
+      font-weight:600;
+      color:#e7eaff;
+    }
+    .seo-know-more-faq p { margin:0 0 10px; color:#9aa9ff; }
     .item-clickable {
       cursor:pointer;
       transition:border-color .15s, background .15s, box-shadow .15s;
@@ -1039,8 +1079,6 @@
         overflow:hidden;
         overflow-x:hidden;
       }
-      .header-copy--desktop { display:none; }
-      .header-copy--mobile { display:block; }
       body:not(.has-results) .mobile-tabs,
       body:not(.has-results) .app-main {
         display:none !important;
@@ -1184,9 +1222,7 @@
       #address { order:1; }
       .address-wrap .hint { order:3; }
       body.address-entry-active:not(.has-results) .header-subtitle,
-      body.address-entry-active:not(.has-results) .header-intro,
-      body.address-entry-active:not(.has-results) .header-copy--mobile,
-      body.address-entry-active:not(.has-results) .header-copy--desktop {
+      body.address-entry-active:not(.has-results) .header-intro {
         display:none;
       }
       body.has-results .header-compact-brand {
@@ -1343,14 +1379,10 @@
         </svg>
         <span class="header-brand-name">Park<span class="brand-eco">Eco</span></span>
       </div>
-      <p class="header-subtitle header-copy--desktop" id="copy-mac-subtitle">À Paris, se garer dans la rue coûte généralement plus cher qu'un parking public.</p>
-      <p class="header-intro header-intro--lead header-copy--desktop" id="copy-mac-lead">Un SUV peut payer jusqu'à 18 €/h dans la rue, alors que certains parkings publics sécurisés sont accessibles dès 3 €/h.</p>
-      <p class="header-intro header-intro--body header-copy--desktop" id="copy-mac-body">Trouvez le parking sécurisé le plus proche à Paris et comparez son coût avec celui du stationnement en voirie.</p>
-      <p class="header-intro header-intro--trust header-copy--desktop"><span class="brand-inline" aria-label="ParkEco"><svg class="brand-inline-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="brand-inline-pk-lavender" x1="18%" y1="12%" x2="88%" y2="92%"><stop offset="0%" stop-color="#c7d2fe"/><stop offset="55%" stop-color="#a7b4ff"/><stop offset="100%" stop-color="#7c89e8"/></linearGradient></defs><circle cx="16" cy="16" r="13" fill="url(#brand-inline-pk-lavender)" stroke="#ffffff" stroke-width="2"/><text x="16" y="21.5" text-anchor="middle" fill="#ffffff" font-family="system-ui,-apple-system,Segoe UI,Roboto,sans-serif" font-size="15" font-weight="800">P</text></svg><span class="brand-inline-name">Park<span class="brand-eco">Eco</span></span></span> <span id="copy-mac-trust">référence uniquement des parkings réellement accessibles au public.</span></p>
-      <p class="header-subtitle header-copy--mobile" id="copy-iphone-subtitle">À Paris, se garer dans la rue coûte plus cher qu'un parking public.</p>
-      <p class="header-intro header-intro--lead header-copy--mobile" id="copy-iphone-lead">Un SUV peut payer jusqu'à 18 €/h dans la rue.</p>
-      <p class="header-intro header-intro--body header-copy--mobile" id="copy-iphone-body">Trouvez le parking le plus proche et comparez son coût avec l'horodateur.</p>
-      <p class="header-intro header-intro--trust header-copy--mobile"><span class="brand-inline" aria-label="ParkEco"><svg class="brand-inline-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="brand-inline-pk-lavender-mobile" x1="18%" y1="12%" x2="88%" y2="92%"><stop offset="0%" stop-color="#c7d2fe"/><stop offset="55%" stop-color="#a7b4ff"/><stop offset="100%" stop-color="#7c89e8"/></linearGradient></defs><circle cx="16" cy="16" r="13" fill="url(#brand-inline-pk-lavender-mobile)" stroke="#ffffff" stroke-width="2"/><text x="16" y="21.5" text-anchor="middle" fill="#ffffff" font-family="system-ui,-apple-system,Segoe UI,Roboto,sans-serif" font-size="15" font-weight="800">P</text></svg><span class="brand-inline-name">Park<span class="brand-eco">Eco</span></span></span> <span id="copy-iphone-trust">référence uniquement des parkings réellement accessibles au public.</span></p>
+      <p class="header-subtitle" id="copy-subtitle">À Paris, se garer dans la rue coûte généralement plus cher qu'un parking public.</p>
+      <p class="header-intro header-intro--lead" id="copy-lead">Un SUV peut payer jusqu'à 18 €/h dans la rue, alors que certains parkings publics sécurisés sont accessibles dès 3 €/h.</p>
+      <p class="header-intro header-intro--body" id="copy-body">Trouvez le parking sécurisé le plus proche à Paris et comparez son coût avec celui du stationnement en voirie.</p>
+      <p class="header-intro header-intro--trust"><span class="brand-inline" aria-label="ParkEco"><svg class="brand-inline-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="brand-inline-pk-lavender" x1="18%" y1="12%" x2="88%" y2="92%"><stop offset="0%" stop-color="#c7d2fe"/><stop offset="55%" stop-color="#a7b4ff"/><stop offset="100%" stop-color="#7c89e8"/></linearGradient></defs><circle cx="16" cy="16" r="13" fill="url(#brand-inline-pk-lavender)" stroke="#ffffff" stroke-width="2"/><text x="16" y="21.5" text-anchor="middle" fill="#ffffff" font-family="system-ui,-apple-system,Segoe UI,Roboto,sans-serif" font-size="15" font-weight="800">P</text></svg><span class="brand-inline-name">Park<span class="brand-eco">Eco</span></span></span> <span id="copy-trust">référence uniquement des parkings réellement accessibles au public.</span></p>
     </div>
     <div id="header-compact" class="header-compact">
       <div class="header-compact-brand" aria-label="ParkEco">
@@ -1416,6 +1448,14 @@
         <div class="results-area">
           <div class="results-scroll" id="results-scroll">
             <div class="list" id="results"><div class="muted results-summary" style="margin-bottom:10px;"><h1 class="results-seo-heading">Gare du Nord : parkings publics</h1></div><div class="muted">Chargement de la base…</div></div>
+            <details class="seo-know-more">
+  <summary class="seo-know-more-summary">En savoir plus sur le stationnement à Gare du Nord</summary>
+  <div class="seo-know-more-body">
+    <p>La Gare du Nord, dans le 10e arrondissement, est la gare la plus fréquentée d&#x27;Europe, avec un trafic piéton et automobile important toute la journée. Le stationnement en voirie y est rare et surveillé ; un parking public sécurisé reste la solution la plus simple avant un départ en train ou Eurostar.</p>
+    <div class="seo-know-more-faq"><h3>Un parking est-il utile pour un départ en Eurostar ?</h3><p>Oui, cela évite le stress de trouver une place en voirie avant un départ international, souvent avec peu de marge horaire.</p></div>
+    <div class="seo-know-more-faq"><h3>Les parkings du secteur sont-ils surveillés ?</h3><p>La plupart des parkings publics près de la Gare du Nord sont surveillés et couverts, plus sûrs qu&#x27;un stationnement de rue dans ce quartier passant.</p></div>
+  </div>
+</details>
           </div>
         </div>
       </div>
@@ -1492,7 +1532,7 @@
     let suggestTimer = null;
     let suggestRequestId = 0;
     let suppressSuggestionBlurHide = false;
-    const APP_VERSION = "17.85";
+    const APP_VERSION = "17.89";
     let DEFAULT_SEARCH_HINT_TEXT = "Adresse, lieu, arrondissement";
     let bootGeneration = 0;
     const OVERVIEW_NAME_ZOOM = 14;
@@ -2020,14 +2060,10 @@
       }
       const mac = page.accueil?.mac || {};
       const iphone = page.accueil?.iphone || {};
-      setTextById("copy-mac-subtitle", mac.subtitle);
-      setTextById("copy-mac-lead", mac.lead);
-      setTextById("copy-mac-body", mac.body);
-      setTextById("copy-mac-trust", mac.trust);
-      setTextById("copy-iphone-subtitle", iphone.subtitle);
-      setTextById("copy-iphone-lead", iphone.lead);
-      setTextById("copy-iphone-body", iphone.body);
-      setTextById("copy-iphone-trust", iphone.trust);
+      setTextById("copy-subtitle", mac.subtitle || iphone.subtitle);
+      setTextById("copy-lead", mac.lead || iphone.lead);
+      setTextById("copy-body", mac.body || iphone.body);
+      setTextById("copy-trust", mac.trust || iphone.trust);
       const res = page.resultats || {};
       setTextById("copy-results-title", res.compact_title);
       setTextById("copy-results-tagline", res.tagline);
@@ -3324,6 +3360,30 @@
       }
       if(query) await findNearest();
     }
+
+    function scrollSeoKnowMoreIntoView(details){
+      const scroll = document.getElementById("results-scroll");
+      const body = details?.querySelector(".seo-know-more-body");
+      if(!scroll || !body) return;
+      const scrollRect = scroll.getBoundingClientRect();
+      const bodyRect = body.getBoundingClientRect();
+      const relativeTop = bodyRect.top - scrollRect.top + scroll.scrollTop;
+      scroll.scrollTo({ top: Math.max(0, relativeTop - 12), behavior: "smooth" });
+    }
+
+    function initSeoKnowMoreAccordion(){
+      const scroll = document.getElementById("results-scroll");
+      if(!scroll || scroll.dataset.seoKnowMoreBound) return;
+      scroll.dataset.seoKnowMoreBound = "1";
+      scroll.addEventListener("toggle", (event) => {
+        const details = event.target;
+        if(!(details instanceof HTMLDetailsElement)) return;
+        if(!details.classList.contains("seo-know-more") || !details.open) return;
+        requestAnimationFrame(() => scrollSeoKnowMoreIntoView(details));
+      }, true);
+    }
+
+    initSeoKnowMoreAccordion();
 
     async function loadDefaultBase(){
       try {

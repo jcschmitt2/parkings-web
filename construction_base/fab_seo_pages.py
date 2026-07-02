@@ -2,6 +2,7 @@
 """Génère les pages SEO /parking-proche-* et met à jour sitemap.xml + index.html."""
 from __future__ import annotations
 
+import html
 import json
 import re
 import sys
@@ -15,6 +16,8 @@ from chemins_projet import DATA_DIR
 from construction_base.fab_actualites import generate_article_pages, load_actualites
 
 LANDINGS_JSON = DATA_DIR / "parkeco_seo_landings.json"
+ACCORDIONS_JSON = DATA_DIR / "parkeco_seo_accordions.json"
+SEO_KNOW_MORE_MARKER = "<!-- SEO_KNOW_MORE -->"
 INDEX_HTML = ROOT / "index.html"
 SITEMAP_XML = ROOT / "sitemap.xml"
 SITE_ORIGIN = "https://parkeco.fr"
@@ -58,6 +61,43 @@ def build_arrondissement_landings() -> list[dict]:
             }
         )
     return landings
+
+
+def load_accordions() -> dict[str, dict]:
+    if not ACCORDIONS_JSON.is_file():
+        return {}
+    data = json.loads(ACCORDIONS_JSON.read_text(encoding="utf-8"))
+    return data.get("accordions", {})
+
+
+def build_seo_accordion_html(slug: str, accordions: dict[str, dict]) -> str:
+    accordion = accordions.get(slug)
+    if not accordion:
+        return ""
+    title = html.escape(accordion.get("title", ""))
+    intro = html.escape(accordion.get("intro", ""))
+    faq_parts: list[str] = []
+    for item in accordion.get("faqs", []):
+        question = html.escape(item.get("question", ""))
+        answer = html.escape(item.get("answer", ""))
+        if not question or not answer:
+            continue
+        faq_parts.append(
+            f'<div class="seo-know-more-faq">'
+            f"<h3>{question}</h3>"
+            f"<p>{answer}</p>"
+            f"</div>"
+        )
+    faq_html = "\n    ".join(faq_parts)
+    return (
+        f'<details class="seo-know-more">\n'
+        f'  <summary class="seo-know-more-summary">{title}</summary>\n'
+        f'  <div class="seo-know-more-body">\n'
+        f"    <p>{intro}</p>\n"
+        f"    {faq_html}\n"
+        f"  </div>\n"
+        f"</details>"
+    )
 
 
 def load_landings() -> list[dict]:
@@ -185,13 +225,11 @@ def inject_seo_results_heading(html: str, landing: dict) -> str:
 
 def demote_welcome_headings_for_seo(html: str) -> str:
     """Un seul H1 par landing SEO : les intros d'accueil passent en <p>."""
-    for el_id in ("copy-mac-body", "copy-iphone-body"):
-        pattern = rf'<h1([^>]*id="{el_id}"[^>]*)>(.*?)</h1>'
-        html = re.sub(pattern, r"<p\1>\2</p>", html, count=1, flags=re.DOTALL)
-    return html
+    pattern = r'<h1([^>]*id="copy-body"[^>]*)>(.*?)</h1>'
+    return re.sub(pattern, r"<p\1>\2</p>", html, count=1, flags=re.DOTALL)
 
 
-def build_landing_html(template: str, landing: dict) -> str:
+def build_landing_html(template: str, landing: dict, accordions: dict[str, dict]) -> str:
     slug = landing["slug"]
     canonical = f"{SITE_ORIGIN}/{slug}"
     runtime = landing_runtime_config(landing)
@@ -208,6 +246,9 @@ def build_landing_html(template: str, landing: dict) -> str:
     html = replace_meta_property(html, "og:url", canonical)
     html = inject_seo_results_heading(html, landing)
     html = demote_welcome_headings_for_seo(html)
+    if SEO_KNOW_MORE_MARKER in html:
+        accordion_html = build_seo_accordion_html(slug, accordions)
+        html = html.replace(SEO_KNOW_MORE_MARKER, accordion_html, 1)
     inject = (
         f'  <base href="/" />\n'
         f'  <script>window.PARKECO_SEO_LANDING = {json.dumps(runtime, ensure_ascii=False)};</script>\n'
@@ -383,6 +424,7 @@ def write_sitemap(entries: list[dict]) -> None:
 
 def main() -> None:
     landings = load_landings()
+    accordions = load_accordions()
     index_html = INDEX_HTML.read_text(encoding="utf-8")
     index_html = patch_index_seo_block(index_html, landings)
     INDEX_HTML.write_text(index_html, encoding="utf-8")
@@ -391,7 +433,7 @@ def main() -> None:
         slug = landing["slug"]
         out_dir = ROOT / slug
         out_dir.mkdir(parents=True, exist_ok=True)
-        page_html = build_landing_html(index_html, landing)
+        page_html = build_landing_html(index_html, landing, accordions)
         (out_dir / "index.html").write_text(page_html, encoding="utf-8")
         print(f"Écrit : {out_dir / 'index.html'}")
 

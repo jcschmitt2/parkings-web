@@ -23,7 +23,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <!-- build: v17.86 -->
+  <!-- build: v17.89 -->
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
   <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
@@ -228,6 +228,47 @@
     }
     .results-scroll { flex:1; min-height:0; overflow-y:auto; padding-right:4px; -webkit-overflow-scrolling:touch; }
     .results-scroll.is-hidden { visibility:hidden; pointer-events:none; }
+    .seo-know-more {
+      margin-top:14px;
+      border:1px solid #2b376f;
+      border-radius:12px;
+      background:#0e1440;
+      overflow:hidden;
+      flex-shrink:0;
+    }
+    .seo-know-more-summary {
+      padding:12px 14px;
+      cursor:pointer;
+      font-weight:600;
+      font-size:.9rem;
+      color:#c7d2fe;
+      list-style:none;
+      position:relative;
+    }
+    .seo-know-more-summary::-webkit-details-marker { display:none; }
+    .seo-know-more-summary::after {
+      content:"▸";
+      position:absolute;
+      top:14px;
+      right:14px;
+      color:#7b8fd4;
+      transition:transform .15s ease;
+    }
+    .seo-know-more[open] .seo-know-more-summary::after { transform:rotate(90deg); }
+    .seo-know-more-body {
+      padding:0 14px 14px;
+      font-size:.88rem;
+      line-height:1.55;
+      color:#dbe2ff;
+    }
+    .seo-know-more-body > p { margin:0 0 12px; }
+    .seo-know-more-faq h3 {
+      margin:14px 0 6px;
+      font-size:.9rem;
+      font-weight:600;
+      color:#e7eaff;
+    }
+    .seo-know-more-faq p { margin:0 0 10px; color:#9aa9ff; }
     .item-clickable {
       cursor:pointer;
       transition:border-color .15s, background .15s, box-shadow .15s;
@@ -1404,6 +1445,7 @@
         <div class="results-area">
           <div class="results-scroll" id="results-scroll">
             <div class="list" id="results"><div class="muted">Chargement de la base…</div></div>
+            <!-- SEO_KNOW_MORE -->
           </div>
         </div>
       </div>
@@ -1480,7 +1522,7 @@
     let suggestTimer = null;
     let suggestRequestId = 0;
     let suppressSuggestionBlurHide = false;
-    const APP_VERSION = "17.86";
+    const APP_VERSION = "17.89";
     let DEFAULT_SEARCH_HINT_TEXT = "Adresse, lieu, arrondissement";
     let bootGeneration = 0;
     const OVERVIEW_NAME_ZOOM = 14;
@@ -3308,6 +3350,30 @@
       }
       if(query) await findNearest();
     }
+
+    function scrollSeoKnowMoreIntoView(details){
+      const scroll = document.getElementById("results-scroll");
+      const body = details?.querySelector(".seo-know-more-body");
+      if(!scroll || !body) return;
+      const scrollRect = scroll.getBoundingClientRect();
+      const bodyRect = body.getBoundingClientRect();
+      const relativeTop = bodyRect.top - scrollRect.top + scroll.scrollTop;
+      scroll.scrollTo({ top: Math.max(0, relativeTop - 12), behavior: "smooth" });
+    }
+
+    function initSeoKnowMoreAccordion(){
+      const scroll = document.getElementById("results-scroll");
+      if(!scroll || scroll.dataset.seoKnowMoreBound) return;
+      scroll.dataset.seoKnowMoreBound = "1";
+      scroll.addEventListener("toggle", (event) => {
+        const details = event.target;
+        if(!(details instanceof HTMLDetailsElement)) return;
+        if(!details.classList.contains("seo-know-more") || !details.open) return;
+        requestAnimationFrame(() => scrollSeoKnowMoreIntoView(details));
+      }, true);
+    }
+
+    initSeoKnowMoreAccordion();
 
     async function loadDefaultBase(){
       try {
