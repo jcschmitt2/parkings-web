@@ -26,7 +26,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <!-- build: v18.26 -->
+  <!-- build: v18.33 -->
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
   <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
@@ -403,6 +403,26 @@
       box-shadow:0 0 0 1px rgba(255, 159, 26, 0.35);
     }
     .item-hint { font-size:.75rem; color:#7d8fd6; margin-top:6px; }
+    .result-respire-warning {
+      margin-top:8px;
+      padding:6px 10px;
+      font-size:.78rem;
+      line-height:1.35;
+      border-radius:8px;
+      background:#422006;
+      border:1px solid #f59e0b;
+      color:#fde68a;
+    }
+    .result-respire-warning {
+      margin-top:8px;
+      padding:6px 10px;
+      font-size:.78rem;
+      line-height:1.35;
+      border-radius:8px;
+      background:#422006;
+      border:1px solid #f59e0b;
+      color:#fde68a;
+    }
     .parking-detail-panel,
     .parking-gain-panel {
       display:none;
@@ -1741,7 +1761,8 @@
     let parisRespireLayer = null;
     let parisRespireGeoJson = null;
     let parisRespireOverviewGen = 0;
-    let parisRespireZonesGen = 0;
+    let mapEpoch = 0;
+    let parisRespireZonesPromise = null;
     let LAST_RESULT_PARKINGS = [];
     let DETAIL_PARKING_BY_ID = new Map();
     let SELECTED_PARKING_ID = "";
@@ -1757,7 +1778,7 @@
     let suggestTimer = null;
     let suggestRequestId = 0;
     let suppressSuggestionBlurHide = false;
-    const APP_VERSION = "18.26";
+    const APP_VERSION = "18.33";
     let DEFAULT_SEARCH_HINT_TEXT = "Adresse, lieu, arrondissement";
     let bootGeneration = 0;
     const OVERVIEW_NAME_ZOOM = 14;
@@ -1778,6 +1799,243 @@
       "04": "Riverains, secours, livraisons, transports, deux-roues motorisés",
       "05": "Riverains, secours, livraisons, transports, deux-roues, taxis"
     };
+    const PARIS_RESPIRE_BUFFER_MIN = 60;
+    const PARIS_WEEKDAY_IDX = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+    let parisRespireActiveCache = { at: 0, key: "", features: [] };
+    let parisRespireLayerMode = "";
+
+    function normalizeRespireNowParam(raw){
+      if(!raw) return "";
+      // Dans une URL, le « + » du fuseau est souvent lu comme une espace.
+      return String(raw).trim().replace(
+        /T(\d{2}:\d{2}(?::\d{2})?) (\d{2}):(\d{2})$/,
+        "T$1+$2:$3"
+      );
+    }
+
+    function getParisRespireNowCacheKey(){
+      const raw = new URLSearchParams(window.location.search).get("respireNow");
+      return raw ? normalizeRespireNowParam(raw) : "live";
+    }
+
+    function getParisRespireNow(){
+      const raw = new URLSearchParams(window.location.search).get("respireNow");
+      if(raw){
+        const normalized = normalizeRespireNowParam(raw);
+        const parsed = new Date(normalized);
+        if(!Number.isNaN(parsed.getTime())) return parsed;
+        console.warn("Paris Respire — respireNow invalide, heure réelle utilisée:", raw);
+      }
+      return new Date();
+    }
+
+    function parisDateParts(now = getParisRespireNow()){
+      const parts = { year: 0, month: 0, day: 0, hour: 0, minute: 0, weekday: "", weekdayIdx: -1 };
+      new Intl.DateTimeFormat("en-US", {
+        timeZone: "Europe/Paris",
+        weekday: "short",
+        year: "numeric",
+        month: "numeric",
+        day: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+        hour12: false
+      }).formatToParts(now).forEach(p => {
+        if(p.type === "literal") return;
+        parts[p.type] = p.value;
+      });
+      parts.year = +parts.year;
+      parts.month = +parts.month;
+      parts.day = +parts.day;
+      parts.hour = +parts.hour;
+      parts.minute = +parts.minute;
+      if(parts.hour === 24) parts.hour = 0;
+      parts.weekdayIdx = PARIS_WEEKDAY_IDX[parts.weekday] ?? -1;
+      return parts;
+    }
+
+    function parisWeekdayOn(year, month, day){
+      const wd = new Intl.DateTimeFormat("en-US", {
+        timeZone: "Europe/Paris",
+        weekday: "short"
+      }).format(new Date(Date.UTC(year, month - 1, day, 12, 0, 0)));
+      return PARIS_WEEKDAY_IDX[wd] ?? -1;
+    }
+
+    function lastSundayOfMonthParis(year, month){
+      const lastDay = new Date(year, month, 0).getDate();
+      for(let d = lastDay; d >= 1; d--){
+        if(parisWeekdayOn(year, month, d) === 0) return d;
+      }
+      return 0;
+    }
+
+    function firstSundayOnOrAfterParis(year, month, startDay){
+      const lastDay = new Date(year, month, 0).getDate();
+      for(let d = startDay; d <= lastDay; d++){
+        if(parisWeekdayOn(year, month, d) === 0) return d;
+      }
+      return 0;
+    }
+
+    function parseParisRespireHourToken(token){
+      const m = String(token || "").match(/(\d{1,2})\s*h(?:\s*(\d{2}))?/i);
+      if(!m) return null;
+      const h = +m[1];
+      const min = m[2] ? +m[2] : 0;
+      if(h > 23 || min > 59) return null;
+      return h * 60 + min;
+    }
+
+    function parseParisRespireHourRange(text){
+      if(!text || typeof text !== "string") return null;
+      const t = text.trim();
+      if(/\//.test(t) || /12h\s*-\s*1h/i.test(t)) return null;
+      const matches = [...t.matchAll(/(\d{1,2})\s*h(?:\s*(\d{2}))?/gi)];
+      if(matches.length < 2) return null;
+      const startMin = parseParisRespireHourToken(matches[0][0]);
+      const endMin = parseParisRespireHourToken(matches[1][0]);
+      if(startMin == null || endMin == null || endMin <= startMin) return null;
+      return { startMin, endMin };
+    }
+
+    function isParisRespireJourMatch(code, parts){
+      const wd = parts.weekdayIdx;
+      if(wd < 0) return false;
+      const c = String(code || "").trim();
+      if(c === "01") return wd === 0;
+      if(c === "03") return wd === 3;
+      if(c === "05") return wd === 0 && parts.day <= 7;
+      if(c === "10") return wd === 5 || wd === 6;
+      if(c === "11") return wd === 6 || wd === 0;
+      return false;
+    }
+
+    function isParisRespireJourExcluded(props, parts){
+      const saison = String(props.periode_estivale || "").toLowerCase();
+      if(/sauf\s+1er\s+dimanche/.test(saison) && parts.weekdayIdx === 0 && parts.day <= 7) return true;
+      return false;
+    }
+
+    function isParisRespireSaisonActive(periode, parts){
+      if(!periode) return false;
+      const p = periode.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "").replace(/œ/g, "oe");
+      const { year, month, day } = parts;
+      if(/avril/.test(p) && /septembre/.test(p) && !/dernier dimanche de mars/.test(p) && !/1er dimanche d.?avril/.test(p)) {
+        return month >= 4 && month <= 9;
+      }
+      if(/avril.{0,6}a[oô]ut/.test(p)) return month >= 4 && month <= 8;
+      if(/juillet.{0,6}a[oô]ut/.test(p)) return month >= 7 && month <= 8;
+      if(/juin.{0,6}septembre/.test(p)) return month >= 6 && month <= 9;
+      if(/dernier dimanche de mars/.test(p) && /novembre/.test(p)){
+        const startD = lastSundayOfMonthParis(year, 3);
+        if(!startD) return false;
+        if(month < 3) return false;
+        if(month > 3 && month < 11) return true;
+        if(month === 3) return day >= startD;
+        if(month === 11) return true;
+        return false;
+      }
+      if(/1er dimanche d.?avril/.test(p) && /dernier dim/.test(p) && /septembre/.test(p)){
+        const startD = firstSundayOnOrAfterParis(year, 4, 1);
+        const endD = lastSundayOfMonthParis(year, 9);
+        if(!startD || !endD) return false;
+        const afterStart = month > 4 || (month === 4 && day >= startD);
+        const beforeEnd = month < 9 || (month === 9 && day <= endD);
+        return afterStart && beforeEnd;
+      }
+      return false;
+    }
+
+    function resolveParisRespireHours(props, parts){
+      const type = String(props.type_secteurs || "").trim();
+      const saison = props.periode_estivale;
+      const hAnnee = props.horaires_annee;
+      const hEte = props.horaires_ete;
+      if(type === "Dates spécifiques" || props.dates_specifiques) return null;
+      if(type === "Estival" && !hAnnee){
+        if(!saison || !hEte || !isParisRespireSaisonActive(saison, parts)) return null;
+        return hEte;
+      }
+      if(saison && hEte && isParisRespireSaisonActive(saison, parts)) return hEte;
+      if(hAnnee) return hAnnee;
+      return null;
+    }
+
+    function isMinutesInParisRespireWindow(minutes, startMin, endMin, bufferMin){
+      const start = Math.max(0, startMin - bufferMin);
+      const end = Math.min(24 * 60, endMin + bufferMin);
+      return minutes >= start && minutes <= end;
+    }
+
+    function isParisRespireZoneActiveNow(props, now = getParisRespireNow()){
+      if(!props) return false;
+      const parts = parisDateParts(now);
+      if(isParisRespireJourExcluded(props, parts)) return false;
+      if(!isParisRespireJourMatch(props.jours, parts)) return false;
+      const hoursText = resolveParisRespireHours(props, parts);
+      if(!hoursText) return false;
+      const range = parseParisRespireHourRange(hoursText);
+      if(!range) return false;
+      const minutes = parts.hour * 60 + parts.minute;
+      return isMinutesInParisRespireWindow(minutes, range.startMin, range.endMin, PARIS_RESPIRE_BUFFER_MIN);
+    }
+
+    function getActiveParisRespireFeatures(features, now = getParisRespireNow()){
+      if(!features?.length) return [];
+      return features.filter(f => isParisRespireZoneActiveNow(f.properties || {}, now));
+    }
+
+    async function getActiveParisRespireFeaturesCached(){
+      const cacheKey = getParisRespireNowCacheKey();
+      const now = getParisRespireNow();
+      if(
+        parisRespireActiveCache.key === cacheKey &&
+        Date.now() - parisRespireActiveCache.at < 60000 &&
+        parisRespireActiveCache.features
+      ) {
+        return parisRespireActiveCache.features;
+      }
+      const all = await getParisRespireUrbanFeatures();
+      const active = getActiveParisRespireFeatures(all, now);
+      parisRespireActiveCache = { at: Date.now(), key: cacheKey, features: active };
+      return active;
+    }
+
+    function parkingInActiveParisRespireZone(p, activeFeatures){
+      if(!p || !activeFeatures?.length) return false;
+      return !!findParisRespireZoneAt(p.lat, p.lon, activeFeatures);
+    }
+
+    let standardParisRespireRefreshTimer = 0;
+
+    function scheduleStandardParisRespireRefresh(delay = 80){
+      if(isParisRespireActuPage()) return;
+      clearTimeout(standardParisRespireRefreshTimer);
+      standardParisRespireRefreshTimer = setTimeout(() => {
+        refreshStandardParisRespireMapIfNeeded();
+      }, delay);
+    }
+
+    async function refreshStandardParisRespireMapIfNeeded(){
+      if(isParisRespireActuPage()) return;
+      if(!map && !isMobileLayout()) initMap();
+      if(!map) return;
+      const active = await getActiveParisRespireFeaturesCached();
+      console.info(
+        `Paris Respire — ${active.length} zone(s) active(s) ` +
+        `(Paris ${new Intl.DateTimeFormat("fr-FR", {
+          timeZone: "Europe/Paris",
+          dateStyle: "short",
+          timeStyle: "short"
+        }).format(getParisRespireNow())})`
+      );
+      if(active.length) await ensureParisRespireZonesLayer();
+      else {
+        clearParisRespireLayer();
+        hideParisRespireMapLegend();
+      }
+    }
     // SEO_LANDINGS:BEGIN
     const SEO_LANDING_BY_PATH = {
       "/parking-proche-republique": {
@@ -2266,6 +2524,7 @@
         if(shouldRefit && LAST_MAP_FIT_LATLNGS?.length) scheduleMapFit();
         else if(isParisRespireActuPage()) ensureParisRespireZonesLayer();
         else if(!resolveSeoLandingConfig()) scheduleWelcomeOverviewMap();
+        if(!isParisRespireActuPage()) scheduleStandardParisRespireRefresh();
       } catch (err) {
         console.warn("Carte : rafraîchissement ignoré", err);
       }
@@ -2493,11 +2752,14 @@
 
     function resetParisRespireMapState(){
       parisRespireLayer = null;
+      parisRespireLayerMode = "";
+      parisRespireActiveCache = { at: 0, key: "", features: [] };
       parisRespireOverviewGen++;
-      parisRespireZonesGen++;
+      parisRespireZonesPromise = null;
     }
 
     function destroyMapCompletely(){
+      mapEpoch++;
       resetParisRespireMapState();
       hideParisRespireMapLegend();
       if(map){
@@ -2624,11 +2886,15 @@
       map.invalidateSize({ animate:false });
     }
 
-    function showWelcomeOverviewMap(){
+    async function showWelcomeOverviewMap(){
       if(!PARKINGS.length || !isWelcomeOverviewMode()) return;
       if(!map){
         initMap();
         if(!map) return;
+      }
+      if(!isParisRespireActuPage()){
+        const active = await getActiveParisRespireFeaturesCached();
+        if(active.length) await ensureParisRespireZonesLayer();
       }
       showOverviewParkingMarkers();
     }
@@ -2649,8 +2915,15 @@
         if(attempt < 24) setTimeout(() => scheduleWelcomeOverviewMap(attempt + 1), 80);
         return;
       }
-      if(!hasWelcomeOverviewMarkers()) showWelcomeOverviewMap();
-      else refreshOverviewMarkerLabels();
+      void runWelcomeOverviewMap();
+    }
+
+    async function runWelcomeOverviewMap(){
+      if(!hasWelcomeOverviewMarkers()) await showWelcomeOverviewMap();
+      else {
+        refreshOverviewMarkerLabels();
+        if(!isParisRespireActuPage()) await refreshStandardParisRespireMapIfNeeded();
+      }
     }
 
     function isMobileLayout(){
@@ -2677,7 +2950,12 @@
               ensureParisRespireZonesLayer().then(() => {
                 if(LAST_MAP_FIT_LATLNGS?.length) scheduleMapFit();
               });
-            } else if(LAST_MAP_FIT_LATLNGS?.length) scheduleMapFit();
+            } else {
+              scheduleStandardParisRespireRefresh(0);
+              setTimeout(() => {
+                if(LAST_MAP_FIT_LATLNGS?.length) scheduleMapFit();
+              }, 150);
+            }
           }
         }, 80);
       }
@@ -2774,9 +3052,11 @@
       if(!isMobileLayout()){
         main.classList.remove("view-list", "view-map");
         document.body.classList.remove("detail-open");
-        if(!map) initMap();
-        refreshMapAfterLayoutChange(!!LAST_MAP_FIT_LATLNGS?.length);
-        scheduleWelcomeOverviewMap();
+        if(!map && PARKINGS.length) initMap();
+        if(map){
+          refreshMapAfterLayoutChange(!!LAST_MAP_FIT_LATLNGS?.length);
+          scheduleWelcomeOverviewMap();
+        }
         return;
       }
       if(!main.classList.contains("view-list") && !main.classList.contains("view-map")){
@@ -3462,6 +3742,8 @@
         delete mapEl._leaflet_id;
       }
       map = L.map("map", { zoomControl:true }).setView(WELCOME_MAP_CENTER, WELCOME_MAP_ZOOM);
+      mapEpoch++;
+      const epoch = mapEpoch;
       L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
         maxZoom: 20,
         attribution: "&copy; OpenStreetMap &copy; CARTO",
@@ -3477,8 +3759,10 @@
       });
       map.on("zoomend", refreshOverviewMarkerLabels);
       setTimeout(() => {
+        if(!map || mapEpoch !== epoch) return;
         map.invalidateSize();
         if(!resolveSeoLandingConfig() && !resolveActuAppConfig()) scheduleWelcomeOverviewMap();
+        if(!isParisRespireActuPage()) scheduleStandardParisRespireRefresh(50);
       }, 0);
     }
 
@@ -3546,7 +3830,6 @@
       else if(isParisRespireActuPage()) scheduleParisRespireOverviewMap();
       else scheduleWelcomeOverviewMap();
     });
-    syncMobileLayout();
     document.getElementById("tab-list")?.addEventListener("click", () => setMobileView("list"));
     document.getElementById("tab-map")?.addEventListener("click", () => setMobileView("map"));
 
@@ -3700,12 +3983,13 @@
     }
 
     function parisRespireZoneStyle(){
+      const standard = !isParisRespireActuPage();
       return {
-        color: "#16a34a",
-        weight: 2,
-        opacity: 0.9,
+        color: "#15803d",
+        weight: standard ? 2.5 : 2,
+        opacity: 0.95,
         fillColor: "#4ade80",
-        fillOpacity: 0.28
+        fillOpacity: standard ? 0.42 : 0.28
       };
     }
 
@@ -3718,27 +4002,47 @@
     }
 
     function clearParisRespireLayer(){
-      if(parisRespireLayer && map){
-        try { map.removeLayer(parisRespireLayer); } catch (err) { /* déjà retirée */ }
+      if(parisRespireLayer){
+        try {
+          if(map?.hasLayer(parisRespireLayer)) map.removeLayer(parisRespireLayer);
+          else parisRespireLayer.remove();
+        } catch (err) { /* déjà retirée */ }
       }
       parisRespireLayer = null;
+      parisRespireLayerMode = "";
     }
 
-    function ensureParisRespireMapLegend(){
-      if(!isParisRespireActuPage()) return;
+    function ensureParisRespireMapLegend(standardActive = false){
+      if(!isParisRespireActuPage() && !standardActive) return;
       let el = document.getElementById("paris-respire-legend");
+      const longLabel = standardActive
+        ? "Zones Paris Respire actives maintenant"
+        : "Zones Paris Respire (quartiers)";
+      const detailText = standardActive
+        ? "Affichées uniquement pendant les créneaux Paris Respire (±1 h). Données : "
+        : "Données : ";
+      const clickHint = standardActive ? "" : "Cliquez une zone pour les horaires.";
       if(!el){
         el = document.createElement("div");
         el.id = "paris-respire-legend";
         el.className = "paris-respire-legend";
         el.innerHTML =
           '<strong><span class="paris-respire-legend-swatch" aria-hidden="true"></span>' +
-          '<span class="paris-respire-legend-long">Zones Paris Respire (quartiers)</span>' +
+          `<span class="paris-respire-legend-long">${longLabel}</span>` +
           '<span class="paris-respire-legend-short">Vert = zones Paris Respire</span></strong>' +
-          '<span class="paris-respire-legend-detail">Données : <a href="https://opendata.paris.fr/explore/dataset/secteurs-paris-respire/" ' +
+          `<span class="paris-respire-legend-detail">${detailText}<a href="https://opendata.paris.fr/explore/dataset/secteurs-paris-respire/" ` +
           'target="_blank" rel="noopener noreferrer">Ville de Paris (open data)</a>. ' +
-          'Cliquez une zone pour les horaires.</span>';
+          `${clickHint}</span>`;
         document.querySelector(".map-panel")?.appendChild(el);
+      } else if(standardActive) {
+        const longEl = el.querySelector(".paris-respire-legend-long");
+        const detailEl = el.querySelector(".paris-respire-legend-detail");
+        if(longEl) longEl.textContent = longLabel;
+        if(detailEl) {
+          detailEl.innerHTML =
+            `${detailText}<a href="https://opendata.paris.fr/explore/dataset/secteurs-paris-respire/" ` +
+            'target="_blank" rel="noopener noreferrer">Ville de Paris (open data)</a>.';
+        }
       }
       el.hidden = false;
     }
@@ -3770,37 +4074,90 @@
       if(!map) return;
       if(!map.getPane("parisRespirePane")){
         map.createPane("parisRespirePane");
-        map.getPane("parisRespirePane").style.zIndex = 350;
+        map.getPane("parisRespirePane").style.zIndex = 450;
       }
     }
 
+    function parisRespireLayerOnMap(){
+      return !!(parisRespireLayer && map?.hasLayer(parisRespireLayer));
+    }
+
+    function scheduleParisRespireZonesRetry(){
+      if(isParisRespireActuPage()) return;
+      setTimeout(async () => {
+        if(!map || document.body.classList.contains("has-results")) return;
+        const active = await getActiveParisRespireFeaturesCached();
+        if(!active.length) return;
+        if(parisRespireLayerOnMap()) return;
+        await ensureParisRespireZonesLayer();
+      }, 1200);
+    }
+
     async function ensureParisRespireZonesLayer(){
-      if(!isParisRespireActuPage() || !map) return false;
-      if(parisRespireLayer){
-        ensureParisRespireMapLegend();
-        return true;
-      }
-      const gen = ++parisRespireZonesGen;
+      if(!map) return false;
+      if(parisRespireZonesPromise) return parisRespireZonesPromise;
+      parisRespireZonesPromise = paintParisRespireZonesLayer().finally(() => {
+        parisRespireZonesPromise = null;
+      });
+      return parisRespireZonesPromise;
+    }
+
+    async function paintParisRespireZonesLayer(){
+      const mapRef = map;
+      if(!mapRef) return false;
+      const epoch = mapEpoch;
+      const actu = isParisRespireActuPage();
       try {
         const raw = await loadParisRespireGeoJson();
-        if(gen !== parisRespireZonesGen || !map) return false;
-        if(parisRespireLayer) return true;
-        const data = filterParisRespireUrbanZones(raw);
-        ensureParisRespireMapPane();
-        parisRespireLayer = L.geoJSON(data, {
-          pane: "parisRespirePane",
-          style: parisRespireZoneStyle,
-          onEachFeature(feature, layer){
-            const props = feature.properties || {};
-            layer.bindPopup(formatParisRespirePopup(props), { maxWidth: 320 });
-            layer.on({
-              mouseover: parisRespireZoneHighlight,
-              mouseout: parisRespireZoneReset
-            });
+        if(!map || map !== mapRef || mapEpoch !== epoch) return false;
+        const urban = filterParisRespireUrbanZones(raw);
+        let featureList = [];
+        if(actu){
+          featureList = urban.features || [];
+          if(parisRespireLayer && parisRespireLayerMode === "actu" && map === mapRef){
+            ensureParisRespireMapLegend(false);
+            return true;
           }
-        }).addTo(map);
-        if(gen !== parisRespireZonesGen || !map) return false;
-        ensureParisRespireMapLegend();
+        } else {
+          featureList = getActiveParisRespireFeatures(urban.features || [], getParisRespireNow());
+          parisRespireActiveCache = {
+            at: Date.now(),
+            key: getParisRespireNowCacheKey(),
+            features: featureList
+          };
+          if(!featureList.length){
+            clearParisRespireLayer();
+            hideParisRespireMapLegend();
+            return false;
+          }
+          if(parisRespireLayerOnMap() && parisRespireLayerMode === "standard"){
+            ensureParisRespireMapLegend(true);
+            return true;
+          }
+        }
+        if(!map || map !== mapRef || mapEpoch !== epoch) return false;
+        clearParisRespireLayer();
+        ensureParisRespireMapPane();
+        parisRespireLayer = L.geoJSON(
+          { type: "FeatureCollection", features: featureList },
+          {
+            pane: "parisRespirePane",
+            style: parisRespireZoneStyle,
+            onEachFeature(feature, layer){
+              const props = feature.properties || {};
+              layer.bindPopup(formatParisRespirePopup(props), { maxWidth: 320 });
+              layer.on({
+                mouseover: parisRespireZoneHighlight,
+                mouseout: parisRespireZoneReset
+              });
+            }
+          }
+        ).addTo(mapRef);
+        parisRespireLayerMode = actu ? "actu" : "standard";
+        ensureParisRespireMapLegend(!actu);
+        if(!actu){
+          console.info(`Paris Respire — ${featureList.length} zone(s) active(s) affichée(s) sur la carte`);
+        }
         return true;
       } catch(err){
         console.warn("Zones Paris Respire non chargées", err);
@@ -4063,6 +4420,10 @@
         if(resolveSeoLandingConfig()) await runSeoLandingSearchIfNeeded();
         else if(isParisRespireActuPage()) scheduleParisRespireOverviewMap();
         else if(!resolveActuAppConfig()) scheduleWelcomeOverviewMap();
+        if(!isParisRespireActuPage()) {
+          await refreshStandardParisRespireMapIfNeeded();
+          scheduleParisRespireZonesRetry();
+        }
       } catch(err) {
         console.error("Chargement automatique impossible", err);
         const origin = window.location.origin || "";
@@ -4285,6 +4646,9 @@
           </div>`
         : "";
       const parkingId = escapeHtml(p.id || "");
+      const respireWarning = options.respireWarning
+        ? '<div class="result-respire-warning" role="note">Attention : parking en zone bloquée Paris Respire</div>'
+        : "";
       return `
         <div class="item item-clickable" data-parking-id="${parkingId}" role="button" tabindex="0" aria-label="Voir le détail — ${escapeHtml(displayParkingName(p.name))}">
           <div style="display:flex;align-items:center;gap:8px;justify-content:space-between;">
@@ -4296,11 +4660,12 @@
           </div>
           <div>${escapeHtml(displayParkingName(p.name))}</div>
           ${parkingInfoHtml(p)}
+          ${respireWarning}
           <div class="item-hint">Appuyer pour adresse, photo et avis</div>
         </div>`;
     }
 
-    function showArrondissementParkings(postcode, placeLabelOverride){
+    async function showArrondissementParkings(postcode, placeLabelOverride){
       CURRENT_ORIGIN = null;
       closeParkingDetail();
       setResultsLayoutActive(true);
@@ -4316,6 +4681,16 @@
         clearMarkers();
         return;
       }
+
+      let activeRespireFeatures = [];
+      if(!isParisRespireActuPage()){
+        activeRespireFeatures = await getActiveParisRespireFeaturesCached();
+        if(activeRespireFeatures.length) await ensureParisRespireZonesLayer();
+      }
+      const respireWarningFor = (p) => (
+        activeRespireFeatures.length > 0 &&
+        parkingInActiveParisRespireZone(p, activeRespireFeatures)
+      );
 
       clearMarkers();
       bestMarker = null;
@@ -4340,7 +4715,8 @@
         buildResultsHeadingHtml(label, inArr.length) +
         inArr.map((p, i) => parkingResultCard(p, i, {
           showDistance: false,
-          markerClass: "result-marker-alt"
+          markerClass: "result-marker-alt",
+          respireWarning: respireWarningFor(p)
         })).join("");
       setMobileViewAfterSearch();
       dismissAddressKeyboard();
@@ -4373,6 +4749,7 @@
       let respireZone = null;
       let resultsExtra = `<span class="results-summary-extra"> dans un rayon de ${fmtSearchRadius()}</span>`;
       let bestTitle = "Parking le plus proche";
+      let activeRespireFeatures = [];
 
       if(isParisRespireActuPage()){
         await ensureParisRespireZonesLayer();
@@ -4386,7 +4763,16 @@
             `<span class="results-summary-extra"> — destination en zone Paris Respire « ${escapeHtml(zoneName)} » : parkings hors zone (${fmtSearchRadius()})</span>`;
           highlightParisRespireZone(respireZone);
         }
+      } else {
+        activeRespireFeatures = await getActiveParisRespireFeaturesCached();
+        if(activeRespireFeatures.length) await ensureParisRespireZonesLayer();
       }
+
+      const respireWarningFor = (p) => (
+        !isParisRespireActuPage() &&
+        activeRespireFeatures.length > 0 &&
+        parkingInActiveParisRespireZone(p, activeRespireFeatures)
+      );
 
       if(!pool.length){
         const resBox = document.getElementById('results');
@@ -4444,11 +4830,19 @@
       const placeName = getPlaceDisplayName(origin);
       resBox.innerHTML =
         buildResultsHeadingHtml(placeName, nearby.length, resultsExtra) +
-        parkingResultCard(best, 0, { title: bestTitle, markerClass: "result-marker-best" }) +
-        alts.map((p, i) => parkingResultCard(p, i + 1)).join("");
+        parkingResultCard(best, 0, {
+          title: bestTitle,
+          markerClass: "result-marker-best",
+          respireWarning: respireWarningFor(best)
+        }) +
+        alts.map((p, i) => parkingResultCard(p, i + 1, { respireWarning: respireWarningFor(p) })).join("");
       setMobileViewAfterSearch();
       dismissAddressKeyboard();
       updateSeoKnowMoreAccordion(origin);
+      if(!isParisRespireActuPage()) {
+        await refreshStandardParisRespireMapIfNeeded();
+        scheduleParisRespireZonesRetry();
+      }
     }
 
     // --- Trouver le plus proche ---
