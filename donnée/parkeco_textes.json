@@ -32,7 +32,7 @@
         "btn_position": "Ma position",
         "btn_position_title": "Utiliser ma position actuelle",
         "btn_position_aria": "Utiliser ma position pour trouver un parking proche",
-        "placeholder_adresse": "ex. 10 rue de Rivoli ou bastille ou 75015",
+        "placeholder_adresse": "3 rue du Bac ou Bastille ou 75009",
         "hint_code_postal": "Adresse, lieu, arrondissement",
         "btn_rechercher": "Rechercher",
         "btn_rechercher_aria": "Rechercher un parking proche",

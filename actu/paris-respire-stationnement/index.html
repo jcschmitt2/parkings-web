@@ -26,7 +26,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <!-- build: v18.13 -->
+  <!-- build: v18.26 -->
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
   <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
@@ -206,7 +206,7 @@
       font-weight:700;
     }
     .paris-respire-intro p:last-child { margin-bottom:0; }
-    body.actu-app:not(.has-results) .paris-respire-intro { display:block; }
+    body.actu-app:not(.has-results) .paris-respire-intro { display:none !important; }
     body.actu-app.actu-parking-detail .paris-respire-intro,
     body.actu-app.actu-parking-detail #copy-lead,
     body.actu-app.actu-parking-detail #copy-body {
@@ -259,6 +259,8 @@
       border-radius:2px;
     }
     .paris-respire-legend a { color:#7dd3fc; }
+    .paris-respire-legend-short { display:none; }
+    .paris-respire-legend-detail { display:block; margin-top:4px; }
     .leaflet-popup-content .paris-respire-popup strong {
       display:block;
       margin-bottom:4px;
@@ -299,6 +301,12 @@
     }
     .news-item--news .news-item-type { background:#451a03; color:#fde68a; border-color:#f59e0b; }
     .news-item--tool .news-item-type { background:#1e1b4b; color:#c7d2fe; border-color:#7c89e8; }
+    .news-item--tool .news-item-title {
+      color:#a7f3d0;
+      font-weight:700;
+      letter-spacing:-0.01em;
+    }
+    .news-item--tool .news-item-anchor:hover .news-item-title { color:#d9f99d; }
     .news-item-date { font-size:.72rem; color:#7d8fd6; }
     .news-item-title { font-size:.92rem; font-weight:600; color:#e7eaff; line-height:1.3; margin:0 0 5px; }
     .news-item-resume { font-size:.8rem; color:#9aa9ff; line-height:1.45; margin:0 0 9px; }
@@ -1192,6 +1200,27 @@
       body:not(.has-results) .app-main {
         display:none !important;
       }
+      body.actu-app:not(.has-results) .app-main {
+        display:flex !important;
+        flex-direction:column;
+        flex:1 1 0;
+        min-height:0;
+      }
+      body.actu-app:not(.has-results) .mobile-tabs {
+        display:none !important;
+      }
+      body.actu-app:not(.has-results) .sidebar {
+        display:none !important;
+      }
+      body.actu-app:not(.has-results) .map-panel,
+      body.actu-app:not(.has-results) .app-main.view-list .map-panel {
+        display:block !important;
+        flex:1 1 0;
+        min-height:0;
+      }
+      body.actu-app:not(.has-results) #map {
+        min-height:220px;
+      }
       body:not(.has-results):not(.address-entry-active) .app-frame {
         flex:1 1 0;
         min-height:0;
@@ -1241,17 +1270,6 @@
       body.actu-app #copy-lead.header-intro--lead {
         font-size:.84rem;
         margin:0 0 8px;
-      }
-      body.actu-app:not(.has-results) .paris-respire-intro {
-        display:block;
-        margin-top:12px;
-        padding-top:12px;
-        font-size:.82rem;
-        line-height:1.5;
-      }
-      body.actu-app:not(.has-results) .paris-respire-intro h2 {
-        font-size:.9rem;
-        margin-bottom:8px;
       }
       body.actu-app.actu-parking-detail .paris-respire-intro,
       body.actu-app.actu-parking-detail #copy-lead,
@@ -1343,16 +1361,44 @@
         position:relative;
         min-width:0;
         overflow:visible;
-        display:flex;
-        flex-direction:column;
+        display:grid;
+        grid-template-columns:minmax(0,1fr) auto auto;
+        align-items:center;
+        column-gap:4px;
+      }
+      .address-wrap:not(:has(.btn-voice)) {
+        grid-template-columns:minmax(0,1fr) auto;
       }
       input[type="text"],
       select {
         font-size:16px;
         max-width:100%;
       }
+      #address {
+        grid-column:1;
+        grid-row:1;
+        min-width:0;
+        width:100%;
+        padding:10px 8px 10px 12px;
+      }
+      .address-wrap .btn-voice {
+        position:static;
+        grid-column:2;
+        grid-row:1;
+        flex-shrink:0;
+      }
+      .address-wrap .btn-search {
+        position:static;
+        grid-column:3;
+        grid-row:1;
+        flex-shrink:0;
+      }
+      .address-wrap:not(:has(.btn-voice)) .btn-search {
+        grid-column:2;
+      }
       #address-suggestions {
-        order:2;
+        grid-column:1 / -1;
+        grid-row:2;
         position:relative !important;
         top:auto !important;
         left:auto !important;
@@ -1367,8 +1413,10 @@
         -webkit-overflow-scrolling:touch;
         overscroll-behavior:contain;
       }
-      #address { order:1; }
-      .address-wrap .hint { order:3; }
+      .address-wrap .hint {
+        grid-column:1 / -1;
+        grid-row:3;
+      }
       body.address-entry-active:not(.has-results) .header-subtitle,
       body.address-entry-active:not(.has-results) .header-intro {
         display:none;
@@ -1506,6 +1554,26 @@
       }
       body.detail-open header { visibility:hidden; }
       body.detail-open .detail-stack.open { visibility:visible; }
+      .paris-respire-legend {
+        left:auto;
+        right:8px;
+        bottom:8px;
+        padding:5px 8px;
+        font-size:.68rem;
+        line-height:1.25;
+        max-width:min(220px, calc(100% - 16px));
+        border-radius:8px;
+        text-align:right;
+      }
+      .paris-respire-legend strong { font-size:.7rem; }
+      .paris-respire-legend-swatch {
+        width:10px;
+        height:10px;
+        margin-right:5px;
+      }
+      .paris-respire-legend-long,
+      .paris-respire-legend-detail { display:none !important; }
+      .paris-respire-legend-short { display:inline !important; }
     }
   </style>
 </head>
@@ -1566,7 +1634,7 @@
           </button>
         </div>
         <div class="address-wrap">
-          <input id="address" type="text" placeholder="ex. 10 rue de Rivoli ou bastille ou 75015" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+          <input id="address" type="text" placeholder="3 rue du Bac ou Bastille ou 75009" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
           <button type="button" id="btn-voice" class="btn-voice" title="Dicter une adresse" aria-label="Dicter une adresse" aria-pressed="false">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19v3"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><rect x="9" y="2" width="6" height="12" rx="3"/></svg>
             <span class="sr-only" id="text-btn-voice">Dicter une adresse</span>
@@ -1682,7 +1750,7 @@
     let suggestTimer = null;
     let suggestRequestId = 0;
     let suppressSuggestionBlurHide = false;
-    const APP_VERSION = "18.13";
+    const APP_VERSION = "18.26";
     let DEFAULT_SEARCH_HINT_TEXT = "Adresse, lieu, arrondissement";
     let bootGeneration = 0;
     const OVERVIEW_NAME_ZOOM = 14;
@@ -2465,7 +2533,7 @@
       if(resBox) resBox.innerHTML = "";
       const actu = resolveActuAppConfig();
       if(actu) applyActuAppWelcome(actu);
-      setMobileView("list");
+      if(!(isParisRespireActuPage() && isMobileLayout())) setMobileView("list");
       if(map){
         try {
           map.setView(WELCOME_MAP_CENTER, WELCOME_MAP_ZOOM, { animate:false });
@@ -2481,7 +2549,9 @@
     }
 
     function isWelcomeOverviewMode(){
-      return !document.body.classList.contains("has-results") && !isMobileLayout();
+      if(document.body.classList.contains("has-results")) return false;
+      if(isParisRespireActuPage()) return true;
+      return !isMobileLayout();
     }
 
     function shouldShowOverviewMarkerName(selected){
@@ -2606,6 +2676,10 @@
       }
     }
 
+    function setMobileViewAfterSearch(){
+      if(isMobileLayout()) setMobileView("map");
+    }
+
     function isMapPanelVisible(){
       const main = document.querySelector(".app-main");
       if(!main) return true;
@@ -2699,7 +2773,7 @@
         return;
       }
       if(!main.classList.contains("view-list") && !main.classList.contains("view-map")){
-        main.classList.add("view-list");
+        main.classList.add(document.body.classList.contains("has-results") ? "view-map" : "view-list");
       }
     }
 
@@ -3651,10 +3725,12 @@
         el.id = "paris-respire-legend";
         el.className = "paris-respire-legend";
         el.innerHTML =
-          '<strong><span class="paris-respire-legend-swatch" aria-hidden="true"></span>Zones Paris Respire (quartiers)</strong><br>' +
-          "Données : <a href=\"https://opendata.paris.fr/explore/dataset/secteurs-paris-respire/\" " +
-          "target=\"_blank\" rel=\"noopener noreferrer\">Ville de Paris (open data)</a>. " +
-          "Cliquez une zone pour les horaires.";
+          '<strong><span class="paris-respire-legend-swatch" aria-hidden="true"></span>' +
+          '<span class="paris-respire-legend-long">Zones Paris Respire (quartiers)</span>' +
+          '<span class="paris-respire-legend-short">Vert = zones Paris Respire</span></strong>' +
+          '<span class="paris-respire-legend-detail">Données : <a href="https://opendata.paris.fr/explore/dataset/secteurs-paris-respire/" ' +
+          'target="_blank" rel="noopener noreferrer">Ville de Paris (open data)</a>. ' +
+          'Cliquez une zone pour les horaires.</span>';
         document.querySelector(".map-panel")?.appendChild(el);
       }
       el.hidden = false;
@@ -4259,7 +4335,7 @@
           showDistance: false,
           markerClass: "result-marker-alt"
         })).join("");
-      setMobileView("list");
+      setMobileViewAfterSearch();
       dismissAddressKeyboard();
       updateSeoKnowMoreAccordion(null);
     }
@@ -4312,6 +4388,8 @@
         clearMarkers();
         userMarker = L.marker([origin.lat, origin.lon], {title: origin.label || "Destination", icon: originIcon}).addTo(map);
         fitMapToParkings([[origin.lat, origin.lon]]);
+        setMobileViewAfterSearch();
+        dismissAddressKeyboard();
         return;
       }
 
@@ -4326,6 +4404,8 @@
         clearMarkers();
         userMarker = L.marker([origin.lat, origin.lon], {title: origin.label || "Destination", icon: originIcon}).addTo(map);
         fitMapToParkings([[origin.lat, origin.lon], [closest.lat, closest.lon]]);
+        setMobileViewAfterSearch();
+        dismissAddressKeyboard();
         return;
       }
 
@@ -4359,7 +4439,7 @@
         buildResultsHeadingHtml(placeName, nearby.length, resultsExtra) +
         parkingResultCard(best, 0, { title: bestTitle, markerClass: "result-marker-best" }) +
         alts.map((p, i) => parkingResultCard(p, i + 1)).join("");
-      setMobileView("list");
+      setMobileViewAfterSearch();
       dismissAddressKeyboard();
       updateSeoKnowMoreAccordion(origin);
     }
@@ -4774,6 +4854,11 @@
 
     function handleAddressInput(){
       const q = addressInput.value.trim();
+      if(isParisRespireActuPage() && document.body.classList.contains("has-results") && !q){
+        resetToWelcome();
+        resetResultsMessage();
+        return;
+      }
       clearTimeout(suggestTimer);
       const postcodeOnly = parseParisPostcodeQuery(q) && isArrondissementOnlyQuery(q, parseParisPostcodeQuery(q));
       if(q.length < 3 && !postcodeOnly){
@@ -5032,7 +5117,14 @@
         tool: "Accès"
       };
       const NEWS_TYPE_ALIASES = { alerte: "news", tarifs: "guide" };
+      const PARIS_RESPIRE_NEWS_SLUG = "paris-respire-stationnement";
       const NEWS_MONTHS = ["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];
+      function newsListSortRank(article){
+        const rawType = article.type || "guide";
+        const type = NEWS_TYPE_ALIASES[rawType] || rawType;
+        if(article.slug === PARIS_RESPIRE_NEWS_SLUG || type === "tool") return 0;
+        return 1;
+      }
       function fmtNewsDate(iso){
         if(!iso) return "";
         const parts = iso.split("-").map(Number);
@@ -5047,7 +5139,11 @@
         if(data.titre_section && titleEl) titleEl.textContent = data.titre_section;
         const articles = Array.isArray(data.articles) ? data.articles.slice() : [];
         const valid = articles.filter(a => a && a.slug && a.titre);
-        valid.sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")));
+        valid.sort((a, b) => {
+          const rankDiff = newsListSortRank(a) - newsListSortRank(b);
+          if(rankDiff !== 0) return rankDiff;
+          return String(b.date || "").localeCompare(String(a.date || ""));
+        });
         if(!valid.length) return;
         list.innerHTML = valid.map(a => {
           const rawType = a.type || "guide";
