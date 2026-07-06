@@ -70,7 +70,8 @@
     },
     {
       "slug": "paris-respire-stationnement",
-      "type": "news",
+      "layout": "app",
+      "type": "tool",
       "titre": "Paris Respire : où se garer lorsque certaines rues sont fermées ?",
       "date": "2026-07-01",
       "resume": "Chaque week-end, le dispositif Paris Respire transforme plusieurs quartiers de Paris en zones réservées aux piétons et aux mobilités douces. Avant de partir, il est utile de vérifier les restrictions de circulation et de prévoir votre stationnement.",

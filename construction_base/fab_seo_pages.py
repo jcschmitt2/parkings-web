@@ -446,7 +446,7 @@ def main() -> None:
         (out_dir / "index.html").write_text(page_html, encoding="utf-8")
         print(f"Écrit : {out_dir / 'index.html'}")
 
-    article_entries = generate_article_pages()
+    article_entries = generate_article_pages(index_html)
     article_dates = {
         a["slug"]: a["date"]
         for a in load_actualites().get("articles", [])

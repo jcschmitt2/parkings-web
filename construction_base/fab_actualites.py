@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import html
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -17,6 +18,7 @@ if str(ROOT) not in sys.path:
 from chemins_projet import DATA_DIR
 
 ACTUALITES_JSON = DATA_DIR / "parkeco_actualites.json"
+INDEX_HTML = ROOT / "index.html"
 ACTU_DIR = ROOT / "actu"
 SITE_ORIGIN = "https://parkeco.fr"
 
@@ -28,6 +30,7 @@ MONTHS_FR = {
 TYPE_META = {
     "news": {"label": "News", "class": "type-news"},
     "guide": {"label": "Guide", "class": "type-guide"},
+    "tool": {"label": "Outil", "class": "type-tool"},
 }
 TYPE_ALIASES = {"alerte": "news", "tarifs": "guide"}
 
@@ -85,6 +88,7 @@ ARTICLE_STYLES = """
     }
     .article-card.type-news { border-top:3px solid #f59e0b; }
     .article-card.type-guide { border-top:3px solid #22c55e; }
+    .article-card.type-tool { border-top:3px solid #7c89e8; }
     .article-meta {
       display:flex;
       flex-wrap:wrap;
@@ -104,6 +108,7 @@ ARTICLE_STYLES = """
     }
     .type-news .article-type { background:#451a03; color:#fde68a; border:1px solid #f59e0b; }
     .type-guide .article-type { background:#14532d; color:#bbf7d0; border:1px solid #22c55e; }
+    .type-tool .article-type { background:#1e1b4b; color:#c7d2fe; border:1px solid #7c89e8; }
     .article-date { color:#7d8fd6; font-size:.82rem; margin:0; }
     main.article h1 { font-size:1.65rem; line-height:1.25; margin:0 0 16px; color:#fff; }
     .article-chapo {
@@ -333,6 +338,74 @@ def build_related_html(article: dict, all_articles: list[dict]) -> str:
     )
 
 
+def replace_element_inner_by_id(page_html: str, elem_id: str, content: str) -> str:
+  pattern = rf'(<[^>]+id="{re.escape(elem_id)}"[^>]*>)(.*?)(</[^>]+>)'
+  return re.sub(pattern, rf"\1{html.escape(content)}\3", page_html, count=1, flags=re.DOTALL)
+
+
+def reorder_actu_app_header(page_html: str) -> str:
+    """H1 avant chapô, comme l'article initial (SEO + lecture)."""
+    marker_lead = '<p class="header-intro header-intro--lead" id="copy-lead">'
+    marker_body = '<h1 class="header-intro header-intro--body" id="copy-body">'
+    i_lead = page_html.find(marker_lead)
+    i_body = page_html.find(marker_body)
+    if i_lead < 0 or i_body < 0 or i_lead >= i_body:
+        return page_html
+    end_lead = page_html.find("</p>", i_lead) + 4
+    end_body = page_html.find("</h1>", i_body) + 5
+    lead_block = page_html[i_lead:end_lead]
+    body_block = page_html[i_body:end_body]
+    return page_html[:i_lead] + body_block + page_html[end_lead:i_body] + lead_block + page_html[end_body:]
+
+
+def actu_app_runtime_config(article: dict) -> dict:
+    slug = article["slug"]
+    titre = article["titre"]
+    resume = article.get("resume") or titre
+    return {
+        "slug": slug,
+        "titre": titre,
+        "h1": titre,
+        "resume": resume,
+        "title": f"{titre} | ParkEco",
+        "description": resume,
+        "canonical": f"{SITE_ORIGIN}/actu/{slug}",
+        "og_title": titre,
+        "og_description": resume,
+    }
+
+
+def build_actu_app_html(article: dict, template: str) -> str:
+    from construction_base.fab_seo_pages import (
+        replace_canonical,
+        replace_meta_name,
+        replace_meta_property,
+        replace_tag_content,
+    )
+
+    cfg = actu_app_runtime_config(article)
+    html = template
+    html = replace_tag_content(html, "title", cfg["title"])
+    html = replace_meta_name(html, "description", cfg["description"])
+    html = replace_canonical(html, cfg["canonical"])
+    html = replace_meta_property(html, "og:title", cfg["og_title"])
+    html = replace_meta_property(html, "og:description", cfg["og_description"])
+    html = replace_meta_property(html, "og:url", cfg["canonical"])
+    html = replace_meta_property(html, "og:type", "article")
+    inject = (
+        f'  <base href="/" />\n'
+        f'  <script>window.PARKECO_ACTU_APP = {json.dumps(cfg, ensure_ascii=False)};</script>\n'
+    )
+    html = html.replace("<head>", f"<head>\n{inject}", 1)
+    html = html.replace("<body>", '<body class="actu-app">', 1)
+    html = replace_element_inner_by_id(html, "copy-subtitle", "")
+    html = replace_element_inner_by_id(html, "copy-body", cfg["h1"])
+    html = replace_element_inner_by_id(html, "copy-lead", cfg["resume"])
+    html = replace_element_inner_by_id(html, "copy-trust", "")
+    html = reorder_actu_app_header(html)
+    return html
+
+
 def build_article_html(article: dict, all_articles: list[dict]) -> str:
     slug = article["slug"]
     titre = article["titre"]
@@ -366,19 +439,21 @@ def build_article_html(article: dict, all_articles: list[dict]) -> str:
     return out
 
 
-def generate_article_pages() -> list[dict]:
+def generate_article_pages(index_template: str | None = None) -> list[dict]:
     """Écrit les pages /actu/<slug>/index.html et renvoie les infos sitemap."""
     data = load_actualites()
     articles = valid_articles(data)
+    template = index_template if index_template is not None else INDEX_HTML.read_text(encoding="utf-8")
     sitemap_entries: list[dict] = []
     for article in articles:
         slug = article["slug"]
         out_dir = ACTU_DIR / slug
         out_dir.mkdir(parents=True, exist_ok=True)
-        (out_dir / "index.html").write_text(
-            build_article_html(article, articles),
-            encoding="utf-8",
-        )
+        if article.get("layout") == "app":
+            page_html = build_actu_app_html(article, template)
+        else:
+            page_html = build_article_html(article, articles)
+        (out_dir / "index.html").write_text(page_html, encoding="utf-8")
         print(f"Écrit : {out_dir / 'index.html'}")
         sitemap_entries.append(
             {

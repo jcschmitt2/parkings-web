@@ -26,7 +26,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <!-- build: v17.96 -->
+  <!-- build: v18.13 -->
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
   <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
@@ -163,6 +163,113 @@
     #news-panel[hidden] { display:none; }
     .news-panel { grid-column:1; grid-row:2; min-height:0; align-self:stretch; overflow-y:auto; }
     body.has-results #news-panel { display:none !important; }
+    body.actu-app #news-panel { display:none !important; }
+    body.actu-app .header-intro--trust { display:none; }
+    body.actu-app #copy-body.header-intro--body {
+      color:#fff;
+      font-weight:700;
+      font-size:1.05rem;
+      line-height:1.4;
+      margin:0 0 12px;
+    }
+    body.actu-app #copy-lead.header-intro--lead {
+      color:#9aa9ff;
+      font-weight:400;
+      font-size:.92rem;
+      line-height:1.55;
+      margin:0 0 10px;
+    }
+    .paris-respire-intro {
+      display:none;
+      margin-top:14px;
+      padding-top:14px;
+      border-top:1px solid #2b376f;
+      color:#c7d2fe;
+      font-size:.88rem;
+      line-height:1.55;
+    }
+    .paris-respire-intro h2 {
+      margin:0 0 10px;
+      font-size:.98rem;
+      font-weight:700;
+      color:#fff;
+      line-height:1.4;
+      letter-spacing:-0.2px;
+    }
+    .paris-respire-intro p {
+      margin:0 0 12px;
+      color:#9aa9ff;
+    }
+    .paris-respire-intro p strong,
+    .paris-respire-intro h2 strong {
+      color:#e7eaff;
+      font-weight:700;
+    }
+    .paris-respire-intro p:last-child { margin-bottom:0; }
+    body.actu-app:not(.has-results) .paris-respire-intro { display:block; }
+    body.actu-app.actu-parking-detail .paris-respire-intro,
+    body.actu-app.actu-parking-detail #copy-lead,
+    body.actu-app.actu-parking-detail #copy-body {
+      display:none !important;
+    }
+    @media (min-width: 901px) {
+      body.actu-app.actu-parking-detail:not(.has-results) .app-frame {
+        flex:1 1 0;
+        min-height:0;
+      }
+      body.actu-app.actu-parking-detail:not(.has-results) .detail-stack.open {
+        display:flex;
+        flex-direction:column;
+        min-height:0;
+        align-self:stretch;
+        overflow:hidden;
+      }
+      body.actu-app.actu-parking-detail:not(.has-results) .detail-stack.open .parking-detail-panel,
+      body.actu-app.actu-parking-detail:not(.has-results) .detail-stack.open .parking-gain-panel {
+        position:relative;
+        inset:auto;
+        flex:1 1 0;
+        min-height:0;
+      }
+    }
+    .paris-respire-legend {
+      position:absolute;
+      left:10px;
+      bottom:10px;
+      z-index:1000;
+      max-width:min(280px, calc(100% - 20px));
+      padding:8px 10px;
+      border-radius:8px;
+      background:rgba(11,16,32,.88);
+      border:1px solid #3d4f9a;
+      color:#e7eaff;
+      font-size:.76rem;
+      line-height:1.45;
+      box-shadow:0 4px 14px rgba(0,0,0,.22);
+    }
+    .paris-respire-legend strong { color:#fff; font-size:.8rem; }
+    .paris-respire-legend-swatch {
+      display:inline-block;
+      width:12px;
+      height:12px;
+      margin-right:6px;
+      border:2px solid #22c55e;
+      background:rgba(74,222,128,.35);
+      vertical-align:-2px;
+      border-radius:2px;
+    }
+    .paris-respire-legend a { color:#7dd3fc; }
+    .leaflet-popup-content .paris-respire-popup strong {
+      display:block;
+      margin-bottom:4px;
+      color:#0b1020;
+      font-size:.95rem;
+    }
+    .leaflet-popup-content .paris-respire-popup {
+      font-size:.82rem;
+      line-height:1.45;
+      color:#1e293b;
+    }
     .news-title { margin:0 0 12px; font-size:1.02rem; font-weight:700; color:#c7d2fe; }
     .news-list { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px; }
     .news-item { padding:0; background:#0e1440; border:1px solid #2b376f; border-radius:12px; border-left:3px solid #22c55e; }
@@ -176,6 +283,7 @@
     }
     .news-item--news { border-left-color:#f59e0b; }
     .news-item--guide { border-left-color:#22c55e; }
+    .news-item--tool { border-left-color:#7c89e8; }
     .news-item-head { display:flex; flex-wrap:wrap; align-items:center; gap:6px 8px; margin:0 0 6px; }
     .news-item-type {
       display:inline-flex;
@@ -190,6 +298,7 @@
       border:1px solid #22c55e;
     }
     .news-item--news .news-item-type { background:#451a03; color:#fde68a; border-color:#f59e0b; }
+    .news-item--tool .news-item-type { background:#1e1b4b; color:#c7d2fe; border-color:#7c89e8; }
     .news-item-date { font-size:.72rem; color:#7d8fd6; }
     .news-item-title { font-size:.92rem; font-weight:600; color:#e7eaff; line-height:1.3; margin:0 0 5px; }
     .news-item-resume { font-size:.8rem; color:#9aa9ff; line-height:1.45; margin:0 0 9px; }
@@ -1125,6 +1234,45 @@
         margin-top:10px;
         font-size:.78rem;
       }
+      body.actu-app #copy-body.header-intro--body {
+        font-size:.92rem;
+        margin:0 0 10px;
+      }
+      body.actu-app #copy-lead.header-intro--lead {
+        font-size:.84rem;
+        margin:0 0 8px;
+      }
+      body.actu-app:not(.has-results) .paris-respire-intro {
+        display:block;
+        margin-top:12px;
+        padding-top:12px;
+        font-size:.82rem;
+        line-height:1.5;
+      }
+      body.actu-app:not(.has-results) .paris-respire-intro h2 {
+        font-size:.9rem;
+        margin-bottom:8px;
+      }
+      body.actu-app.actu-parking-detail .paris-respire-intro,
+      body.actu-app.actu-parking-detail #copy-lead,
+      body.actu-app.actu-parking-detail #copy-body {
+        display:none !important;
+      }
+      @media (min-width: 901px) {
+        body.actu-app.actu-parking-detail:not(.has-results) .detail-stack.open {
+          display:flex;
+          flex-direction:column;
+          min-height:0;
+          overflow:hidden;
+        }
+        body.actu-app.actu-parking-detail:not(.has-results) .detail-stack.open .parking-detail-panel,
+        body.actu-app.actu-parking-detail:not(.has-results) .detail-stack.open .parking-gain-panel {
+          position:relative;
+          inset:auto;
+          flex:1 1 0;
+          min-height:0;
+        }
+      }
       .header-compact-title {
         margin:0 0 4px;
         font-size:1.02rem;
@@ -1431,6 +1579,11 @@
           <p class="hint" id="text-hint-code-postal">Adresse, lieu, arrondissement</p>
         </div>
       </form>
+      <div id="paris-respire-intro" class="paris-respire-intro" aria-label="Paris Respire">
+        <h2>Pourquoi utiliser ParkEco pendant Paris Respire ?</h2>
+        <p>À Paris, le stationnement en voirie peut coûter jusqu'à <strong>18 €/h</strong>, alors que de nombreux parkings publics sécurisés sont accessibles dès <strong>3 à 6 €/h</strong>.</p>
+        <p><strong>Cette version de ParkEco est spécialement dédiée à Paris Respire.</strong> Les zones fermées sont affichées sur la carte et, en indiquant votre destination, ParkEco vous propose le <strong>parking public le plus proche situé hors de la zone</strong>, pour rejoindre facilement votre destination à pied.</p>
+      </div>
     </section>
 
     <section id="news-panel" class="news-panel panel" aria-label="Actualité du stationnement à Paris" hidden>
@@ -1517,6 +1670,10 @@
     let PARKINGS = [];
     let STREET_TARIFFS = {};
     let map, userMarker, bestMarker, altMarkers = [];
+    let parisRespireLayer = null;
+    let parisRespireGeoJson = null;
+    let parisRespireOverviewGen = 0;
+    let parisRespireZonesGen = 0;
     let LAST_RESULT_PARKINGS = [];
     let DETAIL_PARKING_BY_ID = new Map();
     let SELECTED_PARKING_ID = "";
@@ -1532,10 +1689,27 @@
     let suggestTimer = null;
     let suggestRequestId = 0;
     let suppressSuggestionBlurHide = false;
-    const APP_VERSION = "17.96";
+    const APP_VERSION = "18.13";
     let DEFAULT_SEARCH_HINT_TEXT = "Adresse, lieu, arrondissement";
     let bootGeneration = 0;
     const OVERVIEW_NAME_ZOOM = 14;
+    const WELCOME_MAP_CENTER = [48.8566, 2.3522];
+    const WELCOME_MAP_ZOOM = 13;
+    const PARIS_RESPIRE_DATA_URL = encodeURI("donnée/paris_respire_secteurs.geojson");
+    const PARIS_RESPIRE_JOURS = {
+      "01": "Dimanche",
+      "03": "Mercredi",
+      "05": "1er dimanche du mois",
+      "10": "Vendredi et samedi",
+      "11": "Samedi et dimanche"
+    };
+    const PARIS_RESPIRE_AUTORISES = {
+      "01": "Riverains, secours, livraisons, PMR",
+      "02": "Riverains, secours, livraisons",
+      "03": "Riverains, secours, livraisons, transports en commun",
+      "04": "Riverains, secours, livraisons, transports, deux-roues motorisés",
+      "05": "Riverains, secours, livraisons, transports, deux-roues, taxis"
+    };
     // SEO_LANDINGS:BEGIN
     const SEO_LANDING_BY_PATH = {
       "/parking-proche-republique": {
@@ -1993,6 +2167,11 @@
 
     function setResultsLayoutActive(active){
       document.body.classList.toggle("has-results", !!active);
+      const actu = resolveActuAppConfig();
+      if(actu){
+        if(active) applyActuAppResultsHeader(actu);
+        else applyActuAppWelcome(actu);
+      }
       if(!active){
         mapFitToken++;
         setTimeout(() => refreshMapAfterLayoutChange(false), 100);
@@ -2017,6 +2196,7 @@
       try {
         map.invalidateSize({ animate:false });
         if(shouldRefit && LAST_MAP_FIT_LATLNGS?.length) scheduleMapFit();
+        else if(isParisRespireActuPage()) ensureParisRespireZonesLayer();
         else if(!resolveSeoLandingConfig()) scheduleWelcomeOverviewMap();
       } catch (err) {
         console.warn("Carte : rafraîchissement ignoré", err);
@@ -2113,7 +2293,9 @@
         const data = await res.json();
         APP_TEXTES = data.pages?.index || null;
         applyIndexTextes(APP_TEXTES);
-        if(!resolveSeoLandingConfig()) resetResultsMessage();
+        const actuApp = resolveActuAppConfig();
+        if(actuApp) applyActuAppWelcome(actuApp);
+        else if(!resolveSeoLandingConfig()) resetResultsMessage();
       } catch(err) {
         console.warn("Textes non chargés depuis parkeco_textes.json", err);
       }
@@ -2241,7 +2423,15 @@
       setAddressEntryActive(keepActive);
     }
 
+    function resetParisRespireMapState(){
+      parisRespireLayer = null;
+      parisRespireOverviewGen++;
+      parisRespireZonesGen++;
+    }
+
     function destroyMapCompletely(){
+      resetParisRespireMapState();
+      hideParisRespireMapLegend();
       if(map){
         try { map.remove(); } catch (err) { /* déjà détachée */ }
         map = null;
@@ -2255,6 +2445,7 @@
     function resetTransientSearchState(){
       mapFitToken++;
       clearMarkers();
+      resetParisRespireZoneHighlight();
       LAST_MAP_FIT_LATLNGS = null;
       LAST_RESULT_PARKINGS = [];
       CURRENT_ORIGIN = null;
@@ -2269,6 +2460,7 @@
       mapFitToken++;
       document.body.classList.remove("has-results", "detail-open", "address-entry-active");
       closeParkingDetail();
+      resetParisRespireZoneHighlight();
       clearMarkers();
       LAST_MAP_FIT_LATLNGS = null;
       LAST_RESULT_PARKINGS = [];
@@ -2278,13 +2470,16 @@
       hideSuggestions();
       const resBox = document.getElementById("results");
       if(resBox) resBox.innerHTML = "";
+      const actu = resolveActuAppConfig();
+      if(actu) applyActuAppWelcome(actu);
       setMobileView("list");
       if(map){
         try {
-          map.setView([48.8566, 2.3522], 13, { animate:false });
+          map.setView(WELCOME_MAP_CENTER, WELCOME_MAP_ZOOM, { animate:false });
           setTimeout(() => {
             refreshMapAfterLayoutChange(false);
-            scheduleWelcomeOverviewMap();
+            if(isParisRespireActuPage()) scheduleParisRespireOverviewMap();
+            else scheduleWelcomeOverviewMap();
           }, 120);
         } catch (err) {
           console.warn("Carte : réinitialisation ignorée", err);
@@ -2339,12 +2534,8 @@
       });
     }
 
-    function showWelcomeOverviewMap(){
-      if(!PARKINGS.length || !isWelcomeOverviewMode()) return;
-      if(!map){
-        initMap();
-        if(!map) return;
-      }
+    function showOverviewParkingMarkers(){
+      if(!map || !PARKINGS.length) return;
       clearMarkers();
       const optionsById = {};
       PARKINGS.forEach(p => {
@@ -2363,7 +2554,20 @@
       map.invalidateSize({ animate:false });
     }
 
+    function showWelcomeOverviewMap(){
+      if(!PARKINGS.length || !isWelcomeOverviewMode()) return;
+      if(!map){
+        initMap();
+        if(!map) return;
+      }
+      showOverviewParkingMarkers();
+    }
+
     function scheduleWelcomeOverviewMap(attempt = 0){
+      if(isParisRespireActuPage()){
+        scheduleParisRespireOverviewMap(attempt);
+        return;
+      }
       if(!isWelcomeOverviewMode() || !PARKINGS.length) return;
       const mapEl = document.getElementById("map");
       if(!mapEl || mapEl.offsetWidth < 20 || mapEl.offsetHeight < 20){
@@ -2398,7 +2602,13 @@
       if(map){
         setTimeout(() => {
           map.invalidateSize({ animate:false });
-          if(isMap) scheduleMapFit();
+          if(isMap){
+            if(isParisRespireActuPage()){
+              ensureParisRespireZonesLayer().then(() => {
+                if(LAST_MAP_FIT_LATLNGS?.length) scheduleMapFit();
+              });
+            } else if(LAST_MAP_FIT_LATLNGS?.length) scheduleMapFit();
+          }
         }, 80);
       }
     }
@@ -2792,6 +3002,7 @@
       stack.setAttribute("aria-hidden", "false");
       setStackView("gain");
       if(isMobileLayout()) document.body.classList.add("detail-open");
+      setActuParkingDetailActive(true);
     }
 
     function closeParkingDetail(){
@@ -2799,6 +3010,7 @@
       const scroll = document.getElementById("results-scroll");
       if(!stack || !scroll) return;
       document.body.classList.remove("detail-open");
+      setActuParkingDetailActive(false);
       closeGainPanel({ restoreDetail: false });
       stack.classList.remove("open", "view-detail", "view-gain");
       stack.setAttribute("aria-hidden", "true");
@@ -2956,6 +3168,11 @@
       }
     }
 
+    function setActuParkingDetailActive(active){
+      if(!isParisRespireActuPage()) return;
+      document.body.classList.toggle("actu-parking-detail", !!active);
+    }
+
     function openParkingDetail(parkingId){
       const p = DETAIL_PARKING_BY_ID.get(parkingId);
       if(!p) return;
@@ -3005,6 +3222,7 @@
       stack.setAttribute("aria-hidden", "false");
       setStackView("detail");
       if(isMobileLayout()) document.body.classList.add("detail-open");
+      setActuParkingDetailActive(true);
       body.scrollTop = 0;
       updateParkingSelection(parkingId);
     }
@@ -3162,11 +3380,14 @@
         try { map.remove(); } catch (err) { /* déjà détachée */ }
         map = null;
       }
+      resetParisRespireMapState();
+      MARKERS_BY_PARKING_ID.clear();
+      altMarkers = [];
       if(mapEl._leaflet_id){
         mapEl.replaceChildren();
         delete mapEl._leaflet_id;
       }
-      map = L.map("map", { zoomControl:true }).setView([48.8566, 2.3522], 13);
+      map = L.map("map", { zoomControl:true }).setView(WELCOME_MAP_CENTER, WELCOME_MAP_ZOOM);
       L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
         maxZoom: 20,
         attribution: "&copy; OpenStreetMap &copy; CARTO",
@@ -3183,13 +3404,14 @@
       map.on("zoomend", refreshOverviewMarkerLabels);
       setTimeout(() => {
         map.invalidateSize();
-        if(!resolveSeoLandingConfig()) scheduleWelcomeOverviewMap();
+        if(!resolveSeoLandingConfig() && !resolveActuAppConfig()) scheduleWelcomeOverviewMap();
       }, 0);
     }
 
     async function bootApp({ hard = false } = {}){
       const gen = ++bootGeneration;
       const seoLanding = resolveSeoLandingConfig();
+      const actuApp = resolveActuAppConfig();
 
       if(hard){
         destroyMapCompletely();
@@ -3198,7 +3420,7 @@
       }
 
       syncMobileLayout();
-      if(!map && (!isMobileLayout() || document.body.classList.contains("has-results") || seoLanding)) initMap();
+      if(!map && (!isMobileLayout() || document.body.classList.contains("has-results") || seoLanding || actuApp)) initMap();
       if(gen !== bootGeneration) return;
       if(map) refreshMapAfterLayoutChange(false);
       if(gen !== bootGeneration) return;
@@ -3219,8 +3441,9 @@
     window.addEventListener("pageshow", (event) => {
       bootHandledForNavigation = true;
       const seo = resolveSeoLandingConfig();
+      const actuApp = resolveActuAppConfig();
       const reload = isNavigationReload();
-      if(seo || event.persisted || reload){
+      if(seo || actuApp || event.persisted || reload){
         if(!seo && event.persisted){
           resetToWelcome();
         }
@@ -3246,6 +3469,7 @@
       if(!map) return;
       map.invalidateSize({ animate:false });
       if(isMapPanelVisible() && LAST_MAP_FIT_LATLNGS?.length) scheduleMapFit();
+      else if(isParisRespireActuPage()) scheduleParisRespireOverviewMap();
       else scheduleWelcomeOverviewMap();
     });
     syncMobileLayout();
@@ -3274,6 +3498,272 @@
     function normalizeSeoPathname(path){
       const cleaned = String(path || "/").replace(/\/+$/, "") || "/";
       return cleaned.toLowerCase();
+    }
+
+    function resolveActuAppConfig(){
+      if(typeof PARKECO_ACTU_APP === "object" && PARKECO_ACTU_APP){
+        return PARKECO_ACTU_APP;
+      }
+      return null;
+    }
+
+    function applyActuAppWelcome(actu){
+      if(!actu) return;
+      document.body.classList.add("actu-app");
+      setTextById("copy-subtitle", "");
+      setTextById("copy-lead", actu.resume || "");
+      setTextById("copy-body", actu.h1 || actu.titre || "");
+      setTextById("copy-trust", "");
+      setTextById("text-label-address", "Votre destination");
+    }
+
+    function applyActuAppResultsHeader(actu){
+      if(!actu) return;
+      const shortTitle = String(actu.titre || actu.h1 || "Paris Respire").split(":")[0].trim();
+      setTextById("copy-results-title", shortTitle || "Paris Respire");
+      setTextById("copy-results-tagline", "");
+      setTextById("copy-results-note", "");
+    }
+
+    function isParisRespireActuPage(){
+      return resolveActuAppConfig()?.slug === "paris-respire-stationnement";
+    }
+
+    async function loadParisRespireGeoJson(){
+      if(parisRespireGeoJson) return parisRespireGeoJson;
+      const res = await fetch(`${PARIS_RESPIRE_DATA_URL}?v=${APP_VERSION}`);
+      if(!res.ok) throw new Error(`paris_respire_secteurs.geojson HTTP ${res.status}`);
+      parisRespireGeoJson = await res.json();
+      return parisRespireGeoJson;
+    }
+
+    async function getParisRespireUrbanFeatures(){
+      const raw = await loadParisRespireGeoJson();
+      return filterParisRespireUrbanZones(raw).features || [];
+    }
+
+    function pointInRing(lat, lon, ring){
+      let inside = false;
+      for(let i = 0, j = ring.length - 1; i < ring.length; j = i++){
+        const xi = ring[i][0];
+        const yi = ring[i][1];
+        const xj = ring[j][0];
+        const yj = ring[j][1];
+        const intersect = ((yi > lat) !== (yj > lat)) &&
+          (lon < (xj - xi) * (lat - yi) / (yj - yi) + xi);
+        if(intersect) inside = !inside;
+      }
+      return inside;
+    }
+
+    function pointInPolygonCoords(lat, lon, polygonCoords){
+      if(!polygonCoords?.length || !pointInRing(lat, lon, polygonCoords[0])) return false;
+      for(let h = 1; h < polygonCoords.length; h++){
+        if(pointInRing(lat, lon, polygonCoords[h])) return false;
+      }
+      return true;
+    }
+
+    function pointInGeometry(lat, lon, geometry){
+      if(!geometry) return false;
+      if(geometry.type === "Polygon"){
+        return pointInPolygonCoords(lat, lon, geometry.coordinates);
+      }
+      if(geometry.type === "MultiPolygon"){
+        return geometry.coordinates.some(poly => pointInPolygonCoords(lat, lon, poly));
+      }
+      return false;
+    }
+
+    function findParisRespireZoneAt(lat, lon, features){
+      if(!Number.isFinite(lat) || !Number.isFinite(lon) || !features?.length) return null;
+      for(const feature of features){
+        if(pointInGeometry(lat, lon, feature.geometry)) return feature;
+      }
+      return null;
+    }
+
+    function isOutsideParisRespireZones(lat, lon, features){
+      return !findParisRespireZoneAt(lat, lon, features);
+    }
+
+    function resetParisRespireZoneHighlight(){
+      if(!parisRespireLayer) return;
+      parisRespireLayer.eachLayer(layer => parisRespireLayer.resetStyle(layer));
+    }
+
+    function highlightParisRespireZone(zoneFeature){
+      if(!parisRespireLayer || !zoneFeature) return;
+      const zoneName = zoneFeature.properties?.nom;
+      parisRespireLayer.eachLayer(layer => {
+        if(layer.feature?.properties?.nom === zoneName){
+          layer.setStyle({ weight: 3, fillOpacity: 0.45 });
+          if(typeof layer.bringToFront === "function") layer.bringToFront();
+        } else {
+          parisRespireLayer.resetStyle(layer);
+        }
+      });
+    }
+
+    function formatParisRespirePopup(props){
+      const lines = [];
+      lines.push(`<strong>${escapeHtml(props.nom || "Secteur")}</strong>`);
+      if(props.arrdt) lines.push(`Arrondissement : ${escapeHtml(props.arrdt)}`);
+      if(props.type_secteurs) lines.push(`Période : ${escapeHtml(props.type_secteurs)}`);
+      const jours = PARIS_RESPIRE_JOURS[props.jours] || props.jours;
+      if(jours) lines.push(`Jours : ${escapeHtml(jours)}`);
+      if(props.horaires_annee) lines.push(`Horaires : ${escapeHtml(props.horaires_annee)}`);
+      if(props.periode_estivale) lines.push(`Période estivale : ${escapeHtml(props.periode_estivale)}`);
+      if(props.horaires_ete) lines.push(`Horaires été : ${escapeHtml(props.horaires_ete)}`);
+      if(props.dates_specifiques) lines.push(escapeHtml(props.dates_specifiques));
+      const aut = PARIS_RESPIRE_AUTORISES[props.autorises];
+      if(aut) lines.push(`Circulation autorisée : ${escapeHtml(aut)}`);
+      lines.push(
+        '<a href="https://www.paris.fr/pages/paris-respire-2122" target="_blank" rel="noopener noreferrer">' +
+        "Carte officielle — Ville de Paris</a>"
+      );
+      return `<div class="paris-respire-popup">${lines.join("<br>")}</div>`;
+    }
+
+    function parisRespireZoneStyle(){
+      return {
+        color: "#16a34a",
+        weight: 2,
+        opacity: 0.9,
+        fillColor: "#4ade80",
+        fillOpacity: 0.28
+      };
+    }
+
+    function parisRespireZoneHighlight(event){
+      event.target.setStyle({ weight: 3, fillOpacity: 0.42 });
+    }
+
+    function parisRespireZoneReset(event){
+      if(parisRespireLayer) parisRespireLayer.resetStyle(event.target);
+    }
+
+    function clearParisRespireLayer(){
+      if(parisRespireLayer && map){
+        try { map.removeLayer(parisRespireLayer); } catch (err) { /* déjà retirée */ }
+      }
+      parisRespireLayer = null;
+    }
+
+    function ensureParisRespireMapLegend(){
+      if(!isParisRespireActuPage()) return;
+      let el = document.getElementById("paris-respire-legend");
+      if(!el){
+        el = document.createElement("div");
+        el.id = "paris-respire-legend";
+        el.className = "paris-respire-legend";
+        el.innerHTML =
+          '<strong><span class="paris-respire-legend-swatch" aria-hidden="true"></span>Zones Paris Respire (quartiers)</strong><br>' +
+          "Données : <a href=\"https://opendata.paris.fr/explore/dataset/secteurs-paris-respire/\" " +
+          "target=\"_blank\" rel=\"noopener noreferrer\">Ville de Paris (open data)</a>. " +
+          "Cliquez une zone pour les horaires.";
+        document.querySelector(".map-panel")?.appendChild(el);
+      }
+      el.hidden = false;
+    }
+
+    function hideParisRespireMapLegend(){
+      const el = document.getElementById("paris-respire-legend");
+      if(el) el.hidden = true;
+    }
+
+    function filterParisRespireUrbanZones(geojson){
+      const west = 2.252;
+      const south = 48.815;
+      const east = 2.422;
+      const north = 48.902;
+      const features = (geojson.features || []).filter(feature => {
+        const props = feature.properties || {};
+        const nom = String(props.nom || "").trim();
+        if(/^Bois de /i.test(nom)) return false;
+        const pt = props.geo_point_2d;
+        if(!pt) return true;
+        const lat = pt.lat;
+        const lon = pt.lon;
+        return lon >= west && lon <= east && lat >= south && lat <= north;
+      });
+      return { type: "FeatureCollection", features };
+    }
+
+    function ensureParisRespireMapPane(){
+      if(!map) return;
+      if(!map.getPane("parisRespirePane")){
+        map.createPane("parisRespirePane");
+        map.getPane("parisRespirePane").style.zIndex = 350;
+      }
+    }
+
+    async function ensureParisRespireZonesLayer(){
+      if(!isParisRespireActuPage() || !map) return false;
+      if(parisRespireLayer){
+        ensureParisRespireMapLegend();
+        return true;
+      }
+      const gen = ++parisRespireZonesGen;
+      try {
+        const raw = await loadParisRespireGeoJson();
+        if(gen !== parisRespireZonesGen || !map) return false;
+        if(parisRespireLayer) return true;
+        const data = filterParisRespireUrbanZones(raw);
+        ensureParisRespireMapPane();
+        parisRespireLayer = L.geoJSON(data, {
+          pane: "parisRespirePane",
+          style: parisRespireZoneStyle,
+          onEachFeature(feature, layer){
+            const props = feature.properties || {};
+            layer.bindPopup(formatParisRespirePopup(props), { maxWidth: 320 });
+            layer.on({
+              mouseover: parisRespireZoneHighlight,
+              mouseout: parisRespireZoneReset
+            });
+          }
+        }).addTo(map);
+        if(gen !== parisRespireZonesGen || !map) return false;
+        ensureParisRespireMapLegend();
+        return true;
+      } catch(err){
+        console.warn("Zones Paris Respire non chargées", err);
+        return false;
+      }
+    }
+
+    async function showParisRespireOverviewMap(){
+      if(!isParisRespireActuPage() || !map) return;
+      if(document.body.classList.contains("has-results")) return;
+      if(!isWelcomeOverviewMode()) return;
+      const gen = ++parisRespireOverviewGen;
+      const ok = await ensureParisRespireZonesLayer();
+      if(gen !== parisRespireOverviewGen || !map || !ok) return;
+      showOverviewParkingMarkers();
+      map.setView(WELCOME_MAP_CENTER, WELCOME_MAP_ZOOM, { animate:false });
+      map.invalidateSize({ animate:false });
+    }
+
+    function scheduleParisRespireOverviewMap(attempt = 0){
+      if(!isParisRespireActuPage() || document.body.classList.contains("has-results")) return;
+      if(!isWelcomeOverviewMode() || !PARKINGS.length){
+        if(!PARKINGS.length && attempt < 60){
+          setTimeout(() => scheduleParisRespireOverviewMap(attempt + 1), 80);
+        }
+        return;
+      }
+      const mapEl = document.getElementById("map");
+      if(!mapEl || mapEl.offsetWidth < 20 || mapEl.offsetHeight < 20){
+        if(attempt < 24) setTimeout(() => scheduleParisRespireOverviewMap(attempt + 1), 80);
+        return;
+      }
+      if(!map) initMap();
+      if(!map){
+        if(attempt < 24) setTimeout(() => scheduleParisRespireOverviewMap(attempt + 1), 80);
+        return;
+      }
+      if(!parisRespireLayer || !hasWelcomeOverviewMarkers()) showParisRespireOverviewMap();
+      else refreshOverviewMarkerLabels();
     }
 
     function resolveSeoLandingConfig(){
@@ -3354,7 +3844,7 @@
         document.getElementById("results").innerHTML = `<div class="muted">Recherche en cours…</div>`;
         setResultsLayoutActive(true);
         closeParkingDetail();
-        showNearestFromOrigin({
+        await showNearestFromOrigin({
           lat: +landing.lat,
           lon: +landing.lon,
           label: query || "Lieu recherché"
@@ -3495,7 +3985,8 @@
           `(bundle du ${bundle.builtAt || "?"})`
         );
         if(resolveSeoLandingConfig()) await runSeoLandingSearchIfNeeded();
-        else scheduleWelcomeOverviewMap();
+        else if(isParisRespireActuPage()) scheduleParisRespireOverviewMap();
+        else if(!resolveActuAppConfig()) scheduleWelcomeOverviewMap();
       } catch(err) {
         console.error("Chargement automatique impossible", err);
         const origin = window.location.origin || "";
@@ -3788,7 +4279,7 @@
         : `${SEARCH_RADIUS_M} m`;
     }
 
-    function showNearestFromOrigin(origin){
+    async function showNearestFromOrigin(origin){
       CURRENT_ORIGIN = origin;
       closeParkingDetail();
       setResultsLayoutActive(true);
@@ -3802,16 +4293,46 @@
         return;
       }
 
-      const nearby = enriched.filter(p => p.distance_m <= SEARCH_RADIUS_M);
+      let pool = enriched;
+      let respireZone = null;
+      let resultsExtra = `<span class="results-summary-extra"> dans un rayon de ${fmtSearchRadius()}</span>`;
+      let bestTitle = "Parking le plus proche";
+
+      if(isParisRespireActuPage()){
+        await ensureParisRespireZonesLayer();
+        const features = await getParisRespireUrbanFeatures();
+        respireZone = findParisRespireZoneAt(origin.lat, origin.lon, features);
+        if(respireZone){
+          const zoneName = respireZone.properties?.nom || "Paris Respire";
+          pool = enriched.filter(p => isOutsideParisRespireZones(p.lat, p.lon, features));
+          bestTitle = "Parking le plus proche hors zone";
+          resultsExtra =
+            `<span class="results-summary-extra"> — destination en zone Paris Respire « ${escapeHtml(zoneName)} » : parkings hors zone (${fmtSearchRadius()})</span>`;
+          highlightParisRespireZone(respireZone);
+        }
+      }
+
+      if(!pool.length){
+        const resBox = document.getElementById('results');
+        resBox.innerHTML =
+          `<div class="muted">Aucun parking répertorié hors des zones Paris Respire.</div>`;
+        clearMarkers();
+        userMarker = L.marker([origin.lat, origin.lon], {title: origin.label || "Destination", icon: originIcon}).addTo(map);
+        fitMapToParkings([[origin.lat, origin.lon]]);
+        return;
+      }
+
+      const nearby = pool.filter(p => p.distance_m <= SEARCH_RADIUS_M);
       const resBox = document.getElementById('results');
       if(!nearby.length){
-        const closest = enriched[0];
+        const closest = pool[0];
+        const outsideHint = respireZone ? " hors zone Paris Respire" : "";
         resBox.innerHTML =
-          `<div class="muted">Aucun parking dans un rayon de ${fmtSearchRadius()}.` +
-          (closest ? ` Le plus proche est à ${fmtDist(closest.distance_m)} (${fmtWalkTime(closest.distance_m)}).</div>` : "</div>");
+          `<div class="muted">Aucun parking${outsideHint} dans un rayon de ${fmtSearchRadius()}.` +
+          (closest ? ` Le plus proche${outsideHint} est à ${fmtDist(closest.distance_m)} (${fmtWalkTime(closest.distance_m)}).</div>` : "</div>");
         clearMarkers();
-        userMarker = L.marker([origin.lat, origin.lon], {title: origin.label || "Adresse de départ", icon: originIcon}).addTo(map);
-        fitMapToParkings([[origin.lat, origin.lon]]);
+        userMarker = L.marker([origin.lat, origin.lon], {title: origin.label || "Destination", icon: originIcon}).addTo(map);
+        fitMapToParkings([[origin.lat, origin.lon], [closest.lat, closest.lon]]);
         return;
       }
 
@@ -3819,7 +4340,7 @@
       const alts = nearby.slice(1);
 
       clearMarkers();
-      userMarker = L.marker([origin.lat, origin.lon], {title: origin.label || "Adresse de départ", icon: originIcon}).addTo(map);
+      userMarker = L.marker([origin.lat, origin.lon], {title: origin.label || "Destination", icon: originIcon}).addTo(map);
       bestMarker = createParkingMarker(best.lat, best.lon, {title: best.name, icon: buildBestMapIcon(false, best.distance_m, best.name)}).addTo(map);
       registerMapMarker(best.id, bestMarker, "best", "P", best.distance_m, best.name);
       altMarkers = alts.map((p, i) => {
@@ -3835,19 +4356,15 @@
 
       const shown = nearby;
       const optionsById = {
-        [best.id]: { title: "Parking le plus proche" }
+        [best.id]: { title: bestTitle }
       };
       alts.forEach((p, i) => { if(p.id) optionsById[p.id] = { title: `P${i + 1}` }; });
       registerResultParkings(shown, optionsById);
 
       const placeName = getPlaceDisplayName(origin);
       resBox.innerHTML =
-        buildResultsHeadingHtml(
-          placeName,
-          nearby.length,
-          `<span class="results-summary-extra"> dans un rayon de ${fmtSearchRadius()}</span>`
-        ) +
-        parkingResultCard(best, 0, { title: "Parking le plus proche", markerClass: "result-marker-best" }) +
+        buildResultsHeadingHtml(placeName, nearby.length, resultsExtra) +
+        parkingResultCard(best, 0, { title: bestTitle, markerClass: "result-marker-best" }) +
         alts.map((p, i) => parkingResultCard(p, i + 1)).join("");
       setMobileView("list");
       dismissAddressKeyboard();
@@ -3879,7 +4396,7 @@
         closeParkingDetail();
         const addressEl = document.getElementById("address");
         if(addressEl && knownPlace.properties.label) addressEl.value = knownPlace.properties.label;
-        showNearestFromOrigin({
+        await showNearestFromOrigin({
           lat: coords[1],
           lon: coords[0],
           label: knownPlace.properties.label
@@ -3894,7 +4411,7 @@
         const origin = await geocodeAddressViaGouv(addr);
         const addressEl = document.getElementById("address");
         if(addressEl && origin.label) addressEl.value = origin.label;
-        showNearestFromOrigin(origin);
+        await showNearestFromOrigin(origin);
       } catch(err){
         document.getElementById('results').innerHTML =
           `<div class="muted">Adresse introuvable (${err.message}).</div>`;
@@ -3923,7 +4440,7 @@
           try {
             const origin = await reverseGeocode(lat, lon);
             document.getElementById('address').value = origin.label;
-            showNearestFromOrigin(origin);
+            await showNearestFromOrigin(origin);
           } catch(err){
             document.getElementById('results').innerHTML =
               `<div class="muted">Impossible d’utiliser la position (${err.message}).</div>`;
@@ -4235,7 +4752,7 @@
       return merged.slice(0, 6);
     }
 
-    function selectSuggestion(index, runSearch = true){
+    async function selectSuggestion(index, runSearch = true){
       const feature = suggestionItems[index];
       if(!feature) return;
       const p = feature.properties || {};
@@ -4255,7 +4772,10 @@
         return;
       }
       if(coords && coords.length >= 2){
-        showNearestFromOrigin({ lat: coords[1], lon: coords[0], label });
+        document.getElementById('results').innerHTML = `<div class="muted">Recherche en cours…</div>`;
+        setResultsLayoutActive(true);
+        closeParkingDetail();
+        await showNearestFromOrigin({ lat: coords[1], lon: coords[0], label });
       }
     }
 
@@ -4500,18 +5020,23 @@
     }
 
     async function initActualites(){
-      if(window.PARKECO_SEO_LANDING) return;
+      if(window.PARKECO_SEO_LANDING || window.PARKECO_ACTU_APP) return;
       const panel = document.getElementById("news-panel");
       const list = document.getElementById("news-list");
       const titleEl = document.getElementById("news-title");
       if(!panel || !list) return;
       const NEWS_TYPE_LABELS = {
         news: "News",
-        guide: "Guide"
+        guide: "Guide",
+        tool: "Outil"
       };
       const NEWS_TYPE_CLASS = {
         news: "news-item--news",
-        guide: "news-item--guide"
+        guide: "news-item--guide",
+        tool: "news-item--tool"
+      };
+      const NEWS_READ_LABELS = {
+        tool: "Accès"
       };
       const NEWS_TYPE_ALIASES = { alerte: "news", tarifs: "guide" };
       const NEWS_MONTHS = ["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];
@@ -4541,6 +5066,7 @@
             ? `<p class="news-item-resume">${escapeHtml(a.resume)}</p>`
             : "";
           const href = "/actu/" + encodeURIComponent(a.slug) + "/";
+          const readLabel = NEWS_READ_LABELS[type] || "Lire l'article";
           return `<li class="news-item ${typeClass}">
             <a class="news-item-anchor" href="${href}">
             <div class="news-item-head">
@@ -4549,7 +5075,7 @@
             </div>
             <p class="news-item-title">${escapeHtml(a.titre)}</p>
             ${resume}
-            <span class="news-read">Lire l'article</span>
+            <span class="news-read">${escapeHtml(readLabel)}</span>
             </a>
           </li>`;
         }).join("");
