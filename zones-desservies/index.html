@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <title>Toutes les zones desservies — Parkings publics à Paris | ParkEco</title>
+  <meta name="description" content="Accès direct à toutes les pages ParkEco par lieu et arrondissement : parkings publics à Paris, carte interactive et tarifs." />
+  <link rel="canonical" href="https://parkeco.fr/zones-desservies/" />
+  <meta property="og:title" content="Toutes les zones desservies | ParkEco" />
+  <meta property="og:description" content="Liste des pages ParkEco par lieu et arrondissement à Paris." />
+  <meta property="og:url" content="https://parkeco.fr/zones-desservies/" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="/favicon.ico" sizes="48x48" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <style>
+    :root { --bg:#0b1020; --card:#121733; --text:#e7eaff; --accent:#7dd3fc; }
+    * { box-sizing:border-box; }
+    html, body {
+      margin:0;
+      min-height:100dvh;
+      font-family:system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg,#0b1020,#0e153a);
+    }
+    a { color:var(--accent); text-decoration:none; }
+    a:hover { text-decoration:underline; }
+    .hub-header {
+      padding:18px max(18px, env(safe-area-inset-right)) 14px max(18px, env(safe-area-inset-left));
+      padding-top:max(18px, env(safe-area-inset-top));
+      border-bottom:1px solid #263069;
+      background:rgba(11,16,32,.95);
+    }
+    .hub-top {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:14px;
+    }
+    .hub-back {
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:8px 12px;
+      min-height:44px;
+      box-sizing:border-box;
+      border-radius:999px;
+      border:1px solid #2b376f;
+      background:#0e1440;
+      color:#9aa9ff;
+      font-size:.84rem;
+      font-weight:600;
+      text-decoration:none;
+      touch-action:manipulation;
+      -webkit-tap-highlight-color:rgba(125,211,252,.25);
+    }
+    .hub-back:hover { color:#fff; text-decoration:none; border-color:#5b72c9; }
+    .hub-brand { font-size:1.35rem; font-weight:700; color:#fff; }
+    .brand-eco { color:#c7d2fe; }
+    .hub-main {
+      max-width:760px;
+      margin:0 auto;
+      padding:20px max(16px, env(safe-area-inset-right)) 32px max(16px, env(safe-area-inset-left));
+    }
+    .hub-panel {
+      background:var(--card);
+      border:1px solid #263069;
+      border-radius:16px;
+      padding:20px 18px 16px;
+      box-shadow:0 10px 30px rgba(0,0,0,.25);
+    }
+    .hub-title {
+      margin:0 0 10px;
+      font-size:1.25rem;
+      font-weight:700;
+      color:#fff;
+      line-height:1.35;
+    }
+    .hub-intro {
+      margin:0 0 20px;
+      color:#9aa9ff;
+      font-size:.92rem;
+      line-height:1.5;
+    }
+    .hub-section { margin-bottom:22px; }
+    .hub-section:last-child { margin-bottom:0; }
+    .hub-section h2 {
+      margin:0 0 10px;
+      font-size:1rem;
+      font-weight:700;
+      color:#c7d2fe;
+    }
+    .hub-links {
+      margin:0;
+      padding:0;
+      list-style:none;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+    .hub-links a {
+      display:block;
+      padding:12px 14px;
+      min-height:48px;
+      box-sizing:border-box;
+      line-height:1.35;
+      border-radius:8px;
+      border:1px solid #2b376f;
+      background:#0f1530;
+      color:#e7eaff;
+      font-size:.9rem;
+      touch-action:manipulation;
+      -webkit-tap-highlight-color:rgba(125,211,252,.25);
+    }
+    .hub-links a:hover {
+      border-color:#5b72c9;
+      background:#111845;
+      text-decoration:none;
+    }
+    .site-footer {
+      border-top:1px solid #263069;
+      padding:4px 12px;
+      padding-bottom:max(4px, env(safe-area-inset-bottom));
+      text-align:center;
+      font-size:.7rem;
+      line-height:1.25;
+      color:#7d8fd6;
+      background:rgba(11,16,32,.95);
+    }
+    .site-footer p { margin:0; }
+    .site-footer a {
+      color:#9aa9ff;
+      font-weight:600;
+      text-decoration:none;
+      touch-action:manipulation;
+    }
+    .site-footer a:hover { text-decoration:underline; }
+  </style>
+</head>
+<body>
+  <header class="hub-header">
+    <div class="hub-top">
+      <a class="hub-back" href="/">← Accueil ParkEco</a>
+      <div class="hub-brand">Park<span class="brand-eco">Eco</span></div>
+    </div>
+  </header>
+  <main class="hub-main">
+    <article class="hub-panel">
+      <h1 class="hub-title">Toutes les zones desservies</h1>
+      <p class="hub-intro">Accès direct aux pages ParkEco par lieu et arrondissement : parkings publics à Paris, carte interactive, distances et tarifs.</p>
+      <section class="hub-section" aria-labelledby="hub-places-title">
+        <h2 id="hub-places-title">Lieux et monuments</h2>
+        <ul class="hub-links">
+        <li><a href="/parking-proche-accor-arena/">Parking proche Accor Arena (Bercy)</a></li>
+        <li><a href="/parking-proche-bastille/">Parking proche Bastille</a></li>
+        <li><a href="/parking-proche-champs-elysees/">Parking proche Champs-Élysées</a></li>
+        <li><a href="/parking-proche-chatelet/">Parking proche Châtelet</a></li>
+        <li><a href="/parking-proche-gare-de-lest/">Parking proche Gare de l&#x27;Est</a></li>
+        <li><a href="/parking-proche-gare-de-lyon/">Parking proche Gare de Lyon</a></li>
+        <li><a href="/parking-proche-gare-du-nord/">Parking proche Gare du Nord</a></li>
+        <li><a href="/parking-proche-marais/">Parking proche Le Marais</a></li>
+        <li><a href="/parking-proche-louvre/">Parking proche Louvre</a></li>
+        <li><a href="/parking-proche-montparnasse/">Parking proche Montparnasse</a></li>
+        <li><a href="/parking-proche-nation/">Parking proche Nation</a></li>
+        <li><a href="/parking-proche-notre-dame/">Parking proche Notre-Dame</a></li>
+        <li><a href="/parking-proche-opera/">Parking proche Opéra</a></li>
+        <li><a href="/parking-proche-parc-des-princes/">Parking proche Parc des Princes</a></li>
+        <li><a href="/parking-proche-place-italie/">Parking proche Place d&#x27;Italie</a></li>
+        <li><a href="/parking-proche-porte-de-versailles/">Parking proche Porte de Versailles</a></li>
+        <li><a href="/parking-proche-republique/">Parking proche République</a></li>
+        <li><a href="/parking-proche-saint-lazare/">Parking proche Saint-Lazare</a></li>
+        <li><a href="/parking-proche-tour-eiffel/">Parking proche Tour Eiffel</a></li>
+        </ul>
+      </section>
+      <section class="hub-section" aria-labelledby="hub-arr-title">
+        <h2 id="hub-arr-title">Arrondissements de Paris</h2>
+        <ul class="hub-links">
+        <li><a href="/parking-proche-paris-1er/">Parking public Paris 1er</a></li>
+        <li><a href="/parking-proche-paris-2e/">Parking public Paris 2e</a></li>
+        <li><a href="/parking-proche-paris-3e/">Parking public Paris 3e</a></li>
+        <li><a href="/parking-proche-paris-4e/">Parking public Paris 4e</a></li>
+        <li><a href="/parking-proche-paris-5e/">Parking public Paris 5e</a></li>
+        <li><a href="/parking-proche-paris-6e/">Parking public Paris 6e</a></li>
+        <li><a href="/parking-proche-paris-7e/">Parking public Paris 7e</a></li>
+        <li><a href="/parking-proche-paris-8e/">Parking public Paris 8e</a></li>
+        <li><a href="/parking-proche-paris-9e/">Parking public Paris 9e</a></li>
+        <li><a href="/parking-proche-paris-10e/">Parking public Paris 10e</a></li>
+        <li><a href="/parking-proche-paris-11e/">Parking public Paris 11e</a></li>
+        <li><a href="/parking-proche-paris-12e/">Parking public Paris 12e</a></li>
+        <li><a href="/parking-proche-paris-13e/">Parking public Paris 13e</a></li>
+        <li><a href="/parking-proche-paris-14e/">Parking public Paris 14e</a></li>
+        <li><a href="/parking-proche-paris-15e/">Parking public Paris 15e</a></li>
+        <li><a href="/parking-proche-paris-16e/">Parking public Paris 16e</a></li>
+        <li><a href="/parking-proche-paris-17e/">Parking public Paris 17e</a></li>
+        <li><a href="/parking-proche-paris-18e/">Parking public Paris 18e</a></li>
+        <li><a href="/parking-proche-paris-19e/">Parking public Paris 19e</a></li>
+        <li><a href="/parking-proche-paris-20e/">Parking public Paris 20e</a></li>
+        </ul>
+      </section>
+    </article>
+  </main>
+  <footer class="site-footer" aria-label="Pied de page ParkEco">
+    <p><a href="/zones-desservies/">Toutes les zones desservies</a> · <a href="/faq.html">FAQ</a> · <a href="/">Accueil</a></p>
+  </footer>
+</body>
+</html>

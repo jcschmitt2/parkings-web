@@ -18,6 +18,13 @@ from construction_base.fab_actualites import generate_article_pages, load_actual
 LANDINGS_JSON = DATA_DIR / "parkeco_seo_landings.json"
 ACCORDIONS_JSON = DATA_DIR / "parkeco_seo_accordions.json"
 SEO_KNOW_MORE_MARKER = "<!-- SEO_KNOW_MORE -->"
+ZONES_HUB_SLUG = "zones-desservies"
+SITE_FOOTER_HTML = (
+    '<footer class="site-footer" aria-label="Pied de page ParkEco">\n'
+    '    <p><a href="/zones-desservies/">Toutes les zones desservies</a>'
+    ' · <a href="/faq.html">FAQ</a> · <a href="/">Accueil</a></p>\n'
+    "  </footer>"
+)
 INDEX_HTML = ROOT / "index.html"
 SITEMAP_XML = ROOT / "sitemap.xml"
 SITE_ORIGIN = "https://parkeco.fr"
@@ -98,6 +105,212 @@ def build_seo_accordion_html(slug: str, accordions: dict[str, dict]) -> str:
         f"  </div>\n"
         f"</details>"
     )
+
+
+def landing_link_label(landing: dict) -> str:
+    label = landing.get("placeLabel") or landing.get("slug", "")
+    if landing.get("mode") == "arrondissement":
+        return f"Parking public {label}"
+    return f"Parking proche {label}"
+
+
+def build_zones_hub_link_items(landings: list[dict]) -> tuple[list[str], list[str]]:
+    places: list[tuple[str, str]] = []
+    arrondissements: list[tuple[str, str]] = []
+    for landing in landings:
+        slug = landing["slug"]
+        href = f"/{slug}/"
+        text = html.escape(landing_link_label(landing))
+        item = f'        <li><a href="{href}">{text}</a></li>'
+        if landing.get("mode") == "arrondissement":
+            arrondissements.append((landing.get("postcode", ""), item))
+        else:
+            places.append((landing.get("placeLabel", slug), item))
+    places.sort(key=lambda x: x[0].lower())
+    arrondissements.sort(key=lambda x: x[0])
+    return [item for _, item in places], [item for _, item in arrondissements]
+
+
+def build_zones_hub_html(landings: list[dict]) -> str:
+    canonical = f"{SITE_ORIGIN}/{ZONES_HUB_SLUG}/"
+    place_items, arr_items = build_zones_hub_link_items(landings)
+    places_ul = "\n".join(place_items)
+    arr_ul = "\n".join(arr_items)
+    return f"""<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <title>Toutes les zones desservies — Parkings publics à Paris | ParkEco</title>
+  <meta name="description" content="Accès direct à toutes les pages ParkEco par lieu et arrondissement : parkings publics à Paris, carte interactive et tarifs." />
+  <link rel="canonical" href="{canonical}" />
+  <meta property="og:title" content="Toutes les zones desservies | ParkEco" />
+  <meta property="og:description" content="Liste des pages ParkEco par lieu et arrondissement à Paris." />
+  <meta property="og:url" content="{canonical}" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="/favicon.ico" sizes="48x48" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <style>
+    :root {{ --bg:#0b1020; --card:#121733; --text:#e7eaff; --accent:#7dd3fc; }}
+    * {{ box-sizing:border-box; }}
+    html, body {{
+      margin:0;
+      min-height:100dvh;
+      font-family:system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg,#0b1020,#0e153a);
+    }}
+    a {{ color:var(--accent); text-decoration:none; }}
+    a:hover {{ text-decoration:underline; }}
+    .hub-header {{
+      padding:18px max(18px, env(safe-area-inset-right)) 14px max(18px, env(safe-area-inset-left));
+      padding-top:max(18px, env(safe-area-inset-top));
+      border-bottom:1px solid #263069;
+      background:rgba(11,16,32,.95);
+    }}
+    .hub-top {{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:14px;
+    }}
+    .hub-back {{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:8px 12px;
+      min-height:44px;
+      box-sizing:border-box;
+      border-radius:999px;
+      border:1px solid #2b376f;
+      background:#0e1440;
+      color:#9aa9ff;
+      font-size:.84rem;
+      font-weight:600;
+      text-decoration:none;
+      touch-action:manipulation;
+      -webkit-tap-highlight-color:rgba(125,211,252,.25);
+    }}
+    .hub-back:hover {{ color:#fff; text-decoration:none; border-color:#5b72c9; }}
+    .hub-brand {{ font-size:1.35rem; font-weight:700; color:#fff; }}
+    .brand-eco {{ color:#c7d2fe; }}
+    .hub-main {{
+      max-width:760px;
+      margin:0 auto;
+      padding:20px max(16px, env(safe-area-inset-right)) 32px max(16px, env(safe-area-inset-left));
+    }}
+    .hub-panel {{
+      background:var(--card);
+      border:1px solid #263069;
+      border-radius:16px;
+      padding:20px 18px 16px;
+      box-shadow:0 10px 30px rgba(0,0,0,.25);
+    }}
+    .hub-title {{
+      margin:0 0 10px;
+      font-size:1.25rem;
+      font-weight:700;
+      color:#fff;
+      line-height:1.35;
+    }}
+    .hub-intro {{
+      margin:0 0 20px;
+      color:#9aa9ff;
+      font-size:.92rem;
+      line-height:1.5;
+    }}
+    .hub-section {{ margin-bottom:22px; }}
+    .hub-section:last-child {{ margin-bottom:0; }}
+    .hub-section h2 {{
+      margin:0 0 10px;
+      font-size:1rem;
+      font-weight:700;
+      color:#c7d2fe;
+    }}
+    .hub-links {{
+      margin:0;
+      padding:0;
+      list-style:none;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }}
+    .hub-links a {{
+      display:block;
+      padding:12px 14px;
+      min-height:48px;
+      box-sizing:border-box;
+      line-height:1.35;
+      border-radius:8px;
+      border:1px solid #2b376f;
+      background:#0f1530;
+      color:#e7eaff;
+      font-size:.9rem;
+      touch-action:manipulation;
+      -webkit-tap-highlight-color:rgba(125,211,252,.25);
+    }}
+    .hub-links a:hover {{
+      border-color:#5b72c9;
+      background:#111845;
+      text-decoration:none;
+    }}
+    .site-footer {{
+      border-top:1px solid #263069;
+      padding:4px 12px;
+      padding-bottom:max(4px, env(safe-area-inset-bottom));
+      text-align:center;
+      font-size:.7rem;
+      line-height:1.25;
+      color:#7d8fd6;
+      background:rgba(11,16,32,.95);
+    }}
+    .site-footer p {{ margin:0; }}
+    .site-footer a {{
+      color:#9aa9ff;
+      font-weight:600;
+      text-decoration:none;
+      touch-action:manipulation;
+    }}
+    .site-footer a:hover {{ text-decoration:underline; }}
+  </style>
+</head>
+<body>
+  <header class="hub-header">
+    <div class="hub-top">
+      <a class="hub-back" href="/">← Accueil ParkEco</a>
+      <div class="hub-brand">Park<span class="brand-eco">Eco</span></div>
+    </div>
+  </header>
+  <main class="hub-main">
+    <article class="hub-panel">
+      <h1 class="hub-title">Toutes les zones desservies</h1>
+      <p class="hub-intro">Accès direct aux pages ParkEco par lieu et arrondissement : parkings publics à Paris, carte interactive, distances et tarifs.</p>
+      <section class="hub-section" aria-labelledby="hub-places-title">
+        <h2 id="hub-places-title">Lieux et monuments</h2>
+        <ul class="hub-links">
+{places_ul}
+        </ul>
+      </section>
+      <section class="hub-section" aria-labelledby="hub-arr-title">
+        <h2 id="hub-arr-title">Arrondissements de Paris</h2>
+        <ul class="hub-links">
+{arr_ul}
+        </ul>
+      </section>
+    </article>
+  </main>
+  {SITE_FOOTER_HTML}
+</body>
+</html>
+"""
+
+
+def write_zones_hub_page(landings: list[dict]) -> Path:
+    out_dir = ROOT / ZONES_HUB_SLUG
+    out_dir.mkdir(parents=True, exist_ok=True)
+    out_path = out_dir / "index.html"
+    out_path.write_text(build_zones_hub_html(landings), encoding="utf-8")
+    return out_path
 
 
 def load_landings() -> list[dict]:
@@ -292,6 +505,8 @@ def path_to_public_url(rel_path: Path) -> str | None:
     if len(parts) == 1 and rel_path.name == "faq.html":
         return f"{SITE_ORIGIN}/faq.html"
     if len(parts) == 2 and rel_path.name == "index.html":
+        if parts[0] == ZONES_HUB_SLUG:
+            return f"{SITE_ORIGIN}/{ZONES_HUB_SLUG}/"
         return f"{SITE_ORIGIN}/{parts[0]}"
     if len(parts) == 3 and parts[0] == "actu" and rel_path.name == "index.html":
         return f"{SITE_ORIGIN}/actu/{parts[1]}"
@@ -328,6 +543,9 @@ def discover_public_html_files() -> list[Path]:
         if len(rel.parts) == 2 and rel.name == "index.html" and rel.parts[0].startswith("parking-proche-"):
             pages.append(rel)
             continue
+        if len(rel.parts) == 2 and rel.name == "index.html" and rel.parts[0] == ZONES_HUB_SLUG:
+            pages.append(rel)
+            continue
         if len(rel.parts) == 3 and rel.parts[0] == "actu" and rel.name == "index.html":
             pages.append(rel)
     return pages
@@ -337,6 +555,8 @@ def sitemap_meta_for_url(url: str) -> tuple[str, str]:
     if url == f"{SITE_ORIGIN}/":
         return "weekly", "1.0"
     if url.endswith("/faq.html"):
+        return "monthly", "0.8"
+    if f"/{ZONES_HUB_SLUG}/" in url:
         return "monthly", "0.8"
     if "/actu/" in url:
         return "monthly", "0.7"
@@ -445,6 +665,9 @@ def main() -> None:
         page_html = build_landing_html(index_html, landing, accordions)
         (out_dir / "index.html").write_text(page_html, encoding="utf-8")
         print(f"Écrit : {out_dir / 'index.html'}")
+
+    hub_path = write_zones_hub_page(landings)
+    print(f"Écrit : {hub_path}")
 
     article_entries = generate_article_pages(index_html)
     article_dates = {

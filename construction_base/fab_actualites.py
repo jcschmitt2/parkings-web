@@ -201,7 +201,8 @@ ARTICLE_STYLES = """
       font-size:.8rem;
       text-align:center;
     }
-    footer.site a { color:#9aa9ff; }
+    footer.site a { color:#9aa9ff; font-weight:600; text-decoration:none; }
+    footer.site a:hover { text-decoration:underline; }
 """
 
 ARTICLE_TEMPLATE = """<!doctype html>
@@ -251,8 +252,8 @@ ARTICLE_TEMPLATE = """<!doctype html>
     </article>
     @@RELATED@@
   </main>
-  <footer class="site">
-    <a href="/">Accueil</a> · <a href="/faq.html">FAQ</a> — ParkEco, le parking public le plus proche à Paris.
+  <footer class="site-footer" aria-label="Pied de page ParkEco">
+    <a href="/">Accueil</a> · <a href="/zones-desservies/">Toutes les zones desservies</a> · <a href="/faq.html">FAQ</a> — ParkEco, le parking public le plus proche à Paris.
   </footer>
 </body>
 </html>

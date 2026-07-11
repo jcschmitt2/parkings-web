@@ -23,7 +23,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <!-- build: v18.33 -->
+  <!-- build: v18.39 -->
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
   <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
@@ -386,6 +386,27 @@
       color:#e7eaff;
     }
     .seo-know-more-faq p { margin:0 0 10px; color:#9aa9ff; }
+    .site-footer {
+      flex-shrink:0;
+      position:relative;
+      z-index:1300;
+      border-top:1px solid #263069;
+      padding:4px 12px;
+      padding-bottom:max(4px, env(safe-area-inset-bottom));
+      text-align:center;
+      font-size:.7rem;
+      line-height:1.25;
+      color:#7d8fd6;
+      background:rgba(11,16,32,.95);
+    }
+    .site-footer p { margin:0; }
+    .site-footer a {
+      color:#9aa9ff;
+      font-weight:600;
+      text-decoration:none;
+      touch-action:manipulation;
+    }
+    .site-footer a:hover { text-decoration:underline; }
     .item-clickable {
       cursor:pointer;
       transition:border-color .15s, background .15s, box-shadow .15s;
@@ -868,43 +889,6 @@
       border-radius:3px 3px 0 0;
       pointer-events:none;
     }
-    .faq-launcher {
-      position:fixed;
-      left:max(14px, env(safe-area-inset-left));
-      bottom:max(14px, env(safe-area-inset-bottom));
-      z-index:1100;
-      box-shadow:0 6px 20px rgba(0,0,0,.28);
-    }
-    body.has-results .faq-launcher,
-    body.address-entry-active .faq-launcher,
-    body.detail-open .faq-launcher {
-      display:none;
-    }
-    .btn-faq {
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      gap:6px;
-      padding:9px 16px;
-      border-radius:999px;
-      border:1px solid #3d508f;
-      background:#121733;
-      color:#c7d2fe;
-      font-size:.84rem;
-      font-weight:600;
-      text-decoration:none;
-      transition:background .15s ease, border-color .15s ease, color .15s ease;
-    }
-    .btn-faq:hover {
-      background:#1a2248;
-      border-color:#5b72c9;
-      color:#fff;
-      text-decoration:none;
-    }
-    .btn-faq:focus-visible {
-      outline:2px solid #7dd3fc;
-      outline-offset:2px;
-    }
     .leaflet-marker-icon.parking-map-marker {
       background:transparent !important;
       border:none !important;
@@ -1362,7 +1346,7 @@
         overflow-y:auto;
         -webkit-overflow-scrolling:touch;
         overscroll-behavior:contain;
-        padding-bottom:max(56px, calc(env(safe-area-inset-bottom) + 48px));
+        padding-bottom:max(12px, env(safe-area-inset-bottom));
       }
       body.has-results #news-panel,
       body.address-entry-active:not(.has-results) #news-panel { display:none !important; }
@@ -1488,11 +1472,6 @@
         max-height:100dvh;
         overscroll-behavior:none;
       }
-      .faq-launcher {
-        left:max(10px, env(safe-area-inset-left));
-        bottom:max(10px, env(safe-area-inset-bottom));
-      }
-      .btn-faq { font-size:.82rem; padding:8px 14px; }
       #address-suggestions .suggestion-item {
         padding:12px 14px;
         min-height:52px;
@@ -1591,11 +1570,11 @@
       .paris-respire-legend-long,
       .paris-respire-legend-detail { display:none !important; }
       .paris-respire-legend-short { display:inline !important; }
+      body.has-results:has(.app-main.view-map) .site-footer { display:none !important; }
     }
   </style>
 </head>
 <body>
-  <a href="faq.html" id="faq-launcher" class="faq-launcher btn-faq" aria-label="Questions fréquentes ParkEco">ParkEco FAQ</a>
   <header>
     <div id="header-welcome" class="header-welcome">
       <div class="header-brand" aria-label="ParkEco">
@@ -1743,6 +1722,10 @@
     </div>
   </div>
 
+  <footer class="site-footer" aria-label="Pied de page ParkEco">
+    <p><a href="/zones-desservies/">Toutes les zones desservies</a> · <a href="/faq.html">FAQ</a> · <a href="/">Accueil</a></p>
+  </footer>
+
   <script>
     // --- Données en mémoire (après chargement fichier) ---
     let PARKINGS = [];
@@ -1768,7 +1751,7 @@
     let suggestTimer = null;
     let suggestRequestId = 0;
     let suppressSuggestionBlurHide = false;
-    const APP_VERSION = "18.33";
+    const APP_VERSION = "18.39";
     let DEFAULT_SEARCH_HINT_TEXT = "Adresse, lieu, arrondissement";
     let bootGeneration = 0;
     const OVERVIEW_NAME_ZOOM = 14;
@@ -2595,12 +2578,6 @@
       const tabs = page.onglets_iphone || {};
       setTextById("tab-list", tabs.liste);
       setTextById("tab-map", tabs.carte);
-      const faqBtn = page.faq_bouton || {};
-      const faqLauncher = document.getElementById("faq-launcher");
-      if(faqLauncher){
-        if(faqBtn.label) faqLauncher.textContent = faqBtn.label;
-        if(faqBtn.aria_label) faqLauncher.setAttribute("aria-label", faqBtn.aria_label);
-      }
     }
 
     async function loadTextes(){
@@ -4008,10 +3985,13 @@
       const longLabel = standardActive
         ? "Zones Paris Respire actives maintenant"
         : "Zones Paris Respire (quartiers)";
-      const detailText = standardActive
-        ? "Affichées uniquement pendant les créneaux Paris Respire (±1 h). Données : "
-        : "Données : ";
+      const detailText = "Données : ";
       const clickHint = standardActive ? "" : "Cliquez une zone pour les horaires.";
+      const detailHtml = standardActive
+        ? ""
+        : `<span class="paris-respire-legend-detail">${detailText}<a href="https://opendata.paris.fr/explore/dataset/secteurs-paris-respire/" ` +
+          'target="_blank" rel="noopener noreferrer">Ville de Paris (open data)</a>. ' +
+          `${clickHint}</span>`;
       if(!el){
         el = document.createElement("div");
         el.id = "paris-respire-legend";
@@ -4020,19 +4000,13 @@
           '<strong><span class="paris-respire-legend-swatch" aria-hidden="true"></span>' +
           `<span class="paris-respire-legend-long">${longLabel}</span>` +
           '<span class="paris-respire-legend-short">Vert = zones Paris Respire</span></strong>' +
-          `<span class="paris-respire-legend-detail">${detailText}<a href="https://opendata.paris.fr/explore/dataset/secteurs-paris-respire/" ` +
-          'target="_blank" rel="noopener noreferrer">Ville de Paris (open data)</a>. ' +
-          `${clickHint}</span>`;
+          detailHtml;
         document.querySelector(".map-panel")?.appendChild(el);
       } else if(standardActive) {
         const longEl = el.querySelector(".paris-respire-legend-long");
         const detailEl = el.querySelector(".paris-respire-legend-detail");
         if(longEl) longEl.textContent = longLabel;
-        if(detailEl) {
-          detailEl.innerHTML =
-            `${detailText}<a href="https://opendata.paris.fr/explore/dataset/secteurs-paris-respire/" ` +
-            'target="_blank" rel="noopener noreferrer">Ville de Paris (open data)</a>.';
-        }
+        if(detailEl) detailEl.remove();
       }
       el.hidden = false;
     }
