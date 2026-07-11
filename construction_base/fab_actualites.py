@@ -22,6 +22,11 @@ INDEX_HTML = ROOT / "index.html"
 ACTU_DIR = ROOT / "actu"
 SITE_ORIGIN = "https://parkeco.fr"
 
+
+def canonical_page_url(*parts: str) -> str:
+    path = "/".join(p.strip("/") for p in parts if p and p.strip("/"))
+    return f"{SITE_ORIGIN}/" if not path else f"{SITE_ORIGIN}/{path}/"
+
 MONTHS_FR = {
     1: "janvier", 2: "février", 3: "mars", 4: "avril", 5: "mai", 6: "juin",
     7: "juillet", 8: "août", 9: "septembre", 10: "octobre", 11: "novembre", 12: "décembre",
@@ -370,7 +375,7 @@ def actu_app_runtime_config(article: dict) -> dict:
         "resume": resume,
         "title": f"{titre} | ParkEco",
         "description": resume,
-        "canonical": f"{SITE_ORIGIN}/actu/{slug}",
+        "canonical": canonical_page_url("actu", slug),
         "og_title": titre,
         "og_description": resume,
     }
@@ -411,7 +416,7 @@ def build_article_html(article: dict, all_articles: list[dict]) -> str:
     slug = article["slug"]
     titre = article["titre"]
     resume = article.get("resume") or titre
-    canonical = f"{SITE_ORIGIN}/actu/{slug}"
+    canonical = canonical_page_url("actu", slug)
     title_tag = f"{titre} | ParkEco"
     type_meta = article_type_meta(article)
     contenu = article.get("contenu_html") or f"<p>{html.escape(resume)}</p>"

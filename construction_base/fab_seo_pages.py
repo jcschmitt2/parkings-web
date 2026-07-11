@@ -32,6 +32,12 @@ SEO_BLOCK_BEGIN = "// SEO_LANDINGS:BEGIN"
 SEO_BLOCK_END = "// SEO_LANDINGS:END"
 
 
+def canonical_page_url(*parts: str) -> str:
+    """URL canonique avec slash final (pages dossier, pas fichiers .html)."""
+    path = "/".join(p.strip("/") for p in parts if p and p.strip("/"))
+    return f"{SITE_ORIGIN}/" if not path else f"{SITE_ORIGIN}/{path}/"
+
+
 def arrondissement_short_label(n: int) -> str:
     return "Paris 1er" if n == 1 else f"Paris {n}e"
 
@@ -132,7 +138,7 @@ def build_zones_hub_link_items(landings: list[dict]) -> tuple[list[str], list[st
 
 
 def build_zones_hub_html(landings: list[dict]) -> str:
-    canonical = f"{SITE_ORIGIN}/{ZONES_HUB_SLUG}/"
+    canonical = canonical_page_url(ZONES_HUB_SLUG)
     place_items, arr_items = build_zones_hub_link_items(landings)
     places_ul = "\n".join(place_items)
     arr_ul = "\n".join(arr_items)
@@ -327,7 +333,7 @@ def landing_runtime_config(landing: dict) -> dict:
     cfg: dict = {
         "title": landing["title"],
         "description": landing["description"],
-        "canonical": f"{SITE_ORIGIN}/{slug}",
+        "canonical": canonical_page_url(slug),
         "og_title": landing.get("og_title") or landing["title"],
         "og_description": landing.get("og_description") or landing["description"],
     }
@@ -453,7 +459,7 @@ def demote_welcome_headings_for_seo(html: str) -> str:
 
 def build_landing_html(template: str, landing: dict, accordions: dict[str, dict]) -> str:
     slug = landing["slug"]
-    canonical = f"{SITE_ORIGIN}/{slug}"
+    canonical = canonical_page_url(slug)
     runtime = landing_runtime_config(landing)
     html = template
     html = replace_tag_content(html, "title", landing["title"])
