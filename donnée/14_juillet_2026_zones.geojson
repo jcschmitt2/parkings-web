@@ -1,0 +1,155 @@
+{
+  "type": "FeatureCollection",
+  "name": "14_jillet_2026_paris",
+  "metadata": {
+    "source": "Arrêté préfectoral défilé 14 juillet 2026 — périmètres approximés ParkEco",
+    "event_date": "2026-07-14",
+    "official_info": "https://www.paris.fr/"
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "zone_id": "circulation_interdite",
+        "nom": "Circulation interdite — défilé 14 juillet",
+        "type": "circulation_interdite",
+        "horaires": "Mardi 14 juillet 2026, 6 h à 15 h",
+        "description": "Périmètre intérieur où la circulation est interdite pendant le défilé (voies limites restées ouvertes selon arrêté préfectoral).",
+        "exclure_recherche": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              2.282087,
+              48.877633
+            ],
+            [
+              2.2895,
+              48.8765
+            ],
+            [
+              2.285068,
+              48.869791
+            ],
+            [
+              2.28861,
+              48.869267
+            ],
+            [
+              2.292792,
+              48.868387
+            ],
+            [
+              2.293614,
+              48.864657
+            ],
+            [
+              2.292035,
+              48.859833
+            ],
+            [
+              2.297115,
+              48.859583
+            ],
+            [
+              2.3126,
+              48.8566
+            ],
+            [
+              2.3185,
+              48.8585
+            ],
+            [
+              2.325754,
+              48.855182
+            ],
+            [
+              2.329916,
+              48.86012
+            ],
+            [
+              2.331226,
+              48.862575
+            ],
+            [
+              2.332508,
+              48.870787
+            ],
+            [
+              2.319794,
+              48.874838
+            ],
+            [
+              2.297377,
+              48.877927
+            ],
+            [
+              2.292,
+              48.8775
+            ],
+            [
+              2.282087,
+              48.877633
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "zone_id": "stationnement_interdit",
+        "nom": "Stationnement interdit — secteur Champs-Élysées",
+        "type": "stationnement_interdit",
+        "horaires": "13 juil. 7 h – 14 juil. 15 h et 14 juil. 4 h 30 – 15 h",
+        "description": "Zone élargie de stationnement interdit autour des Champs-Élysées, place de l'Étoile et Concorde.",
+        "exclure_recherche": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              2.2948,
+              48.8742
+            ],
+            [
+              2.3005,
+              48.8728
+            ],
+            [
+              2.31,
+              48.8695
+            ],
+            [
+              2.318,
+              48.867
+            ],
+            [
+              2.322,
+              48.8658
+            ],
+            [
+              2.318,
+              48.8645
+            ],
+            [
+              2.305,
+              48.8675
+            ],
+            [
+              2.296,
+              48.871
+            ],
+            [
+              2.2948,
+              48.8742
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

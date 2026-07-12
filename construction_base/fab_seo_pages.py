@@ -13,7 +13,13 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 from chemins_projet import DATA_DIR
-from construction_base.fab_actualites import generate_article_pages, load_actualites
+from construction_base.fab_actualites import (
+    article_all_path_tuples,
+    article_path_parts,
+    article_root_slugs,
+    generate_article_pages,
+    load_actualites,
+)
 
 LANDINGS_JSON = DATA_DIR / "parkeco_seo_landings.json"
 ACCORDIONS_JSON = DATA_DIR / "parkeco_seo_accordions.json"
@@ -513,9 +519,17 @@ def path_to_public_url(rel_path: Path) -> str | None:
     if len(parts) == 2 and rel_path.name == "index.html":
         if parts[0] == ZONES_HUB_SLUG:
             return f"{SITE_ORIGIN}/{ZONES_HUB_SLUG}/"
+        if parts[0].startswith("parking-proche-"):
+            return f"{SITE_ORIGIN}/{parts[0]}"
+        if (parts[0],) in article_all_path_tuples():
+            return canonical_page_url(parts[0])
         return f"{SITE_ORIGIN}/{parts[0]}"
-    if len(parts) == 3 and parts[0] == "actu" and rel_path.name == "index.html":
-        return f"{SITE_ORIGIN}/actu/{parts[1]}"
+    if len(parts) == 3 and rel_path.name == "index.html":
+        if parts[0] == "actu":
+            return f"{SITE_ORIGIN}/actu/{parts[1]}"
+        nested = (parts[0], parts[1])
+        if nested in {(p[0], p[1]) for p in article_all_path_tuples() if len(p) == 2}:
+            return canonical_page_url(parts[0], parts[1])
     return None
 
 
@@ -537,6 +551,9 @@ def normalize_sitemap_url(url: str) -> str:
 
 
 def discover_public_html_files() -> list[Path]:
+    root_article_slugs = article_root_slugs()
+    nested_article_paths = {(p[0], p[1]) for p in article_all_path_tuples() if len(p) == 2}
+    single_article_paths = {(p[0],) for p in article_all_path_tuples() if len(p) == 1}
     pages: list[Path] = []
     for path in sorted(ROOT.rglob("*.html")):
         if any(part in EXCLUDE_PARTS for part in path.parts):
@@ -550,6 +567,17 @@ def discover_public_html_files() -> list[Path]:
             pages.append(rel)
             continue
         if len(rel.parts) == 2 and rel.name == "index.html" and rel.parts[0] == ZONES_HUB_SLUG:
+            pages.append(rel)
+            continue
+        if len(rel.parts) == 2 and rel.name == "index.html" and (rel.parts[0],) in single_article_paths:
+            pages.append(rel)
+            continue
+        if len(rel.parts) == 2 and rel.name == "index.html" and rel.parts[0] in root_article_slugs:
+            if (rel.parts[0],) not in single_article_paths:
+                continue
+            pages.append(rel)
+            continue
+        if len(rel.parts) == 3 and rel.name == "index.html" and rel.parts[:2] in nested_article_paths:
             pages.append(rel)
             continue
         if len(rel.parts) == 3 and rel.parts[0] == "actu" and rel.name == "index.html":
@@ -566,6 +594,9 @@ def sitemap_meta_for_url(url: str) -> tuple[str, str]:
         return "monthly", "0.8"
     if "/actu/" in url:
         return "monthly", "0.7"
+    for root_slug in article_root_slugs():
+        if f"/{root_slug}/" in url:
+            return "monthly", "0.7"
     if "/parking-proche-paris-" in url:
         return "weekly", "0.85"
     if "/parking-proche-" in url:
@@ -574,6 +605,12 @@ def sitemap_meta_for_url(url: str) -> tuple[str, str]:
 
 
 def lastmod_for_page(rel_path: Path, article_dates: dict[str, str]) -> str:
+    if rel_path.name == "index.html" and len(rel_path.parts) >= 2:
+        path_key = "/".join(rel_path.parts[:-1])
+        if path_key in article_dates:
+            return article_dates[path_key]
+    if len(rel_path.parts) == 2 and rel_path.parts[0] in article_dates:
+        return article_dates[rel_path.parts[0]]
     if len(rel_path.parts) == 3 and rel_path.parts[0] == "actu":
         slug = rel_path.parts[1]
         if slug in article_dates:
@@ -676,11 +713,16 @@ def main() -> None:
     print(f"Écrit : {hub_path}")
 
     article_entries = generate_article_pages(index_html)
-    article_dates = {
-        a["slug"]: a["date"]
-        for a in load_actualites().get("articles", [])
-        if a.get("slug") and a.get("date")
-    }
+    article_dates: dict[str, str] = {}
+    for a in load_actualites().get("articles", []):
+        if not a.get("slug") or not a.get("date"):
+            continue
+        article_dates[a["slug"]] = a["date"]
+        parts = article_path_parts(a)
+        if parts:
+            article_dates["/".join(parts)] = a["date"]
+        if parts and parts[0] != "actu":
+            article_dates[parts[0]] = a["date"]
 
     sitemap_entries = build_sitemap_entries(article_dates)
     write_sitemap(sitemap_entries)

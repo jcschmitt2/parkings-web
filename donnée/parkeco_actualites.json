@@ -3,6 +3,62 @@
   "titre_section": "Actualité du stationnement à Paris",
   "articles": [
     {
+      "slug": "14-juillet-paris-circulation-stationnement",
+      "path": "/14-juillet-paris-circulation-stationnement",
+      "type": "news",
+      "titre": "14 juillet 2026 à Paris : routes fermées et stationnement interdit",
+      "date": "2026-07-12",
+      "resume": "Le mardi 14 juillet, le défilé militaire entraîne d'importantes restrictions de circulation et de stationnement à Paris. Si vous prévoyez de vous déplacer en voiture, il est fortement recommandé de préparer votre itinéraire avant votre départ.",
+      "contenu_html": "<p>Les principales restrictions concernent les secteurs des Champs-Élysées, de la place Charles-de-Gaulle, de la place de la Concorde, de l'avenue Foch ainsi qu'une partie des 7e, 8e, 16e et 17e arrondissements.</p><h2>Circulation interdite</h2><p>La circulation est interdite le mardi 14 juillet de 6 h à 15 h dans le périmètre de sécurité mis en place pour le défilé militaire. De nombreux axes sont fermés afin de sécuriser le parcours et de permettre le déroulement des cérémonies.</p><h2>Stationnement interdit</h2><p>Le stationnement est interdit sur de nombreuses voies situées dans le périmètre du défilé :</p><ul><li>du 13 juillet à 7 h au 14 juillet à 15 h ;</li><li>ou du 14 juillet à 4 h 30 au 14 juillet à 15 h.</li></ul><p>Les véhicules stationnés dans ces zones peuvent être verbalisés et mis en fourrière.</p><h2>Où stationner ?</h2><p>Si vous devez vous rendre dans le centre de Paris le 14 juillet, il est conseillé de choisir un parking public situé à l'extérieur du périmètre de sécurité, puis de terminer votre trajet à pied ou en transports en commun. ParkEco permet de localiser rapidement les parkings accessibles et de comparer leurs tarifs.</p><h2>Préparez votre déplacement</h2><p>Avant de partir, consultez les informations officielles de la Ville de Paris et la carte ParkEco du 14 juillet pour vérifier si votre itinéraire ou votre lieu de stationnement est concerné.</p>",
+      "cta_haut": {
+        "label": "Carte interactive — trouver un parking hors périmètre",
+        "href": "/14-juillet-paris-circulation-stationnement/carte/"
+      },
+      "articles_lies": [
+        "paris-respire-stationnement",
+        "stationnement-pas-gratuit-aout-paris"
+      ],
+      "encadres": [
+        {
+          "kind": "retenir",
+          "texte": "Le 14 juillet, circulation interdite de 6 h à 15 h dans le périmètre du défilé. Stationnement interdit dès la veille sur de nombreuses voies : véhicules laissés sur place = verbalisation et fourrière possibles."
+        },
+        {
+          "kind": "parker",
+          "texte": "ParkEco vous aide à trouver un parking public hors périmètre, à comparer les tarifs et à estimer la marche jusqu'à votre destination — idéal pour les Champs-Élysées et les abords du défilé."
+        }
+      ],
+      "cta": {
+        "label": "Trouver un parking public à Paris",
+        "href": "/"
+      }
+    },
+    {
+      "slug": "14-juillet-paris-circulation-stationnement-carte",
+      "path": "/14-juillet-paris-circulation-stationnement/carte",
+      "layout": "app",
+      "type": "tool",
+      "liste_accueil": false,
+      "titre": "14 juillet 2026 à Paris : carte des zones fermées",
+      "date": "2026-07-12",
+      "resume": "Indiquez votre destination : ParkEco affiche le périmètre fermé à la circulation le 14 juillet et vous propose le parking public le plus proche hors zone.",
+      "contenu_html": "<p>Le mardi 14 juillet, le défilé militaire entraîne d'importantes restrictions de circulation et de stationnement à Paris. Si vous prévoyez de vous déplacer en voiture, il est fortement recommandé de préparer votre itinéraire avant votre départ.</p><p>Les principales restrictions concernent les secteurs des Champs-Élysées, de la place Charles-de-Gaulle, de la place de la Concorde, de l'avenue Foch ainsi qu'une partie des 7e, 8e, 16e et 17e arrondissements.</p><h2>Circulation interdite</h2><p>La circulation est interdite le mardi 14 juillet de 6 h à 15 h dans le périmètre de sécurité mis en place pour le défilé militaire.</p><h2>Stationnement interdit</h2><p>Le stationnement est interdit sur de nombreuses voies situées dans le périmètre du défilé, dès la veille sur certains secteurs. Les véhicules stationnés dans ces zones peuvent être verbalisés et mis en fourrière.</p><h2>Où stationner ?</h2><p>Choisissez un parking public à l'extérieur du périmètre de sécurité, puis terminez à pied ou en transports. ParkEco localise les parkings accessibles et compare leurs tarifs.</p>",
+      "encadres": [
+        {
+          "kind": "retenir",
+          "texte": "Le 14 juillet, circulation interdite de 6 h à 15 h dans le périmètre du défilé. Stationnement interdit dès la veille sur de nombreuses voies : véhicules laissés sur place = verbalisation et fourrière possibles."
+        },
+        {
+          "kind": "parker",
+          "texte": "Sur cette page, la carte rouge indique le périmètre fermé à la circulation. Saisissez votre destination pour obtenir le parking public le plus proche hors zone."
+        }
+      ],
+      "cta": {
+        "label": "Lire l'article complet sur le 14 juillet",
+        "href": "/14-juillet-paris-circulation-stationnement/"
+      }
+    },
+    {
       "slug": "stationnement-pas-gratuit-aout-paris",
       "type": "news",
       "titre": "Stationnement à Paris : non, il n'est plus gratuit au mois d'août",

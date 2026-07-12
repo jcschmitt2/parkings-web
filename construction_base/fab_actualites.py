@@ -23,6 +23,49 @@ ACTU_DIR = ROOT / "actu"
 SITE_ORIGIN = "https://parkeco.fr"
 
 
+def article_path_parts(article: dict) -> tuple[str, ...]:
+    """Segments de chemin relatif à ROOT (ex. actu/slug ou 14-juillet-...)."""
+    custom = (article.get("path") or "").strip().strip("/")
+    if custom:
+        return tuple(p for p in custom.split("/") if p)
+    slug = article.get("slug", "")
+    return ("actu", slug) if slug else tuple()
+
+
+def article_public_href(article: dict) -> str:
+    parts = article_path_parts(article)
+    if not parts:
+        return "/"
+    return "/" + "/".join(parts) + "/"
+
+
+def article_canonical_url(article: dict) -> str:
+    parts = article_path_parts(article)
+    if not parts:
+        return canonical_page_url()
+    return canonical_page_url(*parts)
+
+
+def article_all_path_tuples() -> set[tuple[str, ...]]:
+    """Chemins relatifs (segments dossiers) de toutes les pages actualité."""
+    out: set[tuple[str, ...]] = set()
+    for article in load_actualites().get("articles", []) or []:
+        parts = article_path_parts(article)
+        if parts:
+            out.add(parts)
+    return out
+
+
+def article_root_slugs() -> set[str]:
+    """Slugs de dossiers à la racine pour les articles hors /actu/."""
+    out: set[str] = set()
+    for article in load_actualites().get("articles", []) or []:
+        parts = article_path_parts(article)
+        if parts and parts[0] != "actu":
+            out.add(parts[0])
+    return out
+
+
 def canonical_page_url(*parts: str) -> str:
     path = "/".join(p.strip("/") for p in parts if p and p.strip("/"))
     return f"{SITE_ORIGIN}/" if not path else f"{SITE_ORIGIN}/{path}/"
@@ -155,6 +198,7 @@ ARTICLE_STYLES = """
     .encadre-parker { border-color:#7dd3fc; background:#0c1a2e; }
     .encadre-parker .encadre-label { color:#7dd3fc; }
     .article-cta { margin-top:24px; }
+    .article-cta--top { margin:0 0 20px; }
     .article-cta a {
       display:inline-flex;
       align-items:center;
@@ -251,6 +295,7 @@ ARTICLE_TEMPLATE = """<!doctype html>
       </div>
       <h1>@@TITRE@@</h1>
       @@CHAPO@@
+      @@CTA_TOP@@
       <div class="article-body">@@CONTENU@@</div>
       @@ENCADRES@@
       <p class="article-cta"><a href="@@CTA_HREF@@">@@CTA_LABEL@@</a></p>
@@ -326,16 +371,48 @@ def build_cta(article: dict) -> tuple[str, str]:
     return href, label
 
 
+def build_cta_top_html(article: dict) -> str:
+    cta = article.get("cta_haut") or {}
+    label = (cta.get("label") or "").strip()
+    href = (cta.get("href") or "").strip()
+    if not label or not href:
+        return ""
+    if not href.startswith("/"):
+        href = "/" + href
+    return (
+        f'<p class="article-cta article-cta--top">'
+        f'<a href="{html.escape(href, quote=True)}">{html.escape(label)}</a>'
+        f"</p>"
+    )
+
+
 def build_related_html(article: dict, all_articles: list[dict]) -> str:
     slug = article["slug"]
-    others = [a for a in all_articles if a.get("slug") != slug][:2]
+    by_slug = {a["slug"]: a for a in all_articles if a.get("slug")}
+    linked_slugs = [s for s in (article.get("articles_lies") or []) if s in by_slug and s != slug]
+    if linked_slugs:
+        others = [by_slug[s] for s in linked_slugs]
+    else:
+        article_path = (article.get("path") or "").strip("/").split("/")[0]
+        others = []
+        for a in all_articles:
+            if a.get("slug") == slug:
+                continue
+            if a.get("liste_accueil") is False:
+                continue
+            other_path = (a.get("path") or "").strip("/").split("/")[0]
+            if article_path and other_path == article_path:
+                continue
+            others.append(a)
+            if len(others) >= 2:
+                break
     if not others:
         return ""
     items = []
     for other in others:
-        other_slug = other["slug"]
         titre = html.escape(other.get("titre", ""))
-        items.append(f'<li><a href="/actu/{html.escape(other_slug)}/">{titre}</a></li>')
+        href = html.escape(article_public_href(other), quote=True)
+        items.append(f'<li><a href="{href}">{titre}</a></li>')
     return (
         '<section class="article-related" aria-label="Autres actualités">'
         "<h2>Autres actualités</h2>"
@@ -346,7 +423,8 @@ def build_related_html(article: dict, all_articles: list[dict]) -> str:
 
 def replace_element_inner_by_id(page_html: str, elem_id: str, content: str) -> str:
   pattern = rf'(<[^>]+id="{re.escape(elem_id)}"[^>]*>)(.*?)(</[^>]+>)'
-  return re.sub(pattern, rf"\1{html.escape(content)}\3", page_html, count=1, flags=re.DOTALL)
+  escaped = html.escape(content)
+  return re.sub(pattern, lambda m: f"{m.group(1)}{escaped}{m.group(3)}", page_html, count=1, flags=re.DOTALL)
 
 
 def reorder_actu_app_header(page_html: str) -> str:
@@ -375,7 +453,7 @@ def actu_app_runtime_config(article: dict) -> dict:
         "resume": resume,
         "title": f"{titre} | ParkEco",
         "description": resume,
-        "canonical": canonical_page_url("actu", slug),
+        "canonical": article_canonical_url(article),
         "og_title": titre,
         "og_description": resume,
     }
@@ -416,7 +494,7 @@ def build_article_html(article: dict, all_articles: list[dict]) -> str:
     slug = article["slug"]
     titre = article["titre"]
     resume = article.get("resume") or titre
-    canonical = canonical_page_url("actu", slug)
+    canonical = article_canonical_url(article)
     title_tag = f"{titre} | ParkEco"
     type_meta = article_type_meta(article)
     contenu = article.get("contenu_html") or f"<p>{html.escape(resume)}</p>"
@@ -433,6 +511,7 @@ def build_article_html(article: dict, all_articles: list[dict]) -> str:
         "@@DATE_HUMAN@@": html.escape(human_date(article.get("date", ""))),
         "@@TITRE@@": html.escape(titre),
         "@@CHAPO@@": build_chapo_html(article),
+        "@@CTA_TOP@@": build_cta_top_html(article),
         "@@CONTENU@@": contenu,
         "@@ENCADRES@@": build_encadres_html(article),
         "@@CTA_HREF@@": html.escape(cta_href, quote=True),
@@ -453,7 +532,10 @@ def generate_article_pages(index_template: str | None = None) -> list[dict]:
     sitemap_entries: list[dict] = []
     for article in articles:
         slug = article["slug"]
-        out_dir = ACTU_DIR / slug
+        parts = article_path_parts(article)
+        if not parts:
+            continue
+        out_dir = ROOT.joinpath(*parts)
         out_dir.mkdir(parents=True, exist_ok=True)
         if article.get("layout") == "app":
             page_html = build_actu_app_html(article, template)
@@ -463,7 +545,7 @@ def generate_article_pages(index_template: str | None = None) -> list[dict]:
         print(f"Écrit : {out_dir / 'index.html'}")
         sitemap_entries.append(
             {
-                "loc": f"{SITE_ORIGIN}/actu/{slug}",
+                "loc": article_canonical_url(article).rstrip("/"),
                 "changefreq": "monthly",
                 "priority": "0.7",
             }
