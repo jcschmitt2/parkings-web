@@ -3,18 +3,86 @@
   "titre_section": "Actualité du stationnement à Paris",
   "articles": [
     {
+      "slug": "tour-de-france-2026-paris-circulation-stationnement",
+      "type": "news",
+      "titre": "Tour de France 2026 à Paris : rues fermées et stationnement le dimanche 26 juillet",
+      "date": "2026-07-18",
+      "date_modified": "2026-07-18",
+      "meta_title": "Tour de France 2026 à Paris : rues fermées le 26 juillet, où se garer | ParkEco",
+      "meta_description": "Arrivée du Tour dimanche 26 juillet : Montmartre et Champs-Élysées fermés, zones Paris Respire, stationnement interdit. Trouvez un parking accessible et un itinéraire d'évitement.",
+      "resume": "Dimanche 26 juillet, l'arrivée du Tour de France ferme Montmartre, l'Étoile et les Champs-Élysées, en plus des zones Paris Respire habituelles du dimanche. Si vous prévoyez de circuler en voiture, préparez votre itinéraire avant de partir.",
+      "contenu_html": "<p>Le peloton arrive de Thoiry, entre dans Paris par les boulevards Malesherbes et des Batignolles, grimpe trois fois la rue Lepic à Montmartre, puis redescend vers l'Étoile pour l'arrivée sur les Champs-Élysées. Secteurs concernés : 8e, 17e et 18e arrondissements, et les abords de la Concorde. Pour trouver un <a href=\"/\">parking public à Paris</a> accessible ce jour-là, anticipez votre stationnement.</p><h2>Circulation interdite</h2><p>La caravane entre dans Paris vers <strong>15 h 30</strong>, les coureurs à partir de <strong>17 h 50</strong>, pour une arrivée vers <strong>19 h 30</strong>. Les fermetures commencent bien avant : sur la base du dispositif de l'an dernier, attendez-vous à des barrières dès le matin autour du parcours. L'arrêté préfectoral détaillant les rues fermées n'est pas encore publié — cette page sera mise à jour dès sa parution.</p><p>S'y ajoutent les zones <a href=\"/actu/paris-respire-stationnement/\">Paris Respire</a> du dimanche, fermées à la circulation comme chaque semaine : Montmartre (11 h – 19 h), rue du Poteau (18e), rue des Moines (17e), rue des Martyrs et avenue Trudaine (9e). Ces contraintes s'ajoutent aux <a href=\"/14-juillet-paris-circulation-stationnement/\">restrictions du 14 juillet à Paris</a>, déjà passées ou à anticiper selon votre calendrier.</p><p><em>L'outil parking signale les parkings situés dans une zone fermée (Tour de France + Paris Respire).</em></p><h2>Stationnement</h2><p>Comme chaque dimanche, le stationnement en voirie est gratuit à Paris — mais il sera interdit sur de nombreuses voies du périmètre, vraisemblablement dès la veille (horaires à confirmer par l'arrêté). Véhicules laissés sur place : verbalisation et fourrière possibles.</p><h2>Où stationner ?</h2><p>Choisissez un parking public hors des zones fermées (Tour + Paris Respire), puis terminez à pied ou en métro. ParkEco couvre tous les quartiers de Paris.</p><h2>Trouver un parking près des zones fermées le 26 juillet</h2><p>Indiquez votre destination : ParkEco liste les parkings publics dans un rayon de 1 km et signale ceux situés dans une zone fermée. Quartiers limitrophes bien desservis : <a href=\"/parking-proche-republique/\">parkings près de République</a>, <a href=\"/parking-proche-bastille/\">parkings près de Bastille</a>, <a href=\"/parking-proche-paris-9e/\">se garer dans le 9e arrondissement</a>.</p><p><a href=\"/tour-de-france-paris-circulation-stationnement/carte/\">Ouvrir l'outil parking</a></p><h2>Préparez votre itinéraire</h2><p>Notre calculateur construit un trajet qui contourne les zones fermées (parcours du Tour + Paris Respire) et l'exporte vers Google Maps avec des points de passage : votre GPS suit le trajet d'évitement au lieu de vous envoyer dans une rue barrée.</p><h2>Itinéraire pour éviter les zones fermées le 26 juillet</h2><p>Zones Tour estimées — mise à jour à la parution de l'arrêté.</p><p><a href=\"/routage/\">Ouvrir le calculateur d'itinéraire</a></p>",
+      "cta_hauts": [
+        {
+          "label": "Trouver un parking près des zones fermées",
+          "href": "/tour-de-france-paris-circulation-stationnement/carte/"
+        },
+        {
+          "label": "Itinéraire pour éviter les zones fermées",
+          "href": "/routage/"
+        }
+      ],
+      "articles_lies": [
+        "14-juillet-paris-circulation-stationnement",
+        "paris-respire-stationnement",
+        "tarifs-stationnement-paris-2026"
+      ],
+      "encadres": [
+        {
+          "kind": "retenir",
+          "texte": "Dimanche 26 juillet, arrivée du Tour de France : Montmartre, l'Étoile et les Champs-Élysées fermés, barrières dès le matin, zones Paris Respire en plus. Stationnement interdit dans le périmètre : verbalisation et fourrière possibles."
+        },
+        {
+          "kind": "parker",
+          "texte": "ParkEco localise les parkings près des zones fermées (signalés s'ils sont dedans), compare les tarifs et calcule l'itinéraire qui évite les rues barrées (Tour + Paris Respire), exportable dans Google Maps."
+        }
+      ],
+      "cta": {
+        "label": "Trouver un parking public à Paris",
+        "href": "/"
+      }
+    },
+    {
+      "slug": "tour-de-france-paris-circulation-stationnement-carte",
+      "path": "/tour-de-france-paris-circulation-stationnement/carte",
+      "layout": "app",
+      "type": "tool",
+      "liste_accueil": false,
+      "titre": "Tour de France 2026 à Paris : trouver un parking près des zones fermées",
+      "date": "2026-07-18",
+      "resume": "Indiquez votre destination : ParkEco affiche les zones Tour de France et Paris Respire, et liste les parkings publics dans 1 km en signalant ceux situés en zone fermée.",
+      "contenu_html": "<p>Dimanche 26 juillet, l'arrivée du Tour de France ferme Montmartre, l'Étoile et les Champs-Élysées, en plus des zones Paris Respire du dimanche.</p><p>Sur cette page, la carte montre les périmètres concernés. Saisissez votre destination pour obtenir les parkings publics dans un rayon de 1 km : ceux situés dans une zone fermée sont clairement signalés.</p>",
+      "encadres": [
+        {
+          "kind": "retenir",
+          "texte": "Tous les parkings dans 1 km sont listés. Un message d'attention apparaît si le parking est dans une zone Tour de France ou Paris Respire."
+        },
+        {
+          "kind": "parker",
+          "texte": "Pour un trajet voiture qui contourne les fermetures, utilisez aussi le calculateur d'itinéraire ParkEco."
+        }
+      ],
+      "cta": {
+        "label": "Lire l'article complet sur le Tour de France",
+        "href": "/actu/tour-de-france-2026-paris-circulation-stationnement/"
+      },
+      "date_modified": "2026-07-18",
+      "seo_extra_html": "<p>Indiquez votre destination : la carte affiche les zones Tour de France et Paris Respire, puis liste les parkings publics dans un rayon de 1&nbsp;km en signalant ceux situés en zone fermée.</p>"
+    },
+    {
       "slug": "14-juillet-paris-circulation-stationnement",
       "path": "/14-juillet-paris-circulation-stationnement",
       "type": "news",
       "titre": "14 juillet 2026 à Paris : routes fermées et stationnement interdit",
       "date": "2026-07-12",
       "resume": "Le mardi 14 juillet, le défilé militaire entraîne d'importantes restrictions de circulation et de stationnement à Paris. Si vous prévoyez de vous déplacer en voiture, il est fortement recommandé de préparer votre itinéraire avant votre départ.",
-      "contenu_html": "<p>Les principales restrictions concernent les secteurs des Champs-Élysées, de la place Charles-de-Gaulle, de la place de la Concorde, de l'avenue Foch ainsi qu'une partie des 7e, 8e, 16e et 17e arrondissements.</p><h2>Circulation interdite</h2><p>La circulation est interdite le mardi 14 juillet de 6 h à 15 h dans le périmètre de sécurité mis en place pour le défilé militaire. De nombreux axes sont fermés afin de sécuriser le parcours et de permettre le déroulement des cérémonies.</p><h2>Stationnement interdit</h2><p>Le stationnement est interdit sur de nombreuses voies situées dans le périmètre du défilé :</p><ul><li>du 13 juillet à 7 h au 14 juillet à 15 h ;</li><li>ou du 14 juillet à 4 h 30 au 14 juillet à 15 h.</li></ul><p>Les véhicules stationnés dans ces zones peuvent être verbalisés et mis en fourrière.</p><h2>Où stationner ?</h2><p>Si vous devez vous rendre dans le centre de Paris le 14 juillet, il est conseillé de choisir un parking public situé à l'extérieur du périmètre de sécurité, puis de terminer votre trajet à pied ou en transports en commun. ParkEco permet de localiser rapidement les parkings accessibles et de comparer leurs tarifs.</p><h2>Préparez votre déplacement</h2><p>Avant de partir, consultez les informations officielles de la Ville de Paris et la carte ParkEco du 14 juillet pour vérifier si votre itinéraire ou votre lieu de stationnement est concerné.</p>",
+      "contenu_html": "<p>Les principales restrictions concernent les secteurs des Champs-Élysées, de la place Charles-de-Gaulle, de la place de la Concorde, de l'avenue Foch ainsi qu'une partie des 7e, 8e, 16e et 17e arrondissements.</p><h2>Circulation interdite</h2><p>La circulation est interdite le mardi 14 juillet de 6 h à 15 h dans le périmètre de sécurité mis en place pour le défilé militaire. De nombreux axes sont fermés afin de sécuriser le parcours et de permettre le déroulement des cérémonies.</p><h2>Stationnement interdit</h2><p>Le stationnement est interdit sur de nombreuses voies situées dans le périmètre du défilé :</p><ul><li>du 13 juillet à 7 h au 14 juillet à 15 h ;</li><li>ou du 14 juillet à 4 h 30 au 14 juillet à 15 h.</li></ul><p>Les véhicules stationnés dans ces zones peuvent être verbalisés et mis en fourrière.</p><h2>Où stationner ?</h2><p>Si vous devez vous rendre dans le centre de Paris le 14 juillet, il est conseillé de choisir un parking public situé à l'extérieur du périmètre de sécurité, puis de terminer votre trajet à pied ou en transports en commun. ParkEco permet de localiser rapidement les parkings accessibles et de comparer leurs tarifs.</p><h2>Préparez votre déplacement</h2><p>Avant de partir, consultez les informations officielles de la Ville de Paris et la carte ParkEco du 14 juillet pour vérifier si votre itinéraire ou votre lieu de stationnement est concerné.</p><p>Plus tard en juillet, retrouvez aussi les <a href=\"/actu/tour-de-france-2026-paris-circulation-stationnement/\">rues fermées pour l'arrivée du Tour de France le 26 juillet</a>.</p>",
       "cta_haut": {
         "label": "Carte interactive — trouver un parking hors périmètre",
         "href": "/14-juillet-paris-circulation-stationnement/carte/"
       },
       "articles_lies": [
+        "tour-de-france-2026-paris-circulation-stationnement",
         "paris-respire-stationnement",
         "stationnement-pas-gratuit-aout-paris"
       ],
@@ -31,7 +99,8 @@
       "cta": {
         "label": "Trouver un parking public à Paris",
         "href": "/"
-      }
+      },
+      "date_modified": "2026-07-12"
     },
     {
       "slug": "14-juillet-paris-circulation-stationnement-carte",
@@ -130,8 +199,12 @@
       "type": "tool",
       "titre": "Paris Respire : où se garer lorsque certaines rues sont fermées ?",
       "date": "2026-07-01",
+      "articles_lies": [
+        "tour-de-france-2026-paris-circulation-stationnement",
+        "14-juillet-paris-circulation-stationnement"
+      ],
       "resume": "Chaque week-end, le dispositif Paris Respire transforme plusieurs quartiers de Paris en zones réservées aux piétons et aux mobilités douces. Avant de partir, il est utile de vérifier les restrictions de circulation et de prévoir votre stationnement.",
-      "contenu_html": "<p>Le dispositif Paris Respire, mis en place par la Ville de Paris, ferme temporairement à la circulation automobile plusieurs secteurs de la capitale afin de laisser davantage de place aux piétons, aux cyclistes et aux mobilités douces. Les périmètres concernés varient selon les quartiers et les dates.</p><p>Si vous devez vous rendre dans un secteur concerné, le plus simple est de stationner dans un parking public situé juste à l'extérieur de la zone fermée, puis de terminer votre trajet à pied. Vous éviterez ainsi les détours, les rues barrées et les difficultés d'accès.</p><p>Avant votre départ, consultez la carte officielle Paris Respire de la Ville de Paris pour connaître les zones et les horaires de fermeture : <a href=\"https://www.paris.fr/pages/paris-respire-2122\" target=\"_blank\" rel=\"noopener noreferrer\">Carte officielle Paris Respire – Ville de Paris</a>.</p><h2>Comment s'organiser ?</h2><ol><li>Vérifiez si votre destination est située dans une zone Paris Respire.</li><li>Consultez la carte officielle pour connaître les horaires et le périmètre des fermetures.</li><li>Choisissez un parking public à quelques minutes à pied de votre destination.</li><li>Évitez de compter sur le stationnement en voirie à l'intérieur de la zone, qui peut devenir inaccessible pendant les périodes de fermeture.</li></ol>",
+      "contenu_html": "<p>Le dispositif Paris Respire, mis en place par la Ville de Paris, ferme temporairement à la circulation automobile plusieurs secteurs de la capitale afin de laisser davantage de place aux piétons, aux cyclistes et aux mobilités douces. Les périmètres concernés varient selon les quartiers et les dates.</p><p>Si vous devez vous rendre dans un secteur concerné, le plus simple est de stationner dans un parking public situé juste à l'extérieur de la zone fermée, puis de terminer votre trajet à pied. Vous éviterez ainsi les détours, les rues barrées et les difficultés d'accès.</p><p>Avant votre départ, consultez la carte officielle Paris Respire de la Ville de Paris pour connaître les zones et les horaires de fermeture : <a href=\"https://www.paris.fr/pages/paris-respire-2122\" target=\"_blank\" rel=\"noopener noreferrer\">Carte officielle Paris Respire – Ville de Paris</a>.</p><h2>Comment s'organiser ?</h2><ol><li>Vérifiez si votre destination est située dans une zone Paris Respire.</li><li>Consultez la carte officielle pour connaître les horaires et le périmètre des fermetures.</li><li>Choisissez un parking public à quelques minutes à pied de votre destination.</li><li>Évitez de compter sur le stationnement en voirie à l'intérieur de la zone, qui peut devenir inaccessible pendant les périodes de fermeture.</li></ol><p>À noter également les <a href=\"/actu/tour-de-france-2026-paris-circulation-stationnement/\">fermetures du 26 juillet pour le Tour de France</a>.</p>",
       "encadres": [
         {
           "kind": "savoir",
@@ -145,7 +218,8 @@
       "cta": {
         "label": "Trouver un parking près d'une zone Paris Respire",
         "href": "/"
-      }
+      },
+      "seo_extra_html": "<p>À noter également les <a href=\"/actu/tour-de-france-2026-paris-circulation-stationnement/\">fermetures du 26 juillet pour le Tour de France</a>.</p>"
     }
   ]
 }

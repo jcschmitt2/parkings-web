@@ -22,6 +22,7 @@
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="/favicon-96.png" />
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "NewsArticle", "headline": "Stationnement à Paris : non, il n'est plus gratuit au mois d'août", "description": "Chaque été, de nombreux automobilistes pensent encore que le stationnement en voirie est gratuit pendant tout le mois d'août à Paris. Pourtant, cette règle appartient désormais au passé.", "datePublished": "2026-07-02", "dateModified": "2026-07-02", "inLanguage": "fr-FR", "mainEntityOfPage": {"@type": "WebPage", "@id": "https://parkeco.fr/actu/stationnement-pas-gratuit-aout-paris/"}, "author": {"@type": "Organization", "name": "ParkEco"}, "publisher": {"@type": "Organization", "name": "ParkEco", "url": "https://parkeco.fr/"}}</script>
   <style>
     * { box-sizing:border-box; }
     html {
@@ -133,9 +134,17 @@
     .encadre-parker .encadre-label { color:#7dd3fc; }
     .article-cta { margin-top:24px; }
     .article-cta--top { margin:0 0 20px; }
+    .article-cta-stack {
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      margin:0 0 20px;
+    }
+    .article-cta-stack .article-cta { margin:0; }
     .article-cta a {
       display:inline-flex;
       align-items:center;
+      justify-content:center;
       gap:8px;
       padding:11px 18px;
       border-radius:12px;
@@ -144,8 +153,34 @@
       color:#fff;
       font-weight:600;
       text-decoration:none;
+      text-align:center;
     }
+    .article-cta-stack a { display:flex; width:100%; box-sizing:border-box; }
     .article-cta a:hover { background:#1d4ed8; }
+    .cta-grid {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+      margin:0 0 20px;
+    }
+    @media (max-width:560px){
+      .cta-grid { grid-template-columns:1fr; }
+    }
+    .cta-box {
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      padding:14px 16px;
+      border-radius:14px;
+      border:1px solid #2b376f;
+      background:#0e1440;
+      text-decoration:none;
+      color:#e7eaff;
+    }
+    .cta-box:hover { border-color:#3b82f6; background:#122058; }
+    .cta-box .cta-title { font-weight:700; font-size:.95rem; color:#fff; }
+    .cta-box .cta-desc { font-size:.82rem; line-height:1.4; color:#c7d2fe; }
+    .cta-box .cta-action { margin-top:auto; font-size:.82rem; font-weight:700; color:#7dd3fc; }
     .article-related {
       margin-top:28px;
       padding-top:18px;
@@ -209,7 +244,7 @@
       <aside class="encadre encadre-parker"><span class="encadre-label">Et pour vous garer ?</span><p>ParkEco permet de comparer rapidement les parkings publics autour de votre destination, avec leurs tarifs, leur distance à pied et les informations utiles pour choisir la solution la plus adaptée.</p></aside>
       <p class="article-cta"><a href="/">Trouver un parking public à Paris</a></p>
     </article>
-    <section class="article-related" aria-label="Autres actualités"><h2>Autres actualités</h2><ul><li><a href="/14-juillet-paris-circulation-stationnement/">14 juillet 2026 à Paris : routes fermées et stationnement interdit</a></li><li><a href="/actu/tarifs-stationnement-paris-2026/">Tarifs du stationnement à Paris : combien allez-vous vraiment payer en 2026 ?</a></li></ul></section>
+    <section class="article-related" aria-label="Autres actualités"><h2>Autres actualités</h2><ul><li><a href="/actu/tour-de-france-2026-paris-circulation-stationnement/">Tour de France 2026 à Paris : rues fermées et stationnement le dimanche 26 juillet</a></li><li><a href="/14-juillet-paris-circulation-stationnement/">14 juillet 2026 à Paris : routes fermées et stationnement interdit</a></li></ul></section>
   </main>
   <footer class="site-footer" aria-label="Pied de page ParkEco">
     <a href="/">Accueil</a> · <a href="/zones-desservies/">Toutes les zones desservies</a> · <a href="/faq.html">FAQ</a> — ParkEco, le parking public le plus proche à Paris.

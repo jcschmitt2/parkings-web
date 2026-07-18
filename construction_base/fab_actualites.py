@@ -199,9 +199,17 @@ ARTICLE_STYLES = """
     .encadre-parker .encadre-label { color:#7dd3fc; }
     .article-cta { margin-top:24px; }
     .article-cta--top { margin:0 0 20px; }
+    .article-cta-stack {
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      margin:0 0 20px;
+    }
+    .article-cta-stack .article-cta { margin:0; }
     .article-cta a {
       display:inline-flex;
       align-items:center;
+      justify-content:center;
       gap:8px;
       padding:11px 18px;
       border-radius:12px;
@@ -210,8 +218,34 @@ ARTICLE_STYLES = """
       color:#fff;
       font-weight:600;
       text-decoration:none;
+      text-align:center;
     }
+    .article-cta-stack a { display:flex; width:100%; box-sizing:border-box; }
     .article-cta a:hover { background:#1d4ed8; }
+    .cta-grid {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+      margin:0 0 20px;
+    }
+    @media (max-width:560px){
+      .cta-grid { grid-template-columns:1fr; }
+    }
+    .cta-box {
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      padding:14px 16px;
+      border-radius:14px;
+      border:1px solid #2b376f;
+      background:#0e1440;
+      text-decoration:none;
+      color:#e7eaff;
+    }
+    .cta-box:hover { border-color:#3b82f6; background:#122058; }
+    .cta-box .cta-title { font-weight:700; font-size:.95rem; color:#fff; }
+    .cta-box .cta-desc { font-size:.82rem; line-height:1.4; color:#c7d2fe; }
+    .cta-box .cta-action { margin-top:auto; font-size:.82rem; font-weight:700; color:#7dd3fc; }
     .article-related {
       margin-top:28px;
       padding-top:18px;
@@ -278,6 +312,7 @@ ARTICLE_TEMPLATE = """<!doctype html>
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="/favicon-96.png" />
+  <script type="application/ld+json">@@JSONLD@@</script>
   <style>@@STYLES@@</style>
 </head>
 <body>
@@ -372,6 +407,25 @@ def build_cta(article: dict) -> tuple[str, str]:
 
 
 def build_cta_top_html(article: dict) -> str:
+    """Un CTA haut (cta_haut) ou plusieurs boutons bleus (cta_hauts)."""
+    multi = article.get("cta_hauts") or []
+    if multi:
+        buttons: list[str] = []
+        for item in multi:
+            label = (item.get("label") or "").strip()
+            href = (item.get("href") or "").strip()
+            if not label or not href:
+                continue
+            if not href.startswith("/"):
+                href = "/" + href
+            buttons.append(
+                f'<p class="article-cta article-cta--top">'
+                f'<a href="{html.escape(href, quote=True)}">{html.escape(label)}</a>'
+                f"</p>"
+            )
+        if buttons:
+            return f'<div class="article-cta-stack">{"".join(buttons)}</div>'
+
     cta = article.get("cta_haut") or {}
     label = (cta.get("label") or "").strip()
     href = (cta.get("href") or "").strip()
@@ -384,6 +438,31 @@ def build_cta_top_html(article: dict) -> str:
         f'<a href="{html.escape(href, quote=True)}">{html.escape(label)}</a>'
         f"</p>"
     )
+
+
+def build_jsonld(article: dict, titre: str, description: str, canonical: str) -> str:
+    date_pub = (article.get("date") or "").strip()
+    date_mod = (article.get("date_modified") or date_pub).strip()
+    data = {
+        "@context": "https://schema.org",
+        "@type": "NewsArticle",
+        "headline": titre,
+        "description": description,
+        "datePublished": date_pub,
+        "dateModified": date_mod,
+        "inLanguage": "fr-FR",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": canonical,
+        },
+        "author": {"@type": "Organization", "name": "ParkEco"},
+        "publisher": {
+            "@type": "Organization",
+            "name": "ParkEco",
+            "url": SITE_ORIGIN + "/",
+        },
+    }
+    return json.dumps(data, ensure_ascii=False)
 
 
 def build_related_html(article: dict, all_articles: list[dict]) -> str:
@@ -459,6 +538,31 @@ def actu_app_runtime_config(article: dict) -> dict:
     }
 
 
+def build_actu_tool_seo_html(article: dict) -> str:
+    """Bloc HTML statique (H1 déjà dans le header) : paragraphe + liens crawlables."""
+    parts: list[str] = []
+    extra = (article.get("seo_extra_html") or "").strip()
+    if extra:
+        parts.append(extra)
+    cta = article.get("cta") or {}
+    cta_href = (cta.get("href") or "").strip()
+    cta_label = (cta.get("label") or "").strip()
+    if cta_href and cta_label:
+        if not cta_href.startswith("/"):
+            cta_href = "/" + cta_href
+        parts.append(
+            f'<p class="actu-tool-seo-back"><a href="{html.escape(cta_href, quote=True)}">'
+            f"{html.escape(cta_label)}</a></p>"
+        )
+    if not parts:
+        return ""
+    return (
+        '<section class="actu-tool-seo" aria-label="Informations">'
+        f'{"".join(parts)}'
+        "</section>"
+    )
+
+
 def build_actu_app_html(article: dict, template: str) -> str:
     from construction_base.fab_seo_pages import (
         replace_canonical,
@@ -468,41 +572,54 @@ def build_actu_app_html(article: dict, template: str) -> str:
     )
 
     cfg = actu_app_runtime_config(article)
-    html = template
-    html = replace_tag_content(html, "title", cfg["title"])
-    html = replace_meta_name(html, "description", cfg["description"])
-    html = replace_canonical(html, cfg["canonical"])
-    html = replace_meta_property(html, "og:title", cfg["og_title"])
-    html = replace_meta_property(html, "og:description", cfg["og_description"])
-    html = replace_meta_property(html, "og:url", cfg["canonical"])
-    html = replace_meta_property(html, "og:type", "article")
+    page = template
+    page = replace_tag_content(page, "title", cfg["title"])
+    page = replace_meta_name(page, "description", cfg["description"])
+    page = replace_canonical(page, cfg["canonical"])
+    page = replace_meta_property(page, "og:title", cfg["og_title"])
+    page = replace_meta_property(page, "og:description", cfg["og_description"])
+    page = replace_meta_property(page, "og:url", cfg["canonical"])
+    page = replace_meta_property(page, "og:type", "article")
     inject = (
         f'  <base href="/" />\n'
         f'  <script>window.PARKECO_ACTU_APP = {json.dumps(cfg, ensure_ascii=False)};</script>\n'
     )
-    html = html.replace("<head>", f"<head>\n{inject}", 1)
-    html = html.replace("<body>", '<body class="actu-app">', 1)
-    html = replace_element_inner_by_id(html, "copy-subtitle", "")
-    html = replace_element_inner_by_id(html, "copy-body", cfg["h1"])
-    html = replace_element_inner_by_id(html, "copy-lead", cfg["resume"])
-    html = replace_element_inner_by_id(html, "copy-trust", "")
-    html = reorder_actu_app_header(html)
-    return html
+    page = page.replace("<head>", f"<head>\n{inject}", 1)
+    page = page.replace("<body>", '<body class="actu-app">', 1)
+    page = replace_element_inner_by_id(page, "copy-subtitle", "")
+    page = replace_element_inner_by_id(page, "copy-body", cfg["h1"])
+    page = replace_element_inner_by_id(page, "copy-lead", cfg["resume"])
+    page = replace_element_inner_by_id(page, "copy-trust", "")
+    page = reorder_actu_app_header(page)
+    seo = build_actu_tool_seo_html(article)
+    if seo:
+        # Insérer après le header welcome, avant news-panel si possible
+        marker = '<section id="news-panel"'
+        if marker in page:
+            page = page.replace(marker, seo + "\n    " + marker, 1)
+        else:
+            page = page.replace("</header>", "</header>\n    " + seo, 1)
+    return page
 
 
 def build_article_html(article: dict, all_articles: list[dict]) -> str:
     slug = article["slug"]
     titre = article["titre"]
     resume = article.get("resume") or titre
+    meta_desc = (article.get("meta_description") or resume).strip()
+    meta_title = (article.get("meta_title") or f"{titre} | ParkEco").strip()
+    if not meta_title.endswith("ParkEco"):
+        # garder | ParkEco si absent
+        if "| ParkEco" not in meta_title:
+            meta_title = f"{meta_title} | ParkEco"
     canonical = article_canonical_url(article)
-    title_tag = f"{titre} | ParkEco"
     type_meta = article_type_meta(article)
     contenu = article.get("contenu_html") or f"<p>{html.escape(resume)}</p>"
     cta_href, cta_label = build_cta(article)
     repl = {
         "@@STYLES@@": ARTICLE_STYLES,
-        "@@TITLE@@": html.escape(title_tag, quote=True),
-        "@@DESCRIPTION@@": html.escape(resume, quote=True),
+        "@@TITLE@@": html.escape(meta_title, quote=True),
+        "@@DESCRIPTION@@": html.escape(meta_desc, quote=True),
         "@@CANONICAL@@": canonical,
         "@@OG_TITLE@@": html.escape(titre, quote=True),
         "@@TYPE_CLASS@@": type_meta["class"],
@@ -517,6 +634,7 @@ def build_article_html(article: dict, all_articles: list[dict]) -> str:
         "@@CTA_HREF@@": html.escape(cta_href, quote=True),
         "@@CTA_LABEL@@": html.escape(cta_label),
         "@@RELATED@@": build_related_html(article, all_articles),
+        "@@JSONLD@@": build_jsonld(article, titre, meta_desc, canonical),
     }
     out = ARTICLE_TEMPLATE
     for token, value in repl.items():

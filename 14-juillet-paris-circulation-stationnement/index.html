@@ -22,6 +22,7 @@
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="/favicon-96.png" />
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "NewsArticle", "headline": "14 juillet 2026 à Paris : routes fermées et stationnement interdit", "description": "Le mardi 14 juillet, le défilé militaire entraîne d'importantes restrictions de circulation et de stationnement à Paris. Si vous prévoyez de vous déplacer en voiture, il est fortement recommandé de préparer votre itinéraire avant votre départ.", "datePublished": "2026-07-12", "dateModified": "2026-07-12", "inLanguage": "fr-FR", "mainEntityOfPage": {"@type": "WebPage", "@id": "https://parkeco.fr/14-juillet-paris-circulation-stationnement/"}, "author": {"@type": "Organization", "name": "ParkEco"}, "publisher": {"@type": "Organization", "name": "ParkEco", "url": "https://parkeco.fr/"}}</script>
   <style>
     * { box-sizing:border-box; }
     html {
@@ -133,9 +134,17 @@
     .encadre-parker .encadre-label { color:#7dd3fc; }
     .article-cta { margin-top:24px; }
     .article-cta--top { margin:0 0 20px; }
+    .article-cta-stack {
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      margin:0 0 20px;
+    }
+    .article-cta-stack .article-cta { margin:0; }
     .article-cta a {
       display:inline-flex;
       align-items:center;
+      justify-content:center;
       gap:8px;
       padding:11px 18px;
       border-radius:12px;
@@ -144,8 +153,34 @@
       color:#fff;
       font-weight:600;
       text-decoration:none;
+      text-align:center;
     }
+    .article-cta-stack a { display:flex; width:100%; box-sizing:border-box; }
     .article-cta a:hover { background:#1d4ed8; }
+    .cta-grid {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+      margin:0 0 20px;
+    }
+    @media (max-width:560px){
+      .cta-grid { grid-template-columns:1fr; }
+    }
+    .cta-box {
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      padding:14px 16px;
+      border-radius:14px;
+      border:1px solid #2b376f;
+      background:#0e1440;
+      text-decoration:none;
+      color:#e7eaff;
+    }
+    .cta-box:hover { border-color:#3b82f6; background:#122058; }
+    .cta-box .cta-title { font-weight:700; font-size:.95rem; color:#fff; }
+    .cta-box .cta-desc { font-size:.82rem; line-height:1.4; color:#c7d2fe; }
+    .cta-box .cta-action { margin-top:auto; font-size:.82rem; font-weight:700; color:#7dd3fc; }
     .article-related {
       margin-top:28px;
       padding-top:18px;
@@ -204,12 +239,12 @@
       <h1>14 juillet 2026 à Paris : routes fermées et stationnement interdit</h1>
       <p class="article-chapo">Le mardi 14 juillet, le défilé militaire entraîne d&#x27;importantes restrictions de circulation et de stationnement à Paris. Si vous prévoyez de vous déplacer en voiture, il est fortement recommandé de préparer votre itinéraire avant votre départ.</p>
       <p class="article-cta article-cta--top"><a href="/14-juillet-paris-circulation-stationnement/carte/">Carte interactive — trouver un parking hors périmètre</a></p>
-      <div class="article-body"><p>Les principales restrictions concernent les secteurs des Champs-Élysées, de la place Charles-de-Gaulle, de la place de la Concorde, de l'avenue Foch ainsi qu'une partie des 7e, 8e, 16e et 17e arrondissements.</p><h2>Circulation interdite</h2><p>La circulation est interdite le mardi 14 juillet de 6 h à 15 h dans le périmètre de sécurité mis en place pour le défilé militaire. De nombreux axes sont fermés afin de sécuriser le parcours et de permettre le déroulement des cérémonies.</p><h2>Stationnement interdit</h2><p>Le stationnement est interdit sur de nombreuses voies situées dans le périmètre du défilé :</p><ul><li>du 13 juillet à 7 h au 14 juillet à 15 h ;</li><li>ou du 14 juillet à 4 h 30 au 14 juillet à 15 h.</li></ul><p>Les véhicules stationnés dans ces zones peuvent être verbalisés et mis en fourrière.</p><h2>Où stationner ?</h2><p>Si vous devez vous rendre dans le centre de Paris le 14 juillet, il est conseillé de choisir un parking public situé à l'extérieur du périmètre de sécurité, puis de terminer votre trajet à pied ou en transports en commun. ParkEco permet de localiser rapidement les parkings accessibles et de comparer leurs tarifs.</p><h2>Préparez votre déplacement</h2><p>Avant de partir, consultez les informations officielles de la Ville de Paris et la carte ParkEco du 14 juillet pour vérifier si votre itinéraire ou votre lieu de stationnement est concerné.</p></div>
+      <div class="article-body"><p>Les principales restrictions concernent les secteurs des Champs-Élysées, de la place Charles-de-Gaulle, de la place de la Concorde, de l'avenue Foch ainsi qu'une partie des 7e, 8e, 16e et 17e arrondissements.</p><h2>Circulation interdite</h2><p>La circulation est interdite le mardi 14 juillet de 6 h à 15 h dans le périmètre de sécurité mis en place pour le défilé militaire. De nombreux axes sont fermés afin de sécuriser le parcours et de permettre le déroulement des cérémonies.</p><h2>Stationnement interdit</h2><p>Le stationnement est interdit sur de nombreuses voies situées dans le périmètre du défilé :</p><ul><li>du 13 juillet à 7 h au 14 juillet à 15 h ;</li><li>ou du 14 juillet à 4 h 30 au 14 juillet à 15 h.</li></ul><p>Les véhicules stationnés dans ces zones peuvent être verbalisés et mis en fourrière.</p><h2>Où stationner ?</h2><p>Si vous devez vous rendre dans le centre de Paris le 14 juillet, il est conseillé de choisir un parking public situé à l'extérieur du périmètre de sécurité, puis de terminer votre trajet à pied ou en transports en commun. ParkEco permet de localiser rapidement les parkings accessibles et de comparer leurs tarifs.</p><h2>Préparez votre déplacement</h2><p>Avant de partir, consultez les informations officielles de la Ville de Paris et la carte ParkEco du 14 juillet pour vérifier si votre itinéraire ou votre lieu de stationnement est concerné.</p><p>Plus tard en juillet, retrouvez aussi les <a href="/actu/tour-de-france-2026-paris-circulation-stationnement/">rues fermées pour l'arrivée du Tour de France le 26 juillet</a>.</p></div>
       <aside class="encadre encadre-retenir"><span class="encadre-label">À retenir</span><p>Le 14 juillet, circulation interdite de 6 h à 15 h dans le périmètre du défilé. Stationnement interdit dès la veille sur de nombreuses voies : véhicules laissés sur place = verbalisation et fourrière possibles.</p></aside>
       <aside class="encadre encadre-parker"><span class="encadre-label">Et pour vous garer ?</span><p>ParkEco vous aide à trouver un parking public hors périmètre, à comparer les tarifs et à estimer la marche jusqu&#x27;à votre destination — idéal pour les Champs-Élysées et les abords du défilé.</p></aside>
       <p class="article-cta"><a href="/">Trouver un parking public à Paris</a></p>
     </article>
-    <section class="article-related" aria-label="Autres actualités"><h2>Autres actualités</h2><ul><li><a href="/actu/paris-respire-stationnement/">Paris Respire : où se garer lorsque certaines rues sont fermées ?</a></li><li><a href="/actu/stationnement-pas-gratuit-aout-paris/">Stationnement à Paris : non, il n&#x27;est plus gratuit au mois d&#x27;août</a></li></ul></section>
+    <section class="article-related" aria-label="Autres actualités"><h2>Autres actualités</h2><ul><li><a href="/actu/tour-de-france-2026-paris-circulation-stationnement/">Tour de France 2026 à Paris : rues fermées et stationnement le dimanche 26 juillet</a></li><li><a href="/actu/paris-respire-stationnement/">Paris Respire : où se garer lorsque certaines rues sont fermées ?</a></li><li><a href="/actu/stationnement-pas-gratuit-aout-paris/">Stationnement à Paris : non, il n&#x27;est plus gratuit au mois d&#x27;août</a></li></ul></section>
   </main>
   <footer class="site-footer" aria-label="Pied de page ParkEco">
     <a href="/">Accueil</a> · <a href="/zones-desservies/">Toutes les zones desservies</a> · <a href="/faq.html">FAQ</a> — ParkEco, le parking public le plus proche à Paris.

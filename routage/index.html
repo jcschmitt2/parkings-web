@@ -1,0 +1,1215 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <base href="/" />
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-1N384T5FXL"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-1N384T5FXL');
+  </script>
+  <title>Itinéraire pour éviter les zones fermées — ParkEco</title>
+  <meta name="description" content="Calculez un itinéraire voiture pour éviter les zones fermées à Paris, puis ouvrez-le dans Google Maps." />
+  <link rel="canonical" href="https://parkeco.fr/routage/" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="robots" content="noindex" />
+  <link rel="icon" href="/favicon.ico" sizes="48x48" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    * { box-sizing:border-box; }
+    html, body { height:100%; margin:0; }
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      color:#e8eefc;
+      background:#0b1020;
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
+    }
+    a { color:#7dd3fc; }
+    header.site {
+      flex:0 0 auto;
+      padding:8px 12px;
+      padding-top:max(8px, env(safe-area-inset-top));
+      border-bottom:1px solid #263069;
+      background:rgba(11,16,32,.97);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      z-index:30;
+    }
+    .brand {
+      display:inline-flex;
+      align-items:center;
+      gap:7px;
+      text-decoration:none;
+      color:#e8eefc;
+      font-size:1.05rem;
+      font-weight:700;
+    }
+    .brand-eco { color:#7dd3fc; }
+    .brand svg { width:22px; height:22px; }
+    .back-link {
+      font-size:.78rem;
+      color:#9aa9ff;
+      text-decoration:none;
+      white-space:nowrap;
+    }
+
+    .shell {
+      flex:1 1 auto;
+      min-height:0;
+      display:flex;
+      flex-direction:column;
+      position:relative;
+    }
+
+    /* Carte dominante */
+    .map-wrap {
+      flex:1 1 auto;
+      min-height:0;
+      position:relative;
+      order:2;
+    }
+    #map { width:100%; height:100%; background:#0b1020; }
+    .legend {
+      position:absolute;
+      left:10px;
+      bottom:10px;
+      z-index:500;
+      background:rgba(11,16,32,.88);
+      border:1px solid #263069;
+      border-radius:8px;
+      padding:6px 8px;
+      font-size:.7rem;
+      color:#c7d2fe;
+      line-height:1.3;
+    }
+    .swatch {
+      display:inline-block;
+      width:10px; height:10px;
+      border-radius:2px;
+      background:#ef4444;
+      opacity:.75;
+      margin-right:5px;
+      vertical-align:-1px;
+      border:1px solid #b91c1c;
+    }
+    .swatch.route {
+      background:#38bdf8;
+      border-color:#0ea5e9;
+      opacity:1;
+    }
+    .swatch.respire {
+      background:#f59e0b;
+      border-color:#d97706;
+      opacity:.85;
+    }
+    .when-row {
+      margin:0 0 10px;
+      padding:8px 10px;
+      border-radius:12px;
+      border:1px solid #3d508f;
+      background:#0e1440;
+    }
+    .when-row label {
+      display:block;
+      font-size:.72rem;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:.03em;
+      color:#9aa9ff;
+      margin:0 0 6px;
+    }
+    .when-controls {
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .chip {
+      border:1px solid #3d508f;
+      background:#121a44;
+      color:#c7d2fe;
+      border-radius:999px;
+      padding:8px 12px;
+      font-size:.82rem;
+      font-weight:700;
+      cursor:pointer;
+    }
+    .chip.active {
+      background:#2563eb;
+      border-color:#60a5fa;
+      color:#fff;
+    }
+    .when-controls input[type="datetime-local"] {
+      flex:1 1 160px;
+      min-width:0;
+      padding:9px 10px;
+      border-radius:10px;
+      border:1px solid #3d508f;
+      background:#0b1020;
+      color:#e8eefc;
+      font-size:16px;
+    }
+    .when-hint {
+      margin:6px 0 0;
+      font-size:.72rem;
+      color:#7d8fd6;
+      line-height:1.35;
+    }
+
+    /* Feuille formulaires — style Maps */
+    .sheet {
+      order:1;
+      flex:0 0 auto;
+      z-index:20;
+      background:rgba(14,21,58,.97);
+      border-bottom:1px solid #263069;
+      padding:10px 12px 12px;
+    }
+    h1 {
+      font-size:1rem;
+      line-height:1.25;
+      margin:0 0 10px;
+      color:#fff;
+      font-weight:700;
+    }
+    .tool-intro {
+      margin:0 0 10px;
+      font-size:.82rem;
+      line-height:1.4;
+      color:#9aa9ff;
+    }
+    .fields {
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .field { position:relative; margin:0; }
+    .field input {
+      width:100%;
+      padding:12px 12px;
+      border-radius:12px;
+      border:1px solid #3d508f;
+      background:#0e1440;
+      color:#e8eefc;
+      font-size:16px; /* évite zoom iOS */
+    }
+    .field input:focus {
+      outline:none;
+      border-color:#60a5fa;
+      box-shadow:0 0 0 2px rgba(96,165,250,.25);
+    }
+    .field input::placeholder { color:#7d8fd6; }
+    .suggestions {
+      display:none;
+      position:absolute;
+      left:0; right:0; top:100%;
+      z-index:40;
+      margin-top:4px;
+      background:#0e1440;
+      border:1px solid #3d508f;
+      border-radius:12px;
+      overflow:hidden;
+      max-height:200px;
+      overflow-y:auto;
+      box-shadow:0 10px 24px rgba(0,0,0,.4);
+    }
+    .suggestions.open { display:block; }
+    .suggestion-item {
+      padding:11px 12px;
+      cursor:pointer;
+      border-bottom:1px solid #263069;
+    }
+    .suggestion-item:last-child { border-bottom:none; }
+    .suggestion-item:hover, .suggestion-item.active { background:#1a2560; }
+    .suggestion-main { font-size:.92rem; color:#e8eefc; }
+    .suggestion-sub { font-size:.72rem; color:#7d8fd6; margin-top:2px; }
+
+    .actions {
+      margin-top:10px;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    button.primary {
+      width:100%;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:13px 14px;
+      border-radius:12px;
+      border:none;
+      background:#2563eb;
+      color:#fff;
+      font-size:1rem;
+      font-weight:700;
+      cursor:pointer;
+    }
+    button.primary:disabled { opacity:.55; cursor:not-allowed; }
+
+    .status {
+      display:none;
+      font-size:.8rem;
+      line-height:1.35;
+      padding:8px 10px;
+      border-radius:10px;
+      margin-top:8px;
+    }
+    .status.visible { display:block; }
+    .status.ok { background:#052e1a; border:1px solid #16a34a; color:#bbf7d0; }
+    .status.warn { background:#241708; border:1px solid #f59e0b; color:#fde68a; }
+    .status.err { background:#2a0f14; border:1px solid #ef4444; color:#fecaca; }
+
+    a.maps-btn {
+      width:100%;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:13px 14px;
+      border-radius:12px;
+      background:#16a34a;
+      color:#fff;
+      font-size:1rem;
+      font-weight:700;
+      text-decoration:none;
+      text-align:center;
+      box-sizing:border-box;
+    }
+    a.maps-btn.visible { display:inline-flex; }
+
+    /* Desktop : panneau à gauche, carte à droite */
+    @media (min-width:821px){
+      .shell {
+        display:grid;
+        grid-template-columns: minmax(320px, 380px) 1fr;
+        grid-template-rows: 1fr;
+      }
+      .sheet {
+        grid-column:1;
+        grid-row:1;
+        border-bottom:none;
+        border-right:1px solid #263069;
+        overflow-y:auto;
+        padding:16px;
+      }
+      h1 { font-size:1.15rem; margin-bottom:14px; }
+      .map-wrap {
+        grid-column:2;
+        grid-row:1;
+        order:unset;
+      }
+      .legend { bottom:16px; left:16px; }
+    }
+
+    /* Mobile : pas de sélecteur d’heure (trop de place) ; carte flexible */
+    @media (max-width:820px){
+      .when-row { display:none !important; }
+      .sheet { padding:8px 10px 10px; }
+      h1 { font-size:.95rem; margin:0 0 8px; }
+      .map-wrap { min-height:0; }
+      .legend { max-width:42vw; font-size:.65rem; bottom:8px; left:8px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site">
+    <a class="brand" href="/">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="14" fill="#1d4ed8"/><path d="M10 18h12l-2.5-7h-7L10 18zm3.2-4.5h5.6l1.1 3.2h-7.8l1.1-3.2z" fill="#e7eaff"/><circle cx="12.5" cy="19.5" r="1.6" fill="#7dd3fc"/><circle cx="19.5" cy="19.5" r="1.6" fill="#7dd3fc"/></svg>
+      Park<span class="brand-eco">Eco</span>
+    </a>
+    <a class="back-link" href="/actu/tour-de-france-2026-paris-circulation-stationnement/">Article Tour de France</a>
+  </header>
+
+  <div class="shell">
+    <div class="sheet">
+      <h1>Itinéraire pour éviter les zones fermées</h1>
+      <p class="tool-intro">Calculez un trajet voiture qui contourne les zones fermées à Paris (Tour de France et Paris Respire), puis ouvrez-le dans Google Maps.</p>
+      <div class="when-row">
+        <label for="when">Quand</label>
+        <div class="when-controls">
+          <button type="button" class="chip" id="btn-now">Maintenant</button>
+          <input id="when" type="datetime-local" step="900" value="2026-07-26T15:00" />
+        </div>
+        <p class="when-hint" id="when-hint">Zones Tour de France + Paris Respire actives à cette heure.</p>
+      </div>
+      <div class="fields">
+        <div class="field">
+          <input id="origin" type="text" placeholder="Départ" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="next" />
+          <div id="origin-suggestions" class="suggestions" role="listbox"></div>
+        </div>
+        <div class="field">
+          <input id="dest" type="text" placeholder="Arrivée" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="go" />
+          <div id="dest-suggestions" class="suggestions" role="listbox"></div>
+        </div>
+      </div>
+      <div class="actions">
+        <button type="button" class="primary" id="btn-calc">Calculer</button>
+        <a class="maps-btn" id="btn-maps" target="_blank" rel="noopener noreferrer">Ouvrir dans Google Maps</a>
+      </div>
+      <div class="status" id="status" role="status"></div>
+    </div>
+
+    <div class="map-wrap">
+      <div id="map" aria-label="Carte des zones fermées et de l’itinéraire"></div>
+      <div class="legend">
+        <span class="swatch" aria-hidden="true"></span>Tour
+        · <span class="swatch respire" aria-hidden="true"></span>Respire
+        · <span class="swatch route" aria-hidden="true"></span>Itinéraire
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function(){
+    const TDF_ZONES_URL = encodeURI("donnée/tour_de_france_2026_zones.geojson");
+    const RESPIRE_ZONES_URL = encodeURI("donnée/paris_respire_secteurs.geojson");
+    const ROUTE_API = "/api/route";
+    const APP_VERSION = "3.6-15h";
+    const MAX_MAPS_WAYPOINTS = 4;
+    const PARIS_RESPIRE_BUFFER_MIN = 60;
+    /** Dimanche d'arrivée — 15 h = max de zones Tour + Respire actives */
+    const EVENT_DEFAULT_QUAND = "2026-07-26T15:00";
+    const PARIS_WEEKDAY_IDX = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+
+    let map, zonesLayer, routeLayer;
+    let zonesTdf = null;
+    let zonesRespire = null;
+    let originPoint = null;
+    let destPoint = null;
+    let lastCoords = null;
+    let useNow = false;
+
+    const originInput = document.getElementById("origin");
+    const destInput = document.getElementById("dest");
+    const originBox = document.getElementById("origin-suggestions");
+    const destBox = document.getElementById("dest-suggestions");
+    const btnCalc = document.getElementById("btn-calc");
+    const btnMaps = document.getElementById("btn-maps");
+    const btnNow = document.getElementById("btn-now");
+    const whenInput = document.getElementById("when");
+    const whenHint = document.getElementById("when-hint");
+    const statusEl = document.getElementById("status");
+
+    function escapeHtml(s){
+      return String(s || "")
+        .replace(/&/g,"&amp;").replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+    }
+
+    function setStatus(kind, html){
+      statusEl.className = "status visible " + kind;
+      statusEl.innerHTML = html;
+    }
+
+    function clearStatus(){
+      statusEl.className = "status";
+      statusEl.innerHTML = "";
+    }
+
+    function showDock(show){
+      document.body.classList.toggle("has-route", !!show);
+      btnMaps.classList.toggle("visible", !!show);
+      if(!show){
+        btnMaps.removeAttribute("href");
+      }
+      requestAnimationFrame(() => {
+        if(map) map.invalidateSize();
+      });
+    }
+
+    function parisDateParts(now){
+      const parts = { year:0, month:0, day:0, hour:0, minute:0, weekday:"", weekdayIdx:-1 };
+      new Intl.DateTimeFormat("en-US", {
+        timeZone: "Europe/Paris",
+        weekday: "short",
+        year: "numeric",
+        month: "numeric",
+        day: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+        hour12: false
+      }).formatToParts(now).forEach(p => {
+        if(p.type !== "literal") parts[p.type] = p.value;
+      });
+      parts.year = +parts.year;
+      parts.month = +parts.month;
+      parts.day = +parts.day;
+      parts.hour = +parts.hour % 24;
+      parts.minute = +parts.minute;
+      parts.weekdayIdx = PARIS_WEEKDAY_IDX[parts.weekday] ?? -1;
+      return parts;
+    }
+
+    function pad2(n){ return String(n).padStart(2, "0"); }
+
+    function toDatetimeLocalValue(date){
+      const p = parisDateParts(date);
+      return p.year + "-" + pad2(p.month) + "-" + pad2(p.day) + "T" + pad2(p.hour) + ":" + pad2(p.minute);
+    }
+
+    function parisWallToDate(y, mo, d, h, mi){
+      let utc = Date.UTC(y, mo - 1, d, h, mi, 0);
+      for(let i = 0; i < 4; i++){
+        const p = parisDateParts(new Date(utc));
+        const have = Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, 0);
+        const want = Date.UTC(y, mo - 1, d, h, mi, 0);
+        const delta = want - have;
+        if(delta === 0) break;
+        utc += delta;
+      }
+      return new Date(utc);
+    }
+
+    function parseQuandString(raw){
+      if(!raw) return null;
+      const s = String(raw).trim().replace(" ", "T");
+      const m = s.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
+      if(!m) return null;
+      return parisWallToDate(+m[1], +m[2], +m[3], +m[4], +m[5]);
+    }
+
+    function isMobileRoutageUi(){
+      return window.matchMedia("(max-width: 820px)").matches;
+    }
+
+    function getEventDefaultWhen(){
+      return parseQuandString(EVENT_DEFAULT_QUAND) || new Date();
+    }
+
+    function getSelectedWhen(){
+      // iPhone : heure figée au dimanche 26 à 15 h (max de zones)
+      if(isMobileRoutageUi()) return getEventDefaultWhen();
+      if(useNow) return new Date();
+      const d = parseQuandString(whenInput.value);
+      return d || getEventDefaultWhen();
+    }
+
+    function formatWhenHint(date, nTdf, nRespire){
+      const p = parisDateParts(date);
+      const label = pad2(p.day) + "/" + pad2(p.month) + "/" + p.year +
+        " " + pad2(p.hour) + "h" + pad2(p.minute);
+      const mode = isMobileRoutageUi()
+        ? "Arrivée Tour (fixe)"
+        : (useNow ? "Maintenant" : "Heure choisie");
+      return mode + " · " + label + " · " + nTdf + " zone(s) Tour · " + nRespire + " Paris Respire";
+    }
+
+    function parisWeekdayOn(year, month, day){
+      const wd = new Intl.DateTimeFormat("en-US", {
+        timeZone: "Europe/Paris",
+        weekday: "short"
+      }).format(new Date(Date.UTC(year, month - 1, day, 12, 0, 0)));
+      return PARIS_WEEKDAY_IDX[wd] ?? -1;
+    }
+
+    function lastSundayOfMonthParis(year, month){
+      const lastDay = new Date(year, month, 0).getDate();
+      for(let d = lastDay; d >= 1; d--){
+        if(parisWeekdayOn(year, month, d) === 0) return d;
+      }
+      return 0;
+    }
+
+    function firstSundayOnOrAfterParis(year, month, startDay){
+      const lastDay = new Date(year, month, 0).getDate();
+      for(let d = startDay; d <= lastDay; d++){
+        if(parisWeekdayOn(year, month, d) === 0) return d;
+      }
+      return 0;
+    }
+
+    function parseParisRespireHourToken(token){
+      const m = String(token || "").match(/(\d{1,2})\s*h(?:\s*(\d{2}))?/i);
+      if(!m) return null;
+      const h = +m[1];
+      const min = m[2] ? +m[2] : 0;
+      if(h > 23 || min > 59) return null;
+      return h * 60 + min;
+    }
+
+    function parseParisRespireHourRange(text){
+      if(!text || typeof text !== "string") return null;
+      const t = text.trim();
+      if(/\//.test(t) || /12h\s*-\s*1h/i.test(t)) return null;
+      const matches = [...t.matchAll(/(\d{1,2})\s*h(?:\s*(\d{2}))?/gi)];
+      if(matches.length < 2) return null;
+      const startMin = parseParisRespireHourToken(matches[0][0]);
+      const endMin = parseParisRespireHourToken(matches[1][0]);
+      if(startMin == null || endMin == null || endMin <= startMin) return null;
+      return { startMin, endMin };
+    }
+
+    function isParisRespireJourMatch(code, parts){
+      const wd = parts.weekdayIdx;
+      if(wd < 0) return false;
+      const c = String(code || "").trim();
+      if(c === "01") return wd === 0;
+      if(c === "03") return wd === 3;
+      if(c === "05") return wd === 0 && parts.day <= 7;
+      if(c === "10") return wd === 5 || wd === 6;
+      if(c === "11") return wd === 6 || wd === 0;
+      return false;
+    }
+
+    function isParisRespireJourExcluded(props, parts){
+      const saison = String(props.periode_estivale || "").toLowerCase();
+      if(/sauf\s+1er\s+dimanche/.test(saison) && parts.weekdayIdx === 0 && parts.day <= 7) return true;
+      return false;
+    }
+
+    function isParisRespireSaisonActive(periode, parts){
+      if(!periode) return false;
+      const p = periode.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "").replace(/œ/g, "oe");
+      const { year, month, day } = parts;
+      if(/avril/.test(p) && /septembre/.test(p) && !/dernier dimanche de mars/.test(p) && !/1er dimanche d.?avril/.test(p)){
+        return month >= 4 && month <= 9;
+      }
+      if(/avril.{0,6}a[oô]ut/.test(p)) return month >= 4 && month <= 8;
+      if(/juillet.{0,6}a[oô]ut/.test(p)) return month >= 7 && month <= 8;
+      if(/juin.{0,6}septembre/.test(p)) return month >= 6 && month <= 9;
+      if(/dernier dimanche de mars/.test(p) && /novembre/.test(p)){
+        const startD = lastSundayOfMonthParis(year, 3);
+        if(!startD) return false;
+        if(month < 3) return false;
+        if(month > 3 && month < 11) return true;
+        if(month === 3) return day >= startD;
+        if(month === 11) return true;
+        return false;
+      }
+      if(/1er dimanche d.?avril/.test(p) && /dernier dim/.test(p) && /septembre/.test(p)){
+        const startD = firstSundayOnOrAfterParis(year, 4, 1);
+        const endD = lastSundayOfMonthParis(year, 9);
+        if(!startD || !endD) return false;
+        const afterStart = month > 4 || (month === 4 && day >= startD);
+        const beforeEnd = month < 9 || (month === 9 && day <= endD);
+        return afterStart && beforeEnd;
+      }
+      return false;
+    }
+
+    function resolveParisRespireHours(props, parts){
+      const type = String(props.type_secteurs || "").trim();
+      const saison = props.periode_estivale;
+      const hAnnee = props.horaires_annee;
+      const hEte = props.horaires_ete;
+      if(type === "Dates spécifiques" || props.dates_specifiques) return null;
+      if(type === "Estival" && !hAnnee){
+        if(!saison || !hEte || !isParisRespireSaisonActive(saison, parts)) return null;
+        return hEte;
+      }
+      if(saison && hEte && isParisRespireSaisonActive(saison, parts)) return hEte;
+      if(hAnnee) return hAnnee;
+      return null;
+    }
+
+    function isMinutesInParisRespireWindow(minutes, startMin, endMin, bufferMin){
+      const start = Math.max(0, startMin - bufferMin);
+      const end = Math.min(24 * 60, endMin + bufferMin);
+      return minutes >= start && minutes <= end;
+    }
+
+    function isParisRespireZoneActive(props, when){
+      if(!props) return false;
+      const parts = parisDateParts(when);
+      if(isParisRespireJourExcluded(props, parts)) return false;
+      if(!isParisRespireJourMatch(props.jours, parts)) return false;
+      const hoursText = resolveParisRespireHours(props, parts);
+      if(!hoursText) return false;
+      const range = parseParisRespireHourRange(hoursText);
+      if(!range) return false;
+      const minutes = parts.hour * 60 + parts.minute;
+      return isMinutesInParisRespireWindow(minutes, range.startMin, range.endMin, PARIS_RESPIRE_BUFFER_MIN);
+    }
+
+    function isTourZoneActive(props, when){
+      if(!props) return false;
+      const start = parseQuandString(props.active_start);
+      const end = parseQuandString(props.active_end);
+      if(!start || !end) return true; // pas de créneau → considéré actif (sécurité)
+      const t = when.getTime();
+      return t >= start.getTime() && t <= end.getTime();
+    }
+
+    function getActiveZonesCollection(when){
+      const features = [];
+      for(const f of (zonesTdf && zonesTdf.features) || []){
+        if(isTourZoneActive(f.properties || {}, when)){
+          features.push({
+            ...f,
+            properties: { ...(f.properties || {}), _layer: "tour_de_france" }
+          });
+        }
+      }
+      for(const f of (zonesRespire && zonesRespire.features) || []){
+        if(isParisRespireZoneActive(f.properties || {}, when)){
+          features.push({
+            ...f,
+            properties: {
+              ...(f.properties || {}),
+              _layer: "paris_respire",
+              nom: (f.properties || {}).nom || "Paris Respire",
+              exclure_recherche: true
+            }
+          });
+        }
+      }
+      return { type: "FeatureCollection", features };
+    }
+
+    function applyEventDefaultWhen(){
+      useNow = false;
+      whenInput.value = EVENT_DEFAULT_QUAND;
+      btnNow.classList.remove("active");
+    }
+
+    function syncWhenUi(){
+      const when = getSelectedWhen();
+      if(useNow){
+        whenInput.value = toDatetimeLocalValue(when);
+        btnNow.classList.add("active");
+      } else {
+        btnNow.classList.remove("active");
+        // Garder une valeur datetime-local explicite (évite Safari qui reprend l'heure courante)
+        if(!whenInput.value || whenInput.value.length < 16){
+          whenInput.value = EVENT_DEFAULT_QUAND;
+        }
+      }
+      const active = getActiveZonesCollection(when);
+      const nTdf = active.features.filter(f => f.properties._layer === "tour_de_france").length;
+      const nRes = active.features.filter(f => f.properties._layer === "paris_respire").length;
+      whenHint.textContent = formatWhenHint(when, nTdf, nRes);
+      paintZones(active);
+      try {
+        const url = new URL(location.href);
+        if(useNow) url.searchParams.delete("quand");
+        else url.searchParams.set("quand", whenInput.value || EVENT_DEFAULT_QUAND);
+        history.replaceState(null, "", url.pathname + url.search + url.hash);
+      } catch(_){}
+    }
+
+    function setUseNow(on){
+      useNow = !!on;
+      clearRoute();
+      clearStatus();
+      syncWhenUi();
+    }
+
+    function haversineM(a, b){
+      const R = 6371000;
+      const toRad = Math.PI / 180;
+      const dLat = (b.lat - a.lat) * toRad;
+      const dLon = (b.lon - a.lon) * toRad;
+      const s = Math.sin(dLat/2)**2 +
+        Math.cos(a.lat*toRad) * Math.cos(b.lat*toRad) * Math.sin(dLon/2)**2;
+      return 2 * R * Math.asin(Math.sqrt(s));
+    }
+
+    function pointInRing(lat, lon, ring){
+      let inside = false;
+      for(let i = 0, j = ring.length - 1; i < ring.length; j = i++){
+        const xi = ring[i][0], yi = ring[i][1];
+        const xj = ring[j][0], yj = ring[j][1];
+        const intersect = ((yi > lat) !== (yj > lat)) &&
+          (lon < (xj - xi) * (lat - yi) / ((yj - yi) || 1e-12) + xi);
+        if(intersect) inside = !inside;
+      }
+      return inside;
+    }
+
+    function pointInZones(lat, lon, when){
+      const active = getActiveZonesCollection(when || getSelectedWhen());
+      for(const f of active.features || []){
+        const g = f.geometry;
+        if(!g) continue;
+        if(g.type === "Polygon"){
+          if(pointInRing(lat, lon, g.coordinates[0])) return f;
+        } else if(g.type === "MultiPolygon"){
+          for(const poly of g.coordinates){
+            if(pointInRing(lat, lon, poly[0])) return f;
+          }
+        }
+      }
+      return null;
+    }
+
+    function turnAngleDeg(a, b, c){
+      const b1 = Math.atan2(b.lon - a.lon, b.lat - a.lat);
+      const b2 = Math.atan2(c.lon - b.lon, c.lat - b.lat);
+      let d = Math.abs(b2 - b1) * 180 / Math.PI;
+      if(d > 180) d = 360 - d;
+      return d;
+    }
+
+    function sampleWaypoints(coordsLonLat, maxN){
+      if(!coordsLonLat || coordsLonLat.length < 3 || maxN <= 0) return [];
+      const pts = coordsLonLat.map(c => ({ lon: c[0], lat: c[1] }));
+      const cum = [0];
+      for(let i = 1; i < pts.length; i++){
+        cum.push(cum[i - 1] + haversineM(pts[i - 1], pts[i]));
+      }
+      const total = cum[cum.length - 1];
+      if(total < 80) return [];
+
+      const MIN_TURN = 28;
+      const MIN_GAP_M = Math.max(400, total / (maxN + 2));
+      const corners = [];
+      for(let i = 2; i < pts.length - 1; i++){
+        if(turnAngleDeg(pts[i - 1], pts[i], pts[i + 1]) >= MIN_TURN){
+          corners.push(i);
+        }
+      }
+
+      const picked = [];
+      function tryAdd(idx){
+        if(idx <= 0 || idx >= pts.length - 1) return;
+        const dist = cum[idx];
+        if(picked.some(j => Math.abs(cum[j] - dist) < MIN_GAP_M)) return;
+        picked.push(idx);
+      }
+
+      for(const i of corners){
+        if(picked.length >= maxN) break;
+        tryAdd(i);
+      }
+
+      if(picked.length < Math.min(3, maxN)){
+        const need = Math.min(maxN, 4);
+        for(let k = 1; k <= need; k++){
+          const target = (total * k) / (need + 1);
+          let i = 1;
+          while(i < cum.length - 1 && cum[i] < target) i++;
+          tryAdd(i);
+          if(picked.length >= maxN) break;
+        }
+      }
+
+      picked.sort((a, b) => a - b);
+      return picked.slice(0, maxN).map(i => pts[i]);
+    }
+
+    function googleMapsUrl(origin, dest, waypoints){
+      const parts = [
+        origin.lat + "," + origin.lon,
+        ...(waypoints || []).map(w => w.lat + "," + w.lon),
+        dest.lat + "," + dest.lon
+      ];
+      return "https://www.google.com/maps/dir/" +
+        parts.map(encodeURIComponent).join("/") +
+        "/data=!3m1!4b1!4m2!4m1!3e0";
+    }
+
+    function clearRoute(){
+      if(routeLayer){
+        map.removeLayer(routeLayer);
+        routeLayer = null;
+      }
+      lastCoords = null;
+      showDock(false);
+    }
+
+    function drawRoute(coordsLonLat, origin, dest){
+      clearRoute();
+      lastCoords = coordsLonLat;
+      const latlngs = coordsLonLat.map(c => [c[1], c[0]]);
+      routeLayer = L.layerGroup();
+
+      L.polyline(latlngs, {
+        color: "#38bdf8",
+        weight: 5,
+        opacity: 0.95
+      }).addTo(routeLayer);
+
+      L.circleMarker([origin.lat, origin.lon], {
+        radius: 8, color: "#fff", weight: 2, fillColor: "#22c55e", fillOpacity: 1
+      }).bindTooltip("Départ").addTo(routeLayer);
+
+      L.circleMarker([dest.lat, dest.lon], {
+        radius: 8, color: "#fff", weight: 2, fillColor: "#ef4444", fillOpacity: 1
+      }).bindTooltip("Arrivée").addTo(routeLayer);
+
+      routeLayer.addTo(map);
+
+      const wps = sampleWaypoints(coordsLonLat, MAX_MAPS_WAYPOINTS);
+      btnMaps.href = googleMapsUrl(origin, dest, wps);
+      showDock(true);
+
+      requestAnimationFrame(() => {
+        map.invalidateSize();
+        map.fitBounds(L.latLngBounds(latlngs), { padding: [36, 36], maxZoom: 14 });
+      });
+    }
+
+    async function loadZones(){
+      const [tdfRes, respRes] = await Promise.all([
+        fetch(TDF_ZONES_URL + "?v=" + APP_VERSION),
+        fetch(RESPIRE_ZONES_URL + "?v=" + APP_VERSION)
+      ]);
+      if(!tdfRes.ok) throw new Error("Zones Tour HTTP " + tdfRes.status);
+      if(!respRes.ok) throw new Error("Zones Respire HTTP " + respRes.status);
+      zonesTdf = await tdfRes.json();
+      zonesRespire = await respRes.json();
+      return true;
+    }
+
+    function paintZones(activeCollection){
+      if(!map) return;
+      const active = activeCollection || getActiveZonesCollection(getSelectedWhen());
+      if(zonesLayer) map.removeLayer(zonesLayer);
+      zonesLayer = L.geoJSON(active, {
+        style(feature){
+          const layer = (feature.properties || {})._layer;
+          if(layer === "paris_respire"){
+            return {
+              color: "#d97706",
+              weight: 2,
+              opacity: 0.95,
+              fillColor: "#f59e0b",
+              fillOpacity: 0.28
+            };
+          }
+          return {
+            color: "#b91c1c",
+            weight: 2,
+            opacity: 0.95,
+            fillColor: "#ef4444",
+            fillOpacity: 0.28
+          };
+        },
+        onEachFeature(feature, layer){
+          const p = feature.properties || {};
+          const kind = p._layer === "paris_respire" ? "Paris Respire" : "Tour de France";
+          const lines = [
+            "<strong>" + escapeHtml(p.nom || "Zone fermée") + "</strong>",
+            "<em>" + kind + "</em>"
+          ];
+          if(p.horaires) lines.push(escapeHtml(p.horaires));
+          else if(p.horaires_annee || p.horaires_ete){
+            lines.push(escapeHtml(p.horaires_ete || p.horaires_annee || ""));
+          }
+          layer.bindPopup(lines.join("<br>"), { maxWidth: 260 });
+        }
+      }).addTo(map);
+      try {
+        if(active.features && active.features.length){
+          map.fitBounds(zonesLayer.getBounds(), { padding: [30, 30], maxZoom: 13 });
+        }
+      } catch(_){}
+      requestAnimationFrame(() => map.invalidateSize());
+    }
+
+    function isParisFeature(feature){
+      const p = feature.properties || {};
+      const cp = String(p.postcode || "");
+      if(/^750\d{2}$/.test(cp) || cp === "75116") return true;
+      return (p.city || "").toLowerCase() === "paris";
+    }
+
+    const KNOWN_PLACES = [
+      { keys: ["gare de lyon"], label: "Gare de Lyon, Paris", lat: 48.8443, lon: 2.3730 },
+      { keys: ["gare du nord"], label: "Gare du Nord, Paris", lat: 48.8809, lon: 2.3553 },
+      { keys: ["gare de l'est", "gare de lest"], label: "Gare de l'Est, Paris", lat: 48.8768, lon: 2.3592 },
+      { keys: ["gare montparnasse", "montparnasse"], label: "Gare Montparnasse, Paris", lat: 48.8412, lon: 2.3212 },
+      { keys: ["gare saint lazare", "saint-lazare", "saint lazare"], label: "Gare Saint-Lazare, Paris", lat: 48.8759, lon: 2.3252 },
+      { keys: ["porte maillot"], label: "Porte Maillot, Paris", lat: 48.8780, lon: 2.2820 },
+      { keys: ["porte de saint-cloud", "porte saint-cloud", "saint-cloud"], label: "Porte de Saint-Cloud, Paris", lat: 48.8380, lon: 2.2560 },
+      { keys: ["bastille"], label: "Place de la Bastille, Paris", lat: 48.8532, lon: 2.3691 },
+      { keys: ["republique"], label: "Place de la République, Paris", lat: 48.8676, lon: 2.3631 },
+      { keys: ["nation"], label: "Place de la Nation, Paris", lat: 48.8484, lon: 2.3959 },
+      { keys: ["chatelet"], label: "Place du Châtelet, Paris", lat: 48.8580, lon: 2.3470 },
+      { keys: ["tour eiffel", "eiffel"], label: "Tour Eiffel, Paris", lat: 48.8584, lon: 2.2945 },
+      { keys: ["opera"], label: "Opéra Garnier, Paris", lat: 48.8720, lon: 2.3316 },
+      { keys: ["louvre"], label: "Musée du Louvre, Paris", lat: 48.8606, lon: 2.3376 }
+    ];
+
+    function normalizePlace(text){
+      return String(text || "")
+        .toLowerCase()
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9\s']/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function matchKnownPlace(query){
+      const q = normalizePlace(query);
+      if(q.length < 3) return null;
+      for(const place of KNOWN_PLACES){
+        if(place.keys.some(k => q === k || q.includes(k) || k.includes(q))){
+          return { lat: place.lat, lon: place.lon, label: place.label };
+        }
+      }
+      return null;
+    }
+
+    async function fetchSuggestions(query){
+      const known = matchKnownPlace(query);
+      const knownFeatures = known ? [{
+        properties: { label: known.label, context: "Lieu · Paris", name: known.label },
+        geometry: { type: "Point", coordinates: [known.lon, known.lat] }
+      }] : [];
+      const params = new URLSearchParams({
+        q: query,
+        limit: "8",
+        autocomplete: "1",
+        lat: "48.8566",
+        lon: "2.3522",
+        postcode: "75001,75002,75003,75004,75005,75006,75007,75008,75009,75010,75011,75012,75013,75014,75015,75016,75017,75018,75019,75020"
+      });
+      const res = await fetch("https://api-adresse.data.gouv.fr/search/?" + params.toString());
+      if(!res.ok) throw new Error("Suggestions indisponibles");
+      const data = await res.json();
+      const fromApi = (data.features || []).filter(isParisFeature).slice(0, 5);
+      return knownFeatures.concat(fromApi).slice(0, 6);
+    }
+
+    async function geocode(query){
+      const known = matchKnownPlace(query);
+      if(known) return known;
+      const params = new URLSearchParams({
+        q: query,
+        limit: "1",
+        autocomplete: "0",
+        lat: "48.8566",
+        lon: "2.3522"
+      });
+      const res = await fetch("https://api-adresse.data.gouv.fr/search/?" + params.toString());
+      if(!res.ok) throw new Error("Géocodage indisponible");
+      const data = await res.json();
+      const f = (data.features || []).find(isParisFeature) || (data.features || [])[0];
+      if(!f || !f.geometry) return null;
+      const [lon, lat] = f.geometry.coordinates;
+      return {
+        lat: +lat,
+        lon: +lon,
+        label: (f.properties && (f.properties.label || f.properties.name)) || query
+      };
+    }
+
+    function setupSuggest(input, box, onPick){
+      let timer = null;
+      let items = [];
+      let active = -1;
+      let reqId = 0;
+
+      function hide(){
+        box.classList.remove("open");
+        box.innerHTML = "";
+        items = [];
+        active = -1;
+      }
+
+      function render(features){
+        items = features;
+        active = -1;
+        if(!features.length){ hide(); return; }
+        box.innerHTML = features.map((f, i) => {
+          const p = f.properties || {};
+          return '<div class="suggestion-item" data-index="' + i + '" role="option">' +
+            '<div class="suggestion-main">' + escapeHtml(p.label || p.name || "") + '</div>' +
+            '<div class="suggestion-sub">' + escapeHtml(p.context || p.city || "Paris") + '</div>' +
+            '</div>';
+        }).join("");
+        box.classList.add("open");
+        box.querySelectorAll(".suggestion-item").forEach(el => {
+          el.addEventListener("mousedown", (e) => {
+            e.preventDefault();
+            pick(+el.dataset.index);
+          });
+        });
+      }
+
+      function pick(index){
+        const f = items[index];
+        if(!f) return;
+        const [lon, lat] = f.geometry.coordinates;
+        const label = (f.properties && (f.properties.label || f.properties.name)) || "";
+        input.value = label;
+        onPick({ lat:+lat, lon:+lon, label });
+        hide();
+        clearRoute();
+        clearStatus();
+      }
+
+      input.addEventListener("input", () => {
+        onPick(null);
+        clearRoute();
+        clearStatus();
+        const q = input.value.trim();
+        clearTimeout(timer);
+        if(q.length < 3){ hide(); return; }
+        timer = setTimeout(async () => {
+          const id = ++reqId;
+          try {
+            const features = await fetchSuggestions(q);
+            if(id !== reqId) return;
+            render(features);
+          } catch(_){
+            if(id === reqId) hide();
+          }
+        }, 220);
+      });
+
+      input.addEventListener("keydown", (e) => {
+        if(e.key === "Enter"){
+          e.preventDefault();
+          if(box.classList.contains("open") && active >= 0){
+            pick(active);
+          } else if(input === destInput){
+            calculate();
+          } else {
+            destInput.focus();
+          }
+          return;
+        }
+        if(!box.classList.contains("open")) return;
+        if(e.key === "ArrowDown"){
+          e.preventDefault();
+          active = Math.min(active + 1, items.length - 1);
+        } else if(e.key === "ArrowUp"){
+          e.preventDefault();
+          active = Math.max(active - 1, 0);
+        } else if(e.key === "Escape"){
+          hide();
+          return;
+        } else return;
+        box.querySelectorAll(".suggestion-item").forEach((el, i) => {
+          el.classList.toggle("active", i === active);
+        });
+      });
+
+      input.addEventListener("blur", () => setTimeout(hide, 180));
+    }
+
+    async function resolvePoint(input, current){
+      if(current && current.lat != null) return current;
+      const q = input.value.trim();
+      if(!q) return null;
+      return geocode(q);
+    }
+
+    async function calculate(){
+      clearStatus();
+      clearRoute();
+      btnCalc.disabled = true;
+      try {
+        const origin = await resolvePoint(originInput, originPoint);
+        const dest = await resolvePoint(destInput, destPoint);
+        if(!origin || !dest){
+          setStatus("err", "Indiquez un départ et une arrivée à Paris.");
+          return;
+        }
+        originPoint = origin;
+        destPoint = dest;
+        originInput.value = origin.label || originInput.value;
+        destInput.value = dest.label || destInput.value;
+
+        const when = getSelectedWhen();
+        const inO = pointInZones(origin.lat, origin.lon, when);
+        const inD = pointInZones(dest.lat, dest.lon, when);
+        if(inO || inD){
+          setStatus("warn", "Départ ou arrivée dans une zone fermée à cette heure — choisissez un point à l’extérieur.");
+          return;
+        }
+
+        const active = getActiveZonesCollection(when);
+        if(!active.features.length){
+          setStatus("warn", "Aucune zone fermée à cette heure — l’itinéraire direct sera calculé.");
+        }
+
+        setStatus("ok", "Calcul…");
+
+        const res = await fetch(ROUTE_API, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            origin: { lat: origin.lat, lon: origin.lon },
+            destination: { lat: dest.lat, lon: dest.lon },
+            avoid: active.features.length ? active : null
+          })
+        });
+
+        let data;
+        try {
+          data = await res.json();
+        } catch(_){
+          data = {};
+        }
+
+        if(!res.ok){
+          setStatus("err", escapeHtml(data.error || ("Erreur " + res.status)));
+          return;
+        }
+
+        if(!data.coordinates || data.coordinates.length < 2){
+          setStatus("err", "Aucun itinéraire trouvé.");
+          return;
+        }
+
+        drawRoute(data.coordinates, origin, dest);
+        clearStatus();
+      } catch(err){
+        setStatus("err", escapeHtml(err.message || String(err)));
+      } finally {
+        btnCalc.disabled = false;
+      }
+    }
+
+    function initMap(){
+      map = L.map("map", { zoomControl: true }).setView([48.86, 2.34], 12);
+      L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+        attribution: "&copy; OSM &copy; CARTO",
+        maxZoom: 19
+      }).addTo(map);
+      window.addEventListener("resize", () => map && map.invalidateSize());
+    }
+
+    setupSuggest(originInput, originBox, p => { originPoint = p; });
+    setupSuggest(destInput, destBox, p => { destPoint = p; });
+    btnCalc.addEventListener("click", calculate);
+
+    btnNow.addEventListener("click", () => setUseNow(true));
+    whenInput.addEventListener("change", () => {
+      useNow = false;
+      clearRoute();
+      clearStatus();
+      syncWhenUi();
+    });
+    whenInput.addEventListener("input", () => {
+      useNow = false;
+      btnNow.classList.remove("active");
+    });
+
+    initMap();
+
+    // Mac : dimanche 26 à 15:00 par défaut (valeur littérale, pas l'heure courante).
+    // iPhone : même heure, verrouillée. Un ?quand= sur un autre jour est respecté sur Mac ;
+    // le 26 juillet est toujours forcé à 15:00 pour le max de zones.
+    const params = new URLSearchParams(location.search);
+    const quandParam = params.get("quand");
+    const parsedQuand = parseQuandString(quandParam);
+    applyEventDefaultWhen();
+    if(!isMobileRoutageUi() && parsedQuand){
+      const p = parisDateParts(parsedQuand);
+      const isEventDay = p.year === 2026 && p.month === 7 && p.day === 26;
+      if(!isEventDay){
+        useNow = false;
+        whenInput.value = toDatetimeLocalValue(parsedQuand);
+        btnNow.classList.remove("active");
+      }
+      // jour d'arrivée → déjà 15:00 via applyEventDefaultWhen()
+    }
+
+    loadZones()
+      .then(() => syncWhenUi())
+      .catch(err => setStatus("err", "Zones : " + escapeHtml(err.message)));
+  })();
+  </script>
+</body>
+</html>

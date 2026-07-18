@@ -41,7 +41,7 @@ if ! lsof -i :$PORT >/dev/null 2>&1; then
   exit 1
 fi
 
-printf '%s' "$IPHONE_URL" | pbcopy 2>/dev/null
+printf '%s' "http://${MAC_IP}:${PORT}/routage/" | pbcopy 2>/dev/null
 
 echo ""
 echo "══════════════════════════════════════════════════════"
@@ -49,18 +49,21 @@ echo "  ParkEco — test iPhone"
 echo "══════════════════════════════════════════════════════"
 echo ""
 echo "  1. iPhone sur le MÊME Wi‑Fi que ce Mac"
-echo "  2. Safari → ouvrir (HTTP, sans certificat) :"
+echo "  2. Safari → ouvrir :"
 echo ""
-echo "     $IPHONE_URL"
+echo "     http://${MAC_IP}:${PORT}/routage/"
 echo ""
 echo "  (copiée dans le presse-papiers)"
 echo ""
-echo "  Exemple page SEO :"
-echo "     http://${MAC_IP}:${PORT}/parking-proche-bastille/"
+echo "  Si Safari dit « impossible d’ouvrir » (Wi‑Fi isolé) :"
+echo "  utilisez le tunnel Cloudflare (demandez à Cursor) ou"
+echo "  testez d’abord le rendu mobile dans Safari Mac :"
+echo "  Développement → Mode Responsive → iPhone"
 echo ""
-echo "  Pour arrêter :"
-echo "  • Entrée dans ce terminal, ou"
-echo "  • double-clic sur « arreter_serveur.command »"
+echo "  ⚠  Ne fermez PAS cette fenêtre tant que vous testez."
+echo "     Entrée = arrêt du serveur."
+echo ""
+echo "  Pour arrêter aussi : double-clic « arreter_serveur.command »"
 echo "══════════════════════════════════════════════════════"
 echo ""
 

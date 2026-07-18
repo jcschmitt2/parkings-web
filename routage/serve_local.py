@@ -1,57 +1,75 @@
 #!/usr/bin/env python3
-"""Serveur local pour tester ParkEco sur iPhone (même Wi‑Fi).
+"""Serveur local pour tester le routage hybride (statique + proxy /api/route).
 
-Usage HTTP (recommandé pour iPhone) :
-  python3 serve_iphone_test.py --http 8768 [root]
+Usage :
+  # Option A (recommandée) : fichier local ignoré par Git
+  #   echo "votre_cle" > routage/.ors_api_key
+  # Option B : variable d'environnement
+  #   export ORS_API_KEY="votre_cle"
+  python3 routage/serve_local.py
 
-Inclut POST /api/route (OpenRouteService) comme routage/serve_local.py.
+Puis ouvrir http://127.0.0.1:8766/routage/
 """
 from __future__ import annotations
 
-import http.server
 import json
 import os
-import socketserver
-import ssl
 import sys
 import urllib.error
 import urllib.request
+from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-# Réutilise la logique clé / polygones du serveur routage
-ROOT_DEFAULT = Path(__file__).resolve().parent.parent
-if str(ROOT_DEFAULT) not in sys.path:
-    sys.path.insert(0, str(ROOT_DEFAULT / "routage"))
-try:
-    from serve_local import (  # type: ignore
-        ORS_URL,
-        features_to_multipolygon,
-        load_ors_api_key,
-    )
-except ImportError:
-    # Fallback si import relative échoue : chemins absolus
-    import importlib.util
-
-    spec = importlib.util.spec_from_file_location(
-        "serve_local", ROOT_DEFAULT / "routage" / "serve_local.py"
-    )
-    mod = importlib.util.module_from_spec(spec)
-    assert spec.loader is not None
-    spec.loader.exec_module(mod)
-    ORS_URL = mod.ORS_URL
-    features_to_multipolygon = mod.features_to_multipolygon
-    load_ors_api_key = mod.load_ors_api_key
+ROOT = Path(__file__).resolve().parent.parent
+ROUTAGE_DIR = Path(__file__).resolve().parent
+# Même port que le reste de ParkEco (appli / article)
+PORT = int(os.environ.get("PORT", "8766"))
+ORS_URL = "https://api.openrouteservice.org/v2/directions/driving-car/geojson"
+KEY_FILE = ROUTAGE_DIR / ".ors_api_key"
 
 
-class ParkEcoRequestHandler(http.server.SimpleHTTPRequestHandler):
-    """Désactive le cache agressif de Safari iOS ; proxy /api/route."""
+def load_ors_api_key() -> str:
+    """Clé depuis l'environnement, sinon fichier local routage/.ors_api_key (gitignored)."""
+    env = (os.environ.get("ORS_API_KEY") or "").strip()
+    if env:
+        return env
+    if KEY_FILE.is_file():
+        try:
+            return KEY_FILE.read_text(encoding="utf-8").strip()
+        except OSError:
+            return ""
+    return ""
+
+
+def features_to_multipolygon(avoid):
+    if not avoid:
+        return None
+    if avoid.get("type") == "MultiPolygon":
+        return avoid
+    if avoid.get("type") == "Polygon":
+        return {"type": "MultiPolygon", "coordinates": [avoid["coordinates"]]}
+    features = []
+    if avoid.get("type") == "FeatureCollection":
+        features = avoid.get("features") or []
+    elif avoid.get("type") == "Feature":
+        features = [avoid]
+    polygons = []
+    for f in features:
+        g = (f or {}).get("geometry") or {}
+        if g.get("type") == "Polygon":
+            polygons.append(g["coordinates"])
+        elif g.get("type") == "MultiPolygon":
+            polygons.extend(g["coordinates"])
+    if not polygons:
+        return None
+    return {"type": "MultiPolygon", "coordinates": polygons}
+
+
+class Handler(SimpleHTTPRequestHandler):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, directory=str(ROOT), **kwargs)
 
     def end_headers(self):
-        path = self.path.split("?", 1)[0].lower()
-        if path.endswith((".html", ".js", ".json")) or path in ("", "/"):
-            self.send_header("Cache-Control", "no-cache, no-store, must-revalidate")
-            self.send_header("Pragma", "no-cache")
-            self.send_header("Expires", "0")
         self.send_header("Access-Control-Allow-Origin", "*")
         super().end_headers()
 
@@ -67,7 +85,7 @@ class ParkEcoRequestHandler(http.server.SimpleHTTPRequestHandler):
     def do_POST(self):
         path = self.path.split("?", 1)[0]
         if path != "/api/route":
-            self.send_error(501, "Unsupported method ('POST')")
+            self.send_error(404)
             return
 
         key = load_ors_api_key()
@@ -82,7 +100,9 @@ class ParkEcoRequestHandler(http.server.SimpleHTTPRequestHandler):
         if not key:
             self._json(
                 503,
-                {"error": "Clé OpenRouteService manquante (routage/.ors_api_key)."},
+                {
+                    "error": "ORS_API_KEY manquante. Placez la clé dans routage/.ors_api_key ou exportez ORS_API_KEY."
+                },
             )
             return
 
@@ -95,7 +115,9 @@ class ParkEcoRequestHandler(http.server.SimpleHTTPRequestHandler):
             self._json(400, {"error": "origin et destination {lat, lon} requis"})
             return
 
-        payload = {"coordinates": [[olon, olat], [dlon, dlat]]}
+        payload = {
+            "coordinates": [[olon, olat], [dlon, dlat]],
+        }
         avoid = features_to_multipolygon(body.get("avoid"))
         if avoid:
             payload["options"] = {"avoid_polygons": avoid}
@@ -152,40 +174,22 @@ class ParkEcoRequestHandler(http.server.SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(raw)
 
-
-def serve_http(port: int, root: str) -> None:
-    os.chdir(root)
-    with socketserver.ThreadingTCPServer(("0.0.0.0", port), ParkEcoRequestHandler) as httpd:
-        key_ok = bool(load_ors_api_key())
-        print(f"ParkEco iPhone → http://0.0.0.0:{port}/  (routage: /routage/)", flush=True)
-        print(
-            "✓ Clé ORS chargée" if key_ok else "⚠ Pas de clé ORS (routage/.ors_api_key)",
-            flush=True,
-        )
-        httpd.serve_forever()
-
-
-def serve_https(port: int, cert: str, key: str, root: str) -> None:
-    os.chdir(root)
-    with socketserver.ThreadingTCPServer(("0.0.0.0", port), ParkEcoRequestHandler) as httpd:
-        ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-        ctx.load_cert_chain(cert, key)
-        httpd.socket = ctx.wrap_socket(httpd.socket, server_side=True)
-        httpd.serve_forever()
+    def log_message(self, fmt, *args):
+        sys.stderr.write("%s - %s\n" % (self.address_string(), fmt % args))
 
 
 def main():
-    if len(sys.argv) >= 2 and sys.argv[1] == "--http":
-        port = int(sys.argv[2]) if len(sys.argv) > 2 else 8768
-        root = sys.argv[3] if len(sys.argv) > 3 else os.getcwd()
-        serve_http(port, root)
-        return
-
-    port = int(sys.argv[1]) if len(sys.argv) > 1 else 8767
-    cert = sys.argv[2]
-    key = sys.argv[3]
-    root = sys.argv[4] if len(sys.argv) > 4 else os.getcwd()
-    serve_https(port, cert, key, root)
+    os.chdir(ROOT)
+    server = ThreadingHTTPServer(("127.0.0.1", PORT), Handler)
+    print(f"ParkEco routage → http://127.0.0.1:{PORT}/routage/", flush=True)
+    if load_ors_api_key():
+        print("✓ Clé OpenRouteService chargée", flush=True)
+    else:
+        print("⚠  Pas de clé — créez routage/.ors_api_key ou export ORS_API_KEY=...", flush=True)
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        print("\nArrêt.", flush=True)
 
 
 if __name__ == "__main__":

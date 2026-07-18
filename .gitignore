@@ -31,3 +31,8 @@ donnée de travail/
 
 # --- Outil tunnel test iPhone (téléchargé localement) ---
 .dev-tools/
+
+# --- Secrets routage (clé OpenRouteService) ---
+routage/.ors_api_key
+routage/*.docx
+routage/~$*

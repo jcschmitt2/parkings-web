@@ -208,7 +208,25 @@
     .paris-respire-intro p:last-child { margin-bottom:0; }
     body.actu-app:not(.has-results) .paris-respire-intro { display:none !important; }
     body.actu-app.actu-paris-respire.has-results:not(.actu-parking-detail) .paris-respire-intro { display:block; }
-    body.actu-app.actu-14-juillet .paris-respire-intro { display:none !important; }
+    body.actu-app.actu-14-juillet .paris-respire-intro,
+    body.actu-app.actu-tour-de-france .paris-respire-intro { display:none !important; }
+    .actu-tool-seo {
+      margin:0 22px 14px;
+      padding:12px 14px;
+      border-radius:12px;
+      border:1px solid #2b376f;
+      background:#0e1440;
+      color:#c7d2fe;
+      font-size:.88rem;
+      line-height:1.45;
+    }
+    .actu-tool-seo p { margin:0 0 8px; }
+    .actu-tool-seo p:last-child { margin-bottom:0; }
+    .actu-tool-seo a { color:#7dd3fc; font-weight:600; }
+    body.actu-app.has-results .actu-tool-seo { display:none; }
+    @media (max-width:900px){
+      .actu-tool-seo { margin:0 12px 10px; font-size:.82rem; }
+    }
     body.actu-app.actu-parking-detail #copy-lead,
     body.actu-app.actu-parking-detail #copy-body {
       display:none !important;
@@ -266,6 +284,10 @@
     .juillet-14-legend-swatch-parking {
       border-color:#c2410c;
       background:rgba(251,146,60,.45);
+    }
+    .tdf-legend-swatch-respire {
+      border-color:#d97706;
+      background:rgba(245,158,11,.4);
     }
     .paris-respire-legend a { color:#7dd3fc; }
     .paris-respire-legend-short { display:none; }
@@ -1753,6 +1775,7 @@
     let parisRespireLayer = null;
     let parisRespireGeoJson = null;
     let juillet14GeoJson = null;
+    let tourDeFranceGeoJson = null;
     let parisRespireOverviewGen = 0;
     let mapEpoch = 0;
     let parisRespireZonesPromise = null;
@@ -1771,7 +1794,7 @@
     let suggestTimer = null;
     let suggestRequestId = 0;
     let suppressSuggestionBlurHide = false;
-    const APP_VERSION = "18.48";
+    const APP_VERSION = "18.51";
     let DEFAULT_SEARCH_HINT_TEXT = "Adresse, lieu, arrondissement";
     let bootGeneration = 0;
     const OVERVIEW_NAME_ZOOM = 14;
@@ -1779,6 +1802,7 @@
     const WELCOME_MAP_ZOOM = 13;
     const PARIS_RESPIRE_DATA_URL = encodeURI("donnée/paris_respire_secteurs.geojson");
     const JUILLET_14_DATA_URL = encodeURI("donnée/14_juillet_2026_zones.geojson");
+    const TOUR_DE_FRANCE_DATA_URL = encodeURI("donnée/tour_de_france_2026_zones.geojson");
     const PARIS_RESPIRE_JOURS = {
       "01": "Dimanche",
       "03": "Mercredi",
@@ -2518,6 +2542,7 @@
         map.invalidateSize({ animate:false });
         if(shouldRefit && LAST_MAP_FIT_LATLNGS?.length) scheduleMapFit();
         else if(is14JuilletActuPage()) ensure14JuilletZonesLayer();
+        else if(isTourDeFranceActuPage()) ensureTourDeFranceZonesLayer();
         else if(isParisRespireActuPage()) ensureParisRespireZonesLayer();
         else if(!resolveSeoLandingConfig()) scheduleWelcomeOverviewMap();
         if(!isActuZoneToolPage()) scheduleStandardParisRespireRefresh();
@@ -2745,10 +2770,12 @@
       parisRespireLayerMode = "";
       parisRespireGeoJson = null;
       juillet14GeoJson = null;
+      tourDeFranceGeoJson = null;
       parisRespireActiveCache = { at: 0, key: "", features: [] };
       parisRespireOverviewGen++;
       parisRespireZonesPromise = null;
       juillet14ZonesPromise = null;
+      tourDeFranceZonesPromise = null;
     }
 
     function destroyMapCompletely(){
@@ -2756,6 +2783,7 @@
       resetParisRespireMapState();
       hideParisRespireMapLegend();
       hide14JuilletMapLegend();
+      hideTourDeFranceMapLegend();
       if(map){
         try { map.remove(); } catch (err) { /* déjà détachée */ }
         map = null;
@@ -2803,6 +2831,7 @@
           setTimeout(() => {
             refreshMapAfterLayoutChange(false);
             if(is14JuilletActuPage()) schedule14JuilletOverviewMap();
+            else if(isTourDeFranceActuPage()) scheduleTourDeFranceOverviewMap();
             else if(isParisRespireActuPage()) scheduleParisRespireOverviewMap();
             else scheduleWelcomeOverviewMap();
           }, 120);
@@ -2899,6 +2928,10 @@
         schedule14JuilletOverviewMap(attempt);
         return;
       }
+      if(isTourDeFranceActuPage()){
+        scheduleTourDeFranceOverviewMap(attempt);
+        return;
+      }
       if(isParisRespireActuPage()){
         scheduleParisRespireOverviewMap(attempt);
         return;
@@ -2947,6 +2980,10 @@
           if(isMap){
             if(is14JuilletActuPage()){
               ensure14JuilletZonesLayer().then(() => {
+                if(LAST_MAP_FIT_LATLNGS?.length) scheduleMapFit();
+              });
+            } else if(isTourDeFranceActuPage()){
+              ensureTourDeFranceZonesLayer().then(() => {
                 if(LAST_MAP_FIT_LATLNGS?.length) scheduleMapFit();
               });
             } else if(isParisRespireActuPage()){
@@ -3857,6 +3894,7 @@
       map.invalidateSize({ animate:false });
       if(isMapPanelVisible() && LAST_MAP_FIT_LATLNGS?.length) scheduleMapFit();
       else if(is14JuilletActuPage()) schedule14JuilletOverviewMap();
+      else if(isTourDeFranceActuPage()) scheduleTourDeFranceOverviewMap();
       else if(isParisRespireActuPage()) scheduleParisRespireOverviewMap();
       else scheduleWelcomeOverviewMap();
     });
@@ -3899,6 +3937,7 @@
       document.body.classList.add("actu-app");
       document.body.classList.toggle("actu-paris-respire", actu.slug === "paris-respire-stationnement");
       document.body.classList.toggle("actu-14-juillet", actu.slug === "14-juillet-paris-circulation-stationnement-carte");
+      document.body.classList.toggle("actu-tour-de-france", actu.slug === "tour-de-france-paris-circulation-stationnement-carte");
       setTextById("copy-subtitle", "");
       setTextById("copy-lead", actu.resume || "");
       setTextById("copy-body", actu.h1 || actu.titre || "");
@@ -3922,8 +3961,12 @@
       return resolveActuAppConfig()?.slug === "14-juillet-paris-circulation-stationnement-carte";
     }
 
+    function isTourDeFranceActuPage(){
+      return resolveActuAppConfig()?.slug === "tour-de-france-paris-circulation-stationnement-carte";
+    }
+
     function isActuZoneToolPage(){
-      return isParisRespireActuPage() || is14JuilletActuPage();
+      return isParisRespireActuPage() || is14JuilletActuPage() || isTourDeFranceActuPage();
     }
 
     async function load14JuilletGeoJson(){
@@ -4013,7 +4056,8 @@
         }
         clearParisRespireLayer();
         hideParisRespireMapLegend();
-      hide14JuilletMapLegend();
+        hide14JuilletMapLegend();
+        hideTourDeFranceMapLegend();
         ensureParisRespireMapPane();
         parisRespireLayer = L.geoJSON(
           { type: "FeatureCollection", features },
@@ -4093,6 +4137,193 @@
         return;
       }
       void show14JuilletOverviewMap();
+    }
+
+    async function loadTourDeFranceGeoJson(){
+      if(tourDeFranceGeoJson) return tourDeFranceGeoJson;
+      const res = await fetch(`${TOUR_DE_FRANCE_DATA_URL}?v=${APP_VERSION}`);
+      if(!res.ok) throw new Error(`tour_de_france_2026_zones.geojson HTTP ${res.status}`);
+      tourDeFranceGeoJson = await res.json();
+      return tourDeFranceGeoJson;
+    }
+
+    async function getTourDeFranceMapFeatures(){
+      const raw = await loadTourDeFranceGeoJson();
+      return (raw.features || []).map(f => ({
+        ...f,
+        properties: {
+          ...(f.properties || {}),
+          _layer: "tour_de_france",
+          nom: (f.properties || {}).nom || "Tour de France"
+        }
+      }));
+    }
+
+    async function getTourDeFranceParkingZoneFeatures(){
+      const tdf = await getTourDeFranceMapFeatures();
+      const respire = (await getParisRespireUrbanFeatures()).map(f => ({
+        ...f,
+        properties: {
+          ...(f.properties || {}),
+          _layer: "paris_respire",
+          nom: (f.properties || {}).nom || "Paris Respire"
+        }
+      }));
+      return [...tdf, ...respire];
+    }
+
+    function formatTourDeFrancePopup(props){
+      const lines = [];
+      const layer = props._layer || "tour_de_france";
+      const title = props.nom || (layer === "paris_respire" ? "Paris Respire" : "Tour de France");
+      lines.push(`<strong>${escapeHtml(title)}</strong>`);
+      if(layer === "paris_respire"){
+        if(props.horaires) lines.push(`Horaires : ${escapeHtml(props.horaires)}`);
+      } else {
+        if(props.horaires) lines.push(`Horaires : ${escapeHtml(props.horaires)}`);
+        if(props.description) lines.push(escapeHtml(props.description));
+        lines.push("Périmètre estimé — mise à jour à la parution de l'arrêté.");
+      }
+      return `<div class="paris-respire-popup">${lines.join("<br>")}</div>`;
+    }
+
+    function tourDeFranceZoneStyle(feature){
+      if(feature?.properties?._layer === "paris_respire"){
+        return {
+          color: "#d97706",
+          weight: 2,
+          opacity: 0.95,
+          fillColor: "#f59e0b",
+          fillOpacity: 0.28
+        };
+      }
+      return {
+        color: "#b91c1c",
+        weight: 2.5,
+        opacity: 0.95,
+        fillColor: "#ef4444",
+        fillOpacity: 0.28
+      };
+    }
+
+    function ensureTourDeFranceMapLegend(){
+      let el = document.getElementById("tour-de-france-legend");
+      if(!el){
+        el = document.createElement("div");
+        el.id = "tour-de-france-legend";
+        el.className = "paris-respire-legend";
+        el.innerHTML =
+          "<strong>" +
+          '<span class="paris-respire-legend-swatch juillet-14-legend-swatch" aria-hidden="true"></span>' +
+          '<span class="paris-respire-legend-long">Tour de France — zones fermées (26 juillet)</span>' +
+          '<span class="paris-respire-legend-short">Rouge = Tour · orange = Respire</span></strong>' +
+          '<span class="paris-respire-legend-detail">' +
+          '<span class="paris-respire-legend-swatch tdf-legend-swatch-respire" aria-hidden="true"></span>' +
+          "Orange = Paris Respire. Tous les parkings dans 1 km sont listés ; ceux en zone sont signalés.</span>";
+        document.querySelector(".map-panel")?.appendChild(el);
+      }
+      el.hidden = false;
+    }
+
+    function hideTourDeFranceMapLegend(){
+      const el = document.getElementById("tour-de-france-legend");
+      if(el) el.hidden = true;
+    }
+
+    async function paintTourDeFranceZonesLayer(){
+      const mapRef = map;
+      if(!mapRef || !isTourDeFranceActuPage()) return false;
+      const epoch = mapEpoch;
+      try {
+        const features = await getTourDeFranceParkingZoneFeatures();
+        if(!map || map !== mapRef || mapEpoch !== epoch) return false;
+        if(parisRespireLayer && parisRespireLayerMode === "tourdefinance" && map === mapRef){
+          ensureTourDeFranceMapLegend();
+          return true;
+        }
+        clearParisRespireLayer();
+        hideParisRespireMapLegend();
+        hide14JuilletMapLegend();
+        hideTourDeFranceMapLegend();
+        ensureParisRespireMapPane();
+        parisRespireLayer = L.geoJSON(
+          { type: "FeatureCollection", features },
+          {
+            pane: "parisRespirePane",
+            style: tourDeFranceZoneStyle,
+            onEachFeature(feature, layer){
+              const props = feature.properties || {};
+              layer.bindPopup(formatTourDeFrancePopup(props), { maxWidth: 320 });
+              layer.on({
+                mouseover: (event) => event.target.setStyle({ weight: 3, fillOpacity: 0.42 }),
+                mouseout: (event) => { if(parisRespireLayer) parisRespireLayer.resetStyle(event.target); }
+              });
+            }
+          }
+        ).addTo(mapRef);
+        parisRespireLayerMode = "tourdefinance";
+        ensureTourDeFranceMapLegend();
+        return true;
+      } catch(err){
+        console.warn("Zones Tour de France non chargées", err);
+        return false;
+      }
+    }
+
+    let tourDeFranceZonesPromise = null;
+
+    async function ensureTourDeFranceZonesLayer(){
+      if(!map) return false;
+      if(tourDeFranceZonesPromise) return tourDeFranceZonesPromise;
+      tourDeFranceZonesPromise = paintTourDeFranceZonesLayer().finally(() => {
+        tourDeFranceZonesPromise = null;
+      });
+      return tourDeFranceZonesPromise;
+    }
+
+    async function showTourDeFranceOverviewMap(){
+      if(!isTourDeFranceActuPage() || !map) return;
+      if(document.body.classList.contains("has-results")) return;
+      if(!isWelcomeOverviewMode()) return;
+      const gen = ++parisRespireOverviewGen;
+      const ok = await ensureTourDeFranceZonesLayer();
+      if(gen !== parisRespireOverviewGen || !map || !ok) return;
+      showOverviewParkingMarkers();
+      map.invalidateSize({ animate:false });
+      const padOpts = juillet14OverviewFitPadding();
+      const fitted = fitMapToLayerBounds(parisRespireLayer, padOpts);
+      if(!fitted){
+        map.setView(WELCOME_MAP_CENTER, WELCOME_MAP_ZOOM, { animate:false });
+      }
+      const refit = () => {
+        if(gen !== parisRespireOverviewGen || !map || !isTourDeFranceActuPage()) return;
+        if(document.body.classList.contains("has-results")) return;
+        map.invalidateSize({ animate:false });
+        fitMapToLayerBounds(parisRespireLayer, padOpts);
+      };
+      requestAnimationFrame(() => requestAnimationFrame(refit));
+      setTimeout(refit, 150);
+    }
+
+    function scheduleTourDeFranceOverviewMap(attempt = 0){
+      if(!isTourDeFranceActuPage() || document.body.classList.contains("has-results")) return;
+      if(!isWelcomeOverviewMode() || !PARKINGS.length){
+        if(!PARKINGS.length && attempt < 60){
+          setTimeout(() => scheduleTourDeFranceOverviewMap(attempt + 1), 80);
+        }
+        return;
+      }
+      const mapEl = document.getElementById("map");
+      if(!mapEl || mapEl.offsetWidth < 20 || mapEl.offsetHeight < 20){
+        if(attempt < 24) setTimeout(() => scheduleTourDeFranceOverviewMap(attempt + 1), 80);
+        return;
+      }
+      if(!map) initMap();
+      if(!map){
+        if(attempt < 24) setTimeout(() => scheduleTourDeFranceOverviewMap(attempt + 1), 80);
+        return;
+      }
+      void showTourDeFranceOverviewMap();
     }
 
     function eventZoneKey(feature){
@@ -4351,7 +4582,8 @@
           if(!featureList.length){
             clearParisRespireLayer();
             hideParisRespireMapLegend();
-      hide14JuilletMapLegend();
+            hide14JuilletMapLegend();
+            hideTourDeFranceMapLegend();
             return false;
           }
           if(parisRespireLayerOnMap() && parisRespireLayerMode === "standard"){
@@ -4361,6 +4593,8 @@
         }
         if(!map || map !== mapRef || mapEpoch !== epoch) return false;
         clearParisRespireLayer();
+        hide14JuilletMapLegend();
+        hideTourDeFranceMapLegend();
         ensureParisRespireMapPane();
         parisRespireLayer = L.geoJSON(
           { type: "FeatureCollection", features: featureList },
@@ -4643,6 +4877,7 @@
         );
         if(resolveSeoLandingConfig()) await runSeoLandingSearchIfNeeded();
         else if(is14JuilletActuPage()) schedule14JuilletOverviewMap();
+        else if(isTourDeFranceActuPage()) scheduleTourDeFranceOverviewMap();
         else if(isParisRespireActuPage()) scheduleParisRespireOverviewMap();
         else if(!resolveActuAppConfig()) scheduleWelcomeOverviewMap();
         if(!isActuZoneToolPage()) {
@@ -4865,6 +5100,12 @@
         }
         return "Attention : parking dans le périmètre fermé à la circulation (14 juillet)";
       }
+      if(isTourDeFranceActuPage()){
+        if(hit.properties?._layer === "paris_respire"){
+          return "Attention : parking en zone bloquée Paris Respire";
+        }
+        return "Attention : parking dans une zone fermée (Tour de France)";
+      }
       return "Attention : parking en zone bloquée Paris Respire";
     }
 
@@ -5014,6 +5255,19 @@
             `<span class="results-summary-extra"> — destination dans le ${escapeHtml(zoneName)} : parkings hors zone (${fmtSearchRadius(true)})</span>`;
           highlightEventZone(eventZone);
         }
+      } else if(isTourDeFranceActuPage()){
+        await ensureTourDeFranceZonesLayer();
+        actuToolZoneFeatures = await getTourDeFranceParkingZoneFeatures();
+        eventZone = findParisRespireZoneAt(origin.lat, origin.lon, actuToolZoneFeatures);
+        bestTitle = "Parking le plus proche";
+        if(eventZone){
+          const zoneName = eventZone.properties?.nom || "zone fermée";
+          resultsExtra =
+            `<span class="results-summary-extra"> — destination en zone « ${escapeHtml(zoneName)} » : parkings dans ${fmtSearchRadius()} (signalés s'ils sont en zone)</span>`;
+          highlightEventZone(eventZone);
+        } else {
+          resultsExtra = `<span class="results-summary-extra"> dans un rayon de ${fmtSearchRadius()}</span>`;
+        }
       } else if(isParisRespireActuPage()){
         await ensureParisRespireZonesLayer();
         const features = await getParisRespireUrbanFeatures();
@@ -5060,7 +5314,11 @@
       if(!nearby.length){
         const closest = pool[0];
         const outsideHint = eventZone
-          ? (is14JuilletActuPage() ? " hors périmètre 14 juillet" : " hors zone Paris Respire")
+          ? (is14JuilletActuPage()
+            ? " hors périmètre 14 juillet"
+            : isTourDeFranceActuPage()
+              ? ""
+              : " hors zone Paris Respire")
           : "";
         resBox.innerHTML =
           `<div class="muted">Aucun parking${outsideHint} dans un rayon de ${fmtSearchRadius(juilletDestInZone)}.` +
@@ -5791,10 +6049,12 @@
       const NEWS_TYPE_ALIASES = { alerte: "news", tarifs: "guide" };
       const PARIS_RESPIRE_NEWS_SLUG = "paris-respire-stationnement";
       const JUILLET_14_NEWS_SLUG = "14-juillet-paris-circulation-stationnement";
+      const TOUR_DE_FRANCE_NEWS_SLUG = "tour-de-france-2026-paris-circulation-stationnement";
       const NEWS_MONTHS = ["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];
       function newsListSortRank(article){
         const rawType = article.type || "guide";
         const type = NEWS_TYPE_ALIASES[rawType] || rawType;
+        if(article.slug === TOUR_DE_FRANCE_NEWS_SLUG) return -1;
         if(article.slug === PARIS_RESPIRE_NEWS_SLUG || article.slug === JUILLET_14_NEWS_SLUG || type === "tool") return 0;
         return 1;
       }

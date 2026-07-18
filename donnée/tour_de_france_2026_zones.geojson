@@ -1,0 +1,195 @@
+{
+  "type": "FeatureCollection",
+  "name": "tour_de_france_2026_paris",
+  "metadata": {
+    "source": "Périmètres approximés ParkEco, basés sur le tracé de l'arrivée du Tour de France à Paris le 27 juillet 2025 (paris.fr). Géométrie et horaires 2026 à confirmer dès publication de l'arrêté préfectoral.",
+    "event_date": "26 juillet 2026 (horaires de secteurs approximés d'après l'édition 2025 — à confirmer par arrêté)",
+    "event_day": "2026-07-26",
+    "provisoire": true,
+    "official_info": "https://www.paris.fr/pages/les-restrictions-de-circulation-et-de-stationnement-pour-le-tour-de-france-2025-31895"
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "circulation_interdite",
+        "exclure_recherche": true,
+        "source": "tour_de_france",
+        "active_start": "2026-07-26T06:00",
+        "active_end": "2026-07-26T23:59",
+        "tz": "Europe/Paris",
+        "zone_id": "champs_elysees_concorde_louvre",
+        "nom": "Champs-Élysées — Concorde — Étoile — Madeleine — Louvre",
+        "horaires": "Dimanche 26 juillet 2026, 6 h à 23 h 59 (approx. — à confirmer)",
+        "description": "Périmètre central de l'arrivée : Étoile, avenue des Champs-Élysées, place de la Concorde, place de la Madeleine, Louvre et quais proches. Circulation interdite aux véhicules motorisés."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              2.295,
+              48.8745
+            ],
+            [
+              2.326,
+              48.879
+            ],
+            [
+              2.337,
+              48.866
+            ],
+            [
+              2.337,
+              48.858
+            ],
+            [
+              2.313,
+              48.856
+            ],
+            [
+              2.295,
+              48.856
+            ],
+            [
+              2.276,
+              48.842
+            ],
+            [
+              2.285,
+              48.862
+            ],
+            [
+              2.295,
+              48.8745
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "circulation_interdite",
+        "exclure_recherche": true,
+        "source": "tour_de_france",
+        "active_start": "2026-07-26T09:00",
+        "active_end": "2026-07-26T23:59",
+        "tz": "Europe/Paris",
+        "zone_id": "malesherbes_batignolles",
+        "nom": "Corridor Malesherbes — Courcelles — Batignolles — Clichy",
+        "horaires": "Dimanche 26 juillet 2026, 9 h à 23 h 59 (approx. — à confirmer)",
+        "description": "Axe de liaison entre le secteur Madeleine et le secteur Montmartre : boulevards Malesherbes, de Courcelles, des Batignolles, jusqu'à la place de Clichy. Circulation interdite aux véhicules motorisés."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              2.3244277184551287,
+              48.87783770426223
+            ],
+            [
+              2.3088277184551287,
+              48.87883770426224
+            ],
+            [
+              2.307848689328698,
+              48.880889114703756
+            ],
+            [
+              2.312848689328698,
+              48.88368911470375
+            ],
+            [
+              2.3139578192458896,
+              48.88396747503684
+            ],
+            [
+              2.3267578192458895,
+              48.88416747503685
+            ],
+            [
+              2.3268421807541104,
+              48.881832524963166
+            ],
+            [
+              2.3140421807541105,
+              48.88163252496316
+            ],
+            [
+              2.315151310671302,
+              48.88191088529625
+            ],
+            [
+              2.3101513106713023,
+              48.87911088529626
+            ],
+            [
+              2.3091722815448716,
+              48.881162295737774
+            ],
+            [
+              2.3247722815448717,
+              48.88016229573776
+            ],
+            [
+              2.3244277184551287,
+              48.87783770426223
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "circulation_interdite",
+        "exclure_recherche": true,
+        "source": "tour_de_france",
+        "active_start": "2026-07-26T13:00",
+        "active_end": "2026-07-26T20:30",
+        "tz": "Europe/Paris",
+        "zone_id": "montmartre",
+        "nom": "Boucle Montmartre — Clichy — Blanche — Butte",
+        "horaires": "Dimanche 26 juillet 2026, 13 h à 20 h 30 (approx. — à confirmer)",
+        "description": "Boucle empruntée trois fois par la course : place de Clichy, place Blanche, rues Lepic, Norvins, Coustou, Puget et la butte Montmartre. Circulation interdite aux véhicules motorisés, piétons filtrés."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              2.3268,
+              48.883
+            ],
+            [
+              2.3325,
+              48.8838
+            ],
+            [
+              2.336,
+              48.885
+            ],
+            [
+              2.3431,
+              48.8867
+            ],
+            [
+              2.34,
+              48.8882
+            ],
+            [
+              2.33,
+              48.8865
+            ],
+            [
+              2.3268,
+              48.883
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}
