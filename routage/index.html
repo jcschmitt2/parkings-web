@@ -19,6 +19,8 @@
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Clé ORS injectée au déploiement GitHub Pages (jamais commitée). En local : /api/route. -->
+  <script src="/routage/ors_key.js"></script>
   <style>
     * { box-sizing:border-box; }
     html, body { height:100%; margin:0; }
@@ -371,11 +373,12 @@
     const TDF_ZONES_URL = encodeURI("donnée/tour_de_france_2026_zones.geojson");
     const RESPIRE_ZONES_URL = encodeURI("donnée/paris_respire_secteurs.geojson");
     const ROUTE_API = "/api/route";
-    const APP_VERSION = "3.6-15h";
+    const APP_VERSION = "3.7-gh-pages";
     const MAX_MAPS_WAYPOINTS = 4;
     const PARIS_RESPIRE_BUFFER_MIN = 60;
     /** Dimanche d'arrivée — 15 h = max de zones Tour + Respire actives */
     const EVENT_DEFAULT_QUAND = "2026-07-26T15:00";
+    const ORS_DIRECT_URL = "https://api.openrouteservice.org/v2/directions/driving-car/geojson";
     const PARIS_WEEKDAY_IDX = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
 
     let map, zonesLayer, routeLayer;
@@ -1094,6 +1097,113 @@
       return geocode(q);
     }
 
+    function featuresToMultiPolygon(avoid){
+      if(!avoid) return null;
+      if(avoid.type === "MultiPolygon") return avoid;
+      if(avoid.type === "Polygon"){
+        return { type: "MultiPolygon", coordinates: [avoid.coordinates] };
+      }
+      const features = avoid.type === "FeatureCollection"
+        ? (avoid.features || [])
+        : avoid.type === "Feature"
+          ? [avoid]
+          : [];
+      const polygons = [];
+      for(const f of features){
+        const g = f && f.geometry;
+        if(!g) continue;
+        if(g.type === "Polygon") polygons.push(g.coordinates);
+        else if(g.type === "MultiPolygon") polygons.push(...g.coordinates);
+      }
+      if(!polygons.length) return null;
+      return { type: "MultiPolygon", coordinates: polygons };
+    }
+
+    function getOrsClientKey(){
+      const k = (typeof window.PARKECO_ORS_KEY === "string") ? window.PARKECO_ORS_KEY.trim() : "";
+      return k || "";
+    }
+
+    async function fetchRouteViaProxy(origin, destination, avoid){
+      const res = await fetch(ROUTE_API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ origin, destination, avoid })
+      });
+      let data = {};
+      try { data = await res.json(); } catch(_){ data = {}; }
+      return { res, data };
+    }
+
+    async function fetchRouteDirectOrs(origin, destination, avoid){
+      const key = getOrsClientKey();
+      if(!key){
+        throw new Error(
+          "Calcul indisponible : clé OpenRouteService absente pour GitHub Pages. " +
+          "Ajoutez le secret ORS_API_KEY sur GitHub (voir routage/README.md)."
+        );
+      }
+      const payload = {
+        coordinates: [
+          [origin.lon, origin.lat],
+          [destination.lon, destination.lat]
+        ]
+      };
+      const avoidPolygons = featuresToMultiPolygon(avoid);
+      if(avoidPolygons) payload.options = { avoid_polygons: avoidPolygons };
+
+      const orsRes = await fetch(ORS_DIRECT_URL, {
+        method: "POST",
+        headers: {
+          Authorization: key,
+          "Content-Type": "application/json",
+          Accept: "application/json, application/geo+json"
+        },
+        body: JSON.stringify(payload)
+      });
+      let data = {};
+      try { data = await orsRes.json(); } catch(_){ data = {}; }
+      if(!orsRes.ok){
+        const msg =
+          (data && data.error && (data.error.message || data.error)) ||
+          ("OpenRouteService HTTP " + orsRes.status);
+        throw new Error(String(msg));
+      }
+      const feature = data.features && data.features[0];
+      if(!feature || !feature.geometry || !feature.geometry.coordinates){
+        throw new Error("Itinéraire vide");
+      }
+      const summary = (feature.properties && feature.properties.summary) || {};
+      return {
+        coordinates: feature.geometry.coordinates,
+        distanceM: summary.distance != null ? summary.distance : null,
+        durationS: summary.duration != null ? summary.duration : null
+      };
+    }
+
+    /** Local : /api/route (Python). Prod GitHub Pages : ORS direct (POST interdit → 405). */
+    async function fetchRoute(origin, destination, avoid){
+      try {
+        const { res, data } = await fetchRouteViaProxy(origin, destination, avoid);
+        if(res.ok && data.coordinates) return data;
+        // GitHub Pages / hébergeur statique
+        if(res.status === 405 || res.status === 404 || res.status === 501){
+          return fetchRouteDirectOrs(origin, destination, avoid);
+        }
+        throw new Error(data.error || ("Erreur " + res.status));
+      } catch(err){
+        // Proxy absent / réseau : tenter ORS direct
+        if(getOrsClientKey()){
+          try {
+            return await fetchRouteDirectOrs(origin, destination, avoid);
+          } catch(err2){
+            throw err2;
+          }
+        }
+        throw err;
+      }
+    }
+
     async function calculate(){
       clearStatus();
       clearRoute();
@@ -1125,27 +1235,11 @@
 
         setStatus("ok", "Calcul…");
 
-        const res = await fetch(ROUTE_API, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            origin: { lat: origin.lat, lon: origin.lon },
-            destination: { lat: dest.lat, lon: dest.lon },
-            avoid: active.features.length ? active : null
-          })
-        });
-
-        let data;
-        try {
-          data = await res.json();
-        } catch(_){
-          data = {};
-        }
-
-        if(!res.ok){
-          setStatus("err", escapeHtml(data.error || ("Erreur " + res.status)));
-          return;
-        }
+        const data = await fetchRoute(
+          { lat: origin.lat, lon: origin.lon },
+          { lat: dest.lat, lon: dest.lon },
+          active.features.length ? active : null
+        );
 
         if(!data.coordinates || data.coordinates.length < 2){
           setStatus("err", "Aucun itinéraire trouvé.");
