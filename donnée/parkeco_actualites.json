@@ -202,7 +202,8 @@
         "tour-de-france-2026-paris-circulation-stationnement",
         "14-juillet-paris-circulation-stationnement"
       ],
-      "resume": "Chaque week-end, le dispositif Paris Respire transforme plusieurs quartiers de Paris en zones réservées aux piétons et aux mobilités douces. Avant de partir, il est utile de vérifier les restrictions de circulation et de prévoir votre stationnement.",
+      "resume": "Chaque week-end, Paris Respire réserve plusieurs quartiers de Paris aux piétons et aux mobilités douces. Vérifiez les restrictions de circulation et prévoyez votre stationnement avant de partir.",
+      "meta_description": "Chaque week-end, le dispositif Paris Respire transforme plusieurs quartiers de Paris en zones réservées aux piétons et aux mobilités douces. Avant de partir, il est utile de vérifier les restrictions de circulation et de prévoir votre stationnement.",
       "contenu_html": "<p>Le dispositif Paris Respire, mis en place par la Ville de Paris, ferme temporairement à la circulation automobile plusieurs secteurs de la capitale afin de laisser davantage de place aux piétons, aux cyclistes et aux mobilités douces. Les périmètres concernés varient selon les quartiers et les dates.</p><p>Si vous devez vous rendre dans un secteur concerné, le plus simple est de stationner dans un parking public situé juste à l'extérieur de la zone fermée, puis de terminer votre trajet à pied. Vous éviterez ainsi les détours, les rues barrées et les difficultés d'accès.</p><p>Avant votre départ, consultez la carte officielle Paris Respire de la Ville de Paris pour connaître les zones et les horaires de fermeture : <a href=\"https://www.paris.fr/pages/paris-respire-2122\" target=\"_blank\" rel=\"noopener noreferrer\">Carte officielle Paris Respire – Ville de Paris</a>.</p><h2>Comment s'organiser ?</h2><ol><li>Vérifiez si votre destination est située dans une zone Paris Respire.</li><li>Consultez la carte officielle pour connaître les horaires et le périmètre des fermetures.</li><li>Choisissez un parking public à quelques minutes à pied de votre destination.</li><li>Évitez de compter sur le stationnement en voirie à l'intérieur de la zone, qui peut devenir inaccessible pendant les périodes de fermeture.</li></ol><p>À noter également les <a href=\"/actu/tour-de-france-2026-paris-circulation-stationnement/\">fermetures du 26 juillet pour le Tour de France</a>.</p>",
       "encadres": [
         {
@@ -214,10 +215,6 @@
           "texte": "ParkEco vous permet de trouver rapidement les parkings publics les plus proches des zones Paris Respire, avec leur distance à pied, leurs tarifs et les informations utiles pour choisir la meilleure solution."
         }
       ],
-      "cta": {
-        "label": "Trouver un parking près d'une zone Paris Respire",
-        "href": "/"
-      },
       "seo_extra_html": "<p>À noter également les <a href=\"/actu/tour-de-france-2026-paris-circulation-stationnement/\">fermetures du 26 juillet pour le Tour de France</a>.</p>"
     }
   ]

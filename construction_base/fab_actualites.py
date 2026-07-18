@@ -525,16 +525,18 @@ def actu_app_runtime_config(article: dict) -> dict:
     slug = article["slug"]
     titre = article["titre"]
     resume = article.get("resume") or titre
+    # Chapo visible = resume ; meta/og peuvent rester plus longs via meta_description
+    meta_desc = (article.get("meta_description") or resume).strip()
     return {
         "slug": slug,
         "titre": titre,
         "h1": titre,
         "resume": resume,
         "title": f"{titre} | ParkEco",
-        "description": resume,
+        "description": meta_desc,
         "canonical": article_canonical_url(article),
         "og_title": titre,
-        "og_description": resume,
+        "og_description": meta_desc,
     }
 
 

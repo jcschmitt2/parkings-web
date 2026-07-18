@@ -23,7 +23,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <!-- build: v18.60 -->
+  <!-- build: v18.61 -->
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
   <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
@@ -220,12 +220,6 @@
       font-weight:700;
     }
     .paris-respire-intro p:last-child { margin-bottom:0; }
-    .paris-respire-intro-mobile { display:none; }
-    .paris-respire-intro-desktop { display:block; }
-    @media (max-width:900px){
-      .paris-respire-intro-desktop { display:none; }
-      .paris-respire-intro-mobile { display:block; }
-    }
     body.actu-app:not(.has-results) .paris-respire-intro { display:none !important; }
     body.actu-app.actu-paris-respire.has-results:not(.actu-parking-detail) .paris-respire-intro { display:block; }
     body.actu-app.actu-14-juillet .paris-respire-intro,
@@ -1708,15 +1702,8 @@
         </div>
       </form>
       <div id="paris-respire-intro" class="paris-respire-intro" aria-label="Paris Respire">
-        <div class="paris-respire-intro-desktop">
-          <h2>Pourquoi utiliser ParkEco pendant Paris Respire ?</h2>
-          <p>Les zones fermées sont affichées sur la carte. Indiquez votre destination et ParkEco vous propose les <strong>parkings publics les plus proches situés hors de la zone</strong>, pour rejoindre facilement votre destination à pied.</p>
-        </div>
-        <div class="paris-respire-intro-mobile">
-          <h2>Pourquoi utiliser ParkEco pendant Paris Respire ?</h2>
-          <p>À Paris, le stationnement en voirie peut coûter jusqu'à <strong>18 €/h</strong>, alors que de nombreux parkings publics sécurisés sont accessibles dès <strong>3 à 6 €/h</strong>.</p>
-          <p><strong>Cette version de ParkEco est spécialement dédiée à Paris Respire.</strong> Les zones fermées sont affichées sur la carte et, en indiquant votre destination, ParkEco vous propose le <strong>parking public le plus proche situé hors de la zone</strong>, pour rejoindre facilement votre destination à pied.</p>
-        </div>
+        <h2>Pourquoi utiliser ParkEco pendant Paris Respire ?</h2>
+        <p>À Paris, le stationnement en voirie peut coûter jusqu'à <strong>18 €/h</strong>, alors que de nombreux parkings publics sécurisés sont accessibles dès <strong>3 à 6 €/h</strong>. Les zones fermées sont affichées sur la carte et, en indiquant votre destination, ParkEco vous propose les <strong>parkings publics les plus proches situés hors de la zone</strong>, pour rejoindre facilement votre destination à pied.</p>
       </div>
     </section>
 
@@ -1823,7 +1810,7 @@
     let suggestTimer = null;
     let suggestRequestId = 0;
     let suppressSuggestionBlurHide = false;
-    const APP_VERSION = "18.60";
+    const APP_VERSION = "18.61";
     let DEFAULT_SEARCH_HINT_TEXT = "Adresse, lieu, arrondissement";
     let bootGeneration = 0;
     const OVERVIEW_NAME_ZOOM = 14;
