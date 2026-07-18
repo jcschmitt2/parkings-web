@@ -26,7 +26,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <!-- build: v18.51 -->
+  <!-- build: v18.60 -->
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
   <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
@@ -64,6 +64,15 @@
       color:#fff;
       line-height:1.2;
       max-width:none;
+      text-decoration:none;
+      cursor:pointer;
+      -webkit-tap-highlight-color:transparent;
+    }
+    a.header-brand:hover { color:#fff; text-decoration:none; }
+    a.header-brand:focus-visible {
+      outline:2px solid #7dd3fc;
+      outline-offset:3px;
+      border-radius:8px;
     }
     .header-logo { width:40px; height:40px; flex-shrink:0; }
     .header-brand-name { font-size:1.85rem; font-weight:700; letter-spacing:-0.3px; color:#fff; }
@@ -134,6 +143,14 @@
     .brand-eco { color:#c7d2fe; }
     .header-intro:last-child { margin-bottom:0; }
     .header-compact-brand { display:none; }
+    body.has-results .header-compact-brand {
+      display:flex;
+      align-items:center;
+      margin:0 0 8px;
+    }
+    body.has-results .header-compact-brand .header-brand {
+      margin:0;
+    }
     .header-compact-title {
       margin:0 0 6px;
       font-size:1.1rem;
@@ -206,6 +223,12 @@
       font-weight:700;
     }
     .paris-respire-intro p:last-child { margin-bottom:0; }
+    .paris-respire-intro-mobile { display:none; }
+    .paris-respire-intro-desktop { display:block; }
+    @media (max-width:900px){
+      .paris-respire-intro-desktop { display:none; }
+      .paris-respire-intro-mobile { display:block; }
+    }
     body.actu-app:not(.has-results) .paris-respire-intro { display:none !important; }
     body.actu-app.actu-paris-respire.has-results:not(.actu-parking-detail) .paris-respire-intro { display:block; }
     body.actu-app.actu-14-juillet .paris-respire-intro,
@@ -1020,6 +1043,16 @@
       position:relative;
       z-index:1;
     }
+    .marker.marker-closed-zone:not(.marker-selected) {
+      background:#dc2626;
+      background-image:none;
+      animation:none;
+      box-shadow:0 2px 10px rgba(220,38,38,.45);
+    }
+    .marker-wrap-best:has(.marker-closed-zone)::before {
+      background:radial-gradient(circle, rgba(252,165,165,.55) 0%, rgba(220,38,38,.22) 42%, transparent 72%);
+      animation:none;
+    }
     .marker.marker-overview-dot {
       width:12px !important;
       height:12px !important;
@@ -1611,7 +1644,7 @@
 <body class="actu-app">
   <header>
     <div id="header-welcome" class="header-welcome">
-      <div class="header-brand" aria-label="ParkEco">
+      <a class="header-brand" href="/" aria-label="ParkEco — accueil">
         <svg class="header-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" aria-hidden="true">
           <defs>
             <linearGradient id="header-pk-lavender" x1="18%" y1="12%" x2="88%" y2="92%">
@@ -1624,15 +1657,15 @@
           <text x="16" y="21.5" text-anchor="middle" fill="#ffffff" font-family="system-ui,-apple-system,Segoe UI,Roboto,sans-serif" font-size="15" font-weight="800">P</text>
         </svg>
         <span class="header-brand-name">Park<span class="brand-eco">Eco</span></span>
-      </div>
+      </a>
       <p class="header-subtitle" id="copy-subtitle"></p>
       <h1 class="header-intro header-intro--body" id="copy-body">14 juillet 2026 à Paris : carte des zones fermées</h1>
       <p class="header-intro header-intro--lead" id="copy-lead">Indiquez votre destination : ParkEco affiche le périmètre fermé à la circulation le 14 juillet et vous propose le parking public le plus proche hors zone.</p>
       <p class="header-intro header-intro--trust"><span class="brand-inline" aria-label="ParkEco"><svg class="brand-inline-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="brand-inline-pk-lavender" x1="18%" y1="12%" x2="88%" y2="92%"><stop offset="0%" stop-color="#c7d2fe"/><stop offset="55%" stop-color="#a7b4ff"/><stop offset="100%" stop-color="#7c89e8"/></linearGradient></defs><circle cx="16" cy="16" r="13" fill="url(#brand-inline-pk-lavender)" stroke="#ffffff" stroke-width="2"/><text x="16" y="21.5" text-anchor="middle" fill="#ffffff" font-family="system-ui,-apple-system,Segoe UI,Roboto,sans-serif" font-size="15" font-weight="800">P</text></svg><span class="brand-inline-name">Park<span class="brand-eco">Eco</span></span></span> <span id="copy-trust"></span></p>
     </div>
     <div id="header-compact" class="header-compact">
-      <div class="header-compact-brand" aria-label="ParkEco">
-        <div class="header-brand">
+      <div class="header-compact-brand">
+        <a class="header-brand" href="/" aria-label="ParkEco — accueil">
           <svg class="header-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" aria-hidden="true">
             <defs>
               <linearGradient id="header-compact-pk-lavender" x1="18%" y1="12%" x2="88%" y2="92%">
@@ -1645,7 +1678,7 @@
             <text x="16" y="21.5" text-anchor="middle" fill="#ffffff" font-family="system-ui,-apple-system,Segoe UI,Roboto,sans-serif" font-size="15" font-weight="800">P</text>
           </svg>
           <span class="header-brand-name">Park<span class="brand-eco">Eco</span></span>
-        </div>
+        </a>
       </div>
       <p class="header-compact-title" id="copy-results-title">Se garer à Paris : évitez les 18 €/h en voirie</p>
       <p class="tagline" id="copy-results-tagline">Le parking public le plus proche et comparez les coûts.</p>
@@ -1678,9 +1711,15 @@
         </div>
       </form>
       <div id="paris-respire-intro" class="paris-respire-intro" aria-label="Paris Respire">
-        <h2>Pourquoi utiliser ParkEco pendant Paris Respire ?</h2>
-        <p>À Paris, le stationnement en voirie peut coûter jusqu'à <strong>18 €/h</strong>, alors que de nombreux parkings publics sécurisés sont accessibles dès <strong>3 à 6 €/h</strong>.</p>
-        <p><strong>Cette version de ParkEco est spécialement dédiée à Paris Respire.</strong> Les zones fermées sont affichées sur la carte et, en indiquant votre destination, ParkEco vous propose le <strong>parking public le plus proche situé hors de la zone</strong>, pour rejoindre facilement votre destination à pied.</p>
+        <div class="paris-respire-intro-desktop">
+          <h2>Pourquoi utiliser ParkEco pendant Paris Respire ?</h2>
+          <p>Les zones fermées sont affichées sur la carte. Indiquez votre destination et ParkEco vous propose les <strong>parkings publics les plus proches situés hors de la zone</strong>, pour rejoindre facilement votre destination à pied.</p>
+        </div>
+        <div class="paris-respire-intro-mobile">
+          <h2>Pourquoi utiliser ParkEco pendant Paris Respire ?</h2>
+          <p>À Paris, le stationnement en voirie peut coûter jusqu'à <strong>18 €/h</strong>, alors que de nombreux parkings publics sécurisés sont accessibles dès <strong>3 à 6 €/h</strong>.</p>
+          <p><strong>Cette version de ParkEco est spécialement dédiée à Paris Respire.</strong> Les zones fermées sont affichées sur la carte et, en indiquant votre destination, ParkEco vous propose le <strong>parking public le plus proche situé hors de la zone</strong>, pour rejoindre facilement votre destination à pied.</p>
+        </div>
       </div>
     </section>
 
@@ -1788,7 +1827,7 @@
     let suggestTimer = null;
     let suggestRequestId = 0;
     let suppressSuggestionBlurHide = false;
-    const APP_VERSION = "18.51";
+    const APP_VERSION = "18.60";
     let DEFAULT_SEARCH_HINT_TEXT = "Adresse, lieu, arrondissement";
     let bootGeneration = 0;
     const OVERVIEW_NAME_ZOOM = 14;
@@ -2584,10 +2623,11 @@
       }
       const mac = page.accueil?.mac || {};
       const iphone = page.accueil?.iphone || {};
-      setTextById("copy-subtitle", mac.subtitle || iphone.subtitle);
-      setTextById("copy-lead", mac.lead || iphone.lead);
-      setTextById("copy-body", mac.body || iphone.body);
-      setTextById("copy-trust", mac.trust || iphone.trust);
+      const accueil = isMobileLayout() ? { ...mac, ...iphone } : { ...iphone, ...mac };
+      setTextById("copy-subtitle", accueil.subtitle);
+      setTextById("copy-lead", accueil.lead);
+      setTextById("copy-body", accueil.body);
+      setTextById("copy-trust", accueil.trust);
       const res = page.resultats || {};
       setTextById("copy-results-title", res.compact_title);
       setTextById("copy-results-tagline", res.tagline);
@@ -3449,11 +3489,11 @@
         const selected = id === SELECTED_PARKING_ID;
         marker.setZIndexOffset(selected ? 1000 : 0);
         if(meta.type === "best"){
-          marker.setIcon(buildBestMapIcon(selected, meta.distanceM, meta.parkingName));
+          marker.setIcon(buildBestMapIcon(selected, meta.distanceM, meta.parkingName, meta.inClosedZone));
         } else if(meta.type === "overview"){
           marker.setIcon(buildOverviewMapIcon(selected, shouldShowOverviewMarkerName(selected), meta.parkingName));
         } else {
-          marker.setIcon(buildAltMapIcon(meta.label, selected, meta.distanceM, meta.parkingName));
+          marker.setIcon(buildAltMapIcon(meta.label, selected, meta.distanceM, meta.parkingName, meta.inClosedZone));
         }
       });
     }
@@ -3690,13 +3730,14 @@
       });
     }
 
-    function registerMapMarker(parkingId, marker, type, label, distanceM, parkingName){
+    function registerMapMarker(parkingId, marker, type, label, distanceM, parkingName, inClosedZone = false){
       if(!parkingId || !marker) return;
       marker._parkingMeta = {
         type,
         label: label || "",
         distanceM: distanceM ?? null,
-        parkingName: parkingName || ""
+        parkingName: parkingName || "",
+        inClosedZone: !!inClosedZone
       };
       MARKERS_BY_PARKING_ID.set(parkingId, marker);
       marker.on("click", (event) => {
@@ -3743,8 +3784,9 @@
       return selected ? "parking-map-marker leaflet-marker-selected" : "parking-map-marker";
     }
 
-    function buildBestMapIcon(selected, distanceM, parkingName){
+    function buildBestMapIcon(selected, distanceM, parkingName, inClosedZone = false){
       const selectedClass = selected ? " marker-selected" : "";
+      const closedClass = !selected && inClosedZone ? " marker-closed-zone" : "";
       const wrapClass = selected ? "marker-wrap-best has-selected" : "marker-wrap-best";
       const wrapSize = selected ? 46 : 44;
       const pinClass = selected ? "marker-pin-wrap is-selected" : "marker-pin-wrap";
@@ -3756,7 +3798,7 @@
       const nameMaxW = selected ? 156 : 130;
       const totalW = Math.max(wrapSize, name ? nameMaxW : 52);
       const totalH = nameH + wrapSize + walkH + gapExtra;
-      const visual = `${name}<div class="${wrapClass}"><div class="marker marker-best${selectedClass}">P</div></div>${walk}`;
+      const visual = `${name}<div class="${wrapClass}"><div class="marker marker-best${selectedClass}${closedClass}">P</div></div>${walk}`;
       return L.divIcon({
         className: parkingMapMarkerClass(selected),
         html: buildMarkerPinHtml(pinClass, totalW, totalH, visual),
@@ -3765,8 +3807,9 @@
       });
     }
 
-    function buildAltMapIcon(label, selected, distanceM, parkingName){
+    function buildAltMapIcon(label, selected, distanceM, parkingName, inClosedZone = false){
       const selectedClass = selected ? " marker-selected" : "";
+      const closedClass = !selected && inClosedZone ? " marker-closed-zone" : "";
       const pSize = selected ? 38 : 28;
       const pinClass = selected ? "marker-pin-wrap is-selected" : "marker-pin-wrap";
       const name = markerNameHtml(parkingName);
@@ -3777,7 +3820,7 @@
       const nameMaxW = selected ? 156 : 130;
       const totalW = Math.max(pSize, name ? nameMaxW : 52);
       const totalH = nameH + pSize + walkH + gapExtra;
-      const visual = `${name}<div class="marker marker-alt${selectedClass}">${label}</div>${walk}`;
+      const visual = `${name}<div class="marker marker-alt${selectedClass}${closedClass}">${label}</div>${walk}`;
       return L.divIcon({
         className: parkingMapMarkerClass(selected),
         html: buildMarkerPinHtml(pinClass, totalW, totalH, visual),
@@ -3901,8 +3944,8 @@
       iconSize: [30, 30],
       iconAnchor: [15, 15]
     });
-    function altIcon(label, distanceM, parkingName){
-      return buildAltMapIcon(label, false, distanceM, parkingName);
+    function altIcon(label, distanceM, parkingName, inClosedZone = false){
+      return buildAltMapIcon(label, false, distanceM, parkingName, inClosedZone);
     }
 
     const DATA_APP_PARKINGS_JSON = encodeURI(`donnée/app_parkings.json?v=${APP_VERSION}`);
@@ -5103,6 +5146,91 @@
       return "Attention : parking en zone bloquée Paris Respire";
     }
 
+    /** Parking dans une zone fermée (GeoJSON événement ou Respire actif). Générique. */
+    function parkingInClosedZone(parking, features){
+      if(!features?.length || !Number.isFinite(parking?.lat) || !Number.isFinite(parking?.lon)) return false;
+      return !!findParisRespireZoneAt(parking.lat, parking.lon, features);
+    }
+
+    /** Accessibles (hors zone) d'abord, puis en zone ; ordre relatif inchangé dans chaque groupe. */
+    function sortParkingsAccessibleFirst(parkings, features){
+      if(!features?.length || !parkings?.length) return parkings || [];
+      const open = [];
+      const closed = [];
+      for(const p of parkings){
+        (parkingInClosedZone(p, features) ? closed : open).push(p);
+      }
+      return open.concat(closed);
+    }
+
+    function fmtRadiusMeters(radiusM){
+      const r = Math.max(0, Math.ceil(Number(radiusM) || 0));
+      if(r >= 1000 && r % 1000 === 0) return `${r / 1000} km`;
+      if(r >= 1000) return `${(r / 1000).toFixed(1).replace(".", ",")} km`;
+      return `${r} m`;
+    }
+
+    /**
+     * Rayon de base, élargi si besoin pour garantir ≥ 1 parking accessible
+     * (hors zone fermée). Sans zones, élargi seulement si aucun parking dans le rayon.
+     * `pool` doit être trié par distance croissante.
+     */
+    function selectNearbyEnsuringAccessible(pool, features, minRadiusM){
+      const minR = Math.max(0, Number(minRadiusM) || 0);
+      if(!pool?.length){
+        return { nearby: [], radiusM: minR, expanded: false, noneAccessible: false };
+      }
+
+      const hasAccessible = (list) => {
+        if(!list.length) return false;
+        if(!features?.length) return true;
+        return list.some(p => !parkingInClosedZone(p, features));
+      };
+
+      let radiusM = minR;
+      let nearby = pool.filter(p => p.distance_m <= radiusM);
+
+      if(hasAccessible(nearby)){
+        return {
+          nearby: sortParkingsAccessibleFirst(nearby, features),
+          radiusM,
+          expanded: false,
+          noneAccessible: false
+        };
+      }
+
+      if(features?.length){
+        const nearestOpen = pool.find(p => !parkingInClosedZone(p, features));
+        if(nearestOpen){
+          radiusM = Math.max(minR, nearestOpen.distance_m);
+          nearby = pool.filter(p => p.distance_m <= radiusM);
+          return {
+            nearby: sortParkingsAccessibleFirst(nearby, features),
+            radiusM,
+            expanded: radiusM > minR,
+            noneAccessible: false
+          };
+        }
+        if(!nearby.length){
+          radiusM = pool[0].distance_m;
+          nearby = pool.filter(p => p.distance_m <= radiusM);
+        }
+        return {
+          nearby: sortParkingsAccessibleFirst(nearby, features),
+          radiusM,
+          expanded: radiusM > minR,
+          noneAccessible: true
+        };
+      }
+
+      if(!nearby.length){
+        radiusM = pool[0].distance_m;
+        nearby = pool.filter(p => p.distance_m <= radiusM);
+        return { nearby, radiusM, expanded: true, noneAccessible: false };
+      }
+      return { nearby, radiusM, expanded: false, noneAccessible: false };
+    }
+
     function parkingResultCard(p, idx, options = {}){
       const showDist = options.showDistance !== false && p.distance_m != null;
       const markerClass = options.markerClass || (idx === 0 ? "result-marker-best" : "result-marker-alt");
@@ -5160,9 +5288,10 @@
         activeRespireFeatures = await getActiveParisRespireFeaturesCached();
         if(activeRespireFeatures.length) await ensureParisRespireZonesLayer();
       }
+      const closedZoneFeatures = activeRespireFeatures;
+      const sorted = sortParkingsAccessibleFirst(inArr, closedZoneFeatures);
       const respireWarningFor = (p) => (
-        activeRespireFeatures.length > 0 &&
-        parkingInActiveParisRespireZone(p, activeRespireFeatures)
+        parkingInClosedZone(p, closedZoneFeatures)
           ? "Attention : parking en zone bloquée Paris Respire"
           : ""
       );
@@ -5170,25 +5299,26 @@
       clearMarkers();
       bestMarker = null;
       const bounds = [];
-      altMarkers = inArr.map((p, i) => {
+      altMarkers = sorted.map((p, i) => {
         const label = String(i + 1);
+        const inClosed = parkingInClosedZone(p, closedZoneFeatures);
         const m = createParkingMarker(p.lat, p.lon, {
           title: p.name,
-          icon: altIcon(label, null, p.name)
+          icon: altIcon(label, null, p.name, inClosed)
         }).addTo(map);
-        registerMapMarker(p.id, m, "alt", label, null, p.name);
+        registerMapMarker(p.id, m, "alt", label, null, p.name, inClosed);
         bounds.push([p.lat, p.lon]);
         return m;
       });
       fitMapToParkings(bounds);
 
       const optionsById = {};
-      inArr.forEach(p => { if(p.id) optionsById[p.id] = { title: p.name || "Parking" }; });
-      registerResultParkings(inArr, optionsById);
+      sorted.forEach(p => { if(p.id) optionsById[p.id] = { title: p.name || "Parking" }; });
+      registerResultParkings(sorted, optionsById);
 
       resBox.innerHTML =
-        buildResultsHeadingHtml(label, inArr.length) +
-        inArr.map((p, i) => parkingResultCard(p, i, {
+        buildResultsHeadingHtml(label, sorted.length) +
+        sorted.map((p, i) => parkingResultCard(p, i, {
           showDistance: false,
           markerClass: "result-marker-alt",
           zoneWarning: respireWarningFor(p)
@@ -5209,10 +5339,7 @@
     }
 
     function fmtSearchRadius(destinationInJuilletZone = false){
-      const radius = searchRadiusM(destinationInJuilletZone);
-      return radius >= 1000 && radius % 1000 === 0
-        ? `${radius / 1000} km`
-        : `${radius} m`;
+      return fmtRadiusMeters(searchRadiusM(destinationInJuilletZone));
     }
 
     async function showNearestFromOrigin(origin){
@@ -5231,7 +5358,6 @@
 
       let pool = enriched;
       let eventZone = null;
-      let resultsExtra = `<span class="results-summary-extra"> dans un rayon de ${fmtSearchRadius()}</span>`;
       let bestTitle = "Parking le plus proche";
       let activeRespireFeatures = [];
       let actuToolZoneFeatures = [];
@@ -5242,11 +5368,7 @@
         actuToolZoneFeatures = await get14JuilletMapFeatures();
         eventZone = findParisRespireZoneAt(origin.lat, origin.lon, features);
         if(eventZone){
-          const zoneName = eventZone.properties?.nom || "périmètre 14 juillet";
-          pool = enriched.filter(p => isOutsideParisRespireZones(p.lat, p.lon, features));
           bestTitle = "Parking le plus proche hors zone";
-          resultsExtra =
-            `<span class="results-summary-extra"> — destination dans le ${escapeHtml(zoneName)} : parkings hors zone (${fmtSearchRadius(true)})</span>`;
           highlightEventZone(eventZone);
         }
       } else if(isTourDeFranceActuPage()){
@@ -5255,12 +5377,7 @@
         eventZone = findParisRespireZoneAt(origin.lat, origin.lon, actuToolZoneFeatures);
         bestTitle = "Parking le plus proche";
         if(eventZone){
-          const zoneName = eventZone.properties?.nom || "zone fermée";
-          resultsExtra =
-            `<span class="results-summary-extra"> — destination en zone « ${escapeHtml(zoneName)} » : parkings dans ${fmtSearchRadius()} (signalés s'ils sont en zone)</span>`;
           highlightEventZone(eventZone);
-        } else {
-          resultsExtra = `<span class="results-summary-extra"> dans un rayon de ${fmtSearchRadius()}</span>`;
         }
       } else if(isParisRespireActuPage()){
         await ensureParisRespireZonesLayer();
@@ -5268,11 +5385,7 @@
         actuToolZoneFeatures = features;
         eventZone = findParisRespireZoneAt(origin.lat, origin.lon, features);
         if(eventZone){
-          const zoneName = eventZone.properties?.nom || "Paris Respire";
-          pool = enriched.filter(p => isOutsideParisRespireZones(p.lat, p.lon, features));
           bestTitle = "Parking le plus proche hors zone";
-          resultsExtra =
-            `<span class="results-summary-extra"> — destination en zone Paris Respire « ${escapeHtml(zoneName)} » : parkings hors zone (${fmtSearchRadius()})</span>`;
           highlightEventZone(eventZone);
         }
       } else {
@@ -5280,43 +5393,31 @@
         if(activeRespireFeatures.length) await ensureParisRespireZonesLayer();
       }
 
+      const closedZoneFeatures = isActuZoneToolPage() ? actuToolZoneFeatures : activeRespireFeatures;
+
       const zoneWarningFor = (p) => {
         if(isActuZoneToolPage()) return eventZoneWarningText(p, actuToolZoneFeatures);
-        if(activeRespireFeatures.length > 0 && parkingInActiveParisRespireZone(p, activeRespireFeatures)){
+        if(parkingInClosedZone(p, activeRespireFeatures)){
           return "Attention : parking en zone bloquée Paris Respire";
         }
         return "";
       };
 
       const juilletDestInZone = is14JuilletActuPage() && !!eventZone;
+      const baseRadiusM = searchRadiusM(juilletDestInZone);
+      const {
+        nearby,
+        radiusM: effectiveRadiusM,
+        noneAccessible
+      } = selectNearbyEnsuringAccessible(pool, closedZoneFeatures, baseRadiusM);
 
-      if(!pool.length){
-        const resBox = document.getElementById('results');
-        const zoneLabel = is14JuilletActuPage() ? "périmètre 14 juillet" : "zones Paris Respire";
-        resBox.innerHTML =
-          `<div class="muted">Aucun parking répertorié hors du ${zoneLabel}.</div>`;
-        clearMarkers();
-        userMarker = L.marker([origin.lat, origin.lon], {title: origin.label || "Destination", icon: originIcon}).addTo(map);
-        fitMapToParkings([[origin.lat, origin.lon]]);
-        setMobileViewAfterSearch();
-        dismissAddressKeyboard();
-        return;
-      }
-
-      const nearby = pool.filter(p => p.distance_m <= searchRadiusM(juilletDestInZone));
+      const radiusLabel = fmtRadiusMeters(effectiveRadiusM);
       const resBox = document.getElementById('results');
       if(!nearby.length){
         const closest = pool[0];
-        const outsideHint = eventZone
-          ? (is14JuilletActuPage()
-            ? " hors périmètre 14 juillet"
-            : isTourDeFranceActuPage()
-              ? ""
-              : " hors zone Paris Respire")
-          : "";
         resBox.innerHTML =
-          `<div class="muted">Aucun parking${outsideHint} dans un rayon de ${fmtSearchRadius(juilletDestInZone)}.` +
-          (closest ? ` Le plus proche${outsideHint} est à ${fmtDist(closest.distance_m)} (${fmtWalkTime(closest.distance_m)}).</div>` : "</div>");
+          `<div class="muted">Aucun parking dans un rayon de ${radiusLabel}.` +
+          (closest ? ` Le plus proche est à ${fmtDist(closest.distance_m)} (${fmtWalkTime(closest.distance_m)}).</div>` : "</div>");
         clearMarkers();
         userMarker = L.marker([origin.lat, origin.lon], {title: origin.label || "Destination", icon: originIcon}).addTo(map);
         fitMapToParkings([[origin.lat, origin.lon], [closest.lat, closest.lon]]);
@@ -5325,17 +5426,29 @@
         return;
       }
 
+      if(noneAccessible || (eventZone && parkingInClosedZone(nearby[0], closedZoneFeatures))){
+        bestTitle = "Parking le plus proche";
+      }
+
       const best = nearby[0];
       const alts = nearby.slice(1);
+      const bestClosed = parkingInClosedZone(best, closedZoneFeatures);
 
       clearMarkers();
       userMarker = L.marker([origin.lat, origin.lon], {title: origin.label || "Destination", icon: originIcon}).addTo(map);
-      bestMarker = createParkingMarker(best.lat, best.lon, {title: best.name, icon: buildBestMapIcon(false, best.distance_m, best.name)}).addTo(map);
-      registerMapMarker(best.id, bestMarker, "best", "P", best.distance_m, best.name);
+      bestMarker = createParkingMarker(best.lat, best.lon, {
+        title: best.name,
+        icon: buildBestMapIcon(false, best.distance_m, best.name, bestClosed)
+      }).addTo(map);
+      registerMapMarker(best.id, bestMarker, "best", "P", best.distance_m, best.name, bestClosed);
       altMarkers = alts.map((p, i) => {
         const label = `P${i + 1}`;
-        const m = createParkingMarker(p.lat, p.lon, {title: p.name, icon: altIcon(label, p.distance_m, p.name)}).addTo(map);
-        registerMapMarker(p.id, m, "alt", label, p.distance_m, p.name);
+        const inClosed = parkingInClosedZone(p, closedZoneFeatures);
+        const m = createParkingMarker(p.lat, p.lon, {
+          title: p.name,
+          icon: altIcon(label, p.distance_m, p.name, inClosed)
+        }).addTo(map);
+        registerMapMarker(p.id, m, "alt", label, p.distance_m, p.name, inClosed);
         return m;
       });
       fitMapToParkings([
@@ -5352,7 +5465,7 @@
 
       const placeName = getPlaceDisplayName(origin);
       resBox.innerHTML =
-        buildResultsHeadingHtml(placeName, nearby.length, resultsExtra) +
+        buildResultsHeadingHtml(placeName, nearby.length) +
         parkingResultCard(best, 0, {
           title: bestTitle,
           markerClass: "result-marker-best",
@@ -6049,7 +6162,9 @@
         const rawType = article.type || "guide";
         const type = NEWS_TYPE_ALIASES[rawType] || rawType;
         if(article.slug === TOUR_DE_FRANCE_NEWS_SLUG) return -1;
-        if(article.slug === PARIS_RESPIRE_NEWS_SLUG || article.slug === JUILLET_14_NEWS_SLUG || type === "tool") return 0;
+        if(article.slug === PARIS_RESPIRE_NEWS_SLUG) return 0;
+        if(article.slug === JUILLET_14_NEWS_SLUG) return 99;
+        if(type === "tool") return 1;
         return 1;
       }
       function newsArticleHref(article){

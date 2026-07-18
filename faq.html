@@ -145,6 +145,15 @@
       font-size:1.35rem;
       font-weight:700;
       color:#fff;
+      text-decoration:none;
+      cursor:pointer;
+      -webkit-tap-highlight-color:transparent;
+    }
+    a.faq-brand:hover { color:#fff; text-decoration:none; }
+    a.faq-brand:focus-visible {
+      outline:2px solid #7dd3fc;
+      outline-offset:3px;
+      border-radius:8px;
     }
     .faq-brand-logo { width:32px; height:32px; flex-shrink:0; }
     .brand-eco { color:#c7d2fe; }
@@ -281,7 +290,7 @@
   <header class="faq-page-header">
     <div class="faq-page-top">
       <a href="/" class="faq-back" id="faq-back" aria-label="Retour à ParkEco">← Accueil</a>
-      <div class="faq-brand" aria-label="ParkEco">
+      <a href="/" class="faq-brand" aria-label="ParkEco — accueil">
         <svg class="faq-brand-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" aria-hidden="true">
           <defs>
             <linearGradient id="faq-pk-lavender" x1="18%" y1="12%" x2="88%" y2="92%">
@@ -294,7 +303,7 @@
           <text x="16" y="21.5" text-anchor="middle" fill="#ffffff" font-family="system-ui,-apple-system,Segoe UI,Roboto,sans-serif" font-size="15" font-weight="800">P</text>
         </svg>
         <span>Park<span class="brand-eco">Eco</span></span>
-      </div>
+      </a>
     </div>
   </header>
 
