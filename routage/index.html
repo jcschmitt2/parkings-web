@@ -20,7 +20,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <!-- Clé ORS injectée au déploiement GitHub Pages (jamais commitée). En local : /api/route. -->
-  <script src="/routage/ors_key.js"></script>
+  <script src="/routage/ors_key.js" onerror="window.PARKECO_ORS_KEY=window.PARKECO_ORS_KEY||''"></script>
   <style>
     * { box-sizing:border-box; }
     html, body { height:100%; margin:0; }
@@ -373,7 +373,7 @@
     const TDF_ZONES_URL = encodeURI("donnée/tour_de_france_2026_zones.geojson");
     const RESPIRE_ZONES_URL = encodeURI("donnée/paris_respire_secteurs.geojson");
     const ROUTE_API = "/api/route";
-    const APP_VERSION = "3.7-gh-pages";
+    const APP_VERSION = "3.8-ors-key";
     const MAX_MAPS_WAYPOINTS = 4;
     const PARIS_RESPIRE_BUFFER_MIN = 60;
     /** Dimanche d'arrivée — 15 h = max de zones Tour + Respire actives */

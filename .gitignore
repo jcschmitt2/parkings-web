@@ -34,6 +34,5 @@ donnée de travail/
 
 # --- Secrets routage (clé OpenRouteService) ---
 routage/.ors_api_key
-routage/ors_key.js
 routage/*.docx
 routage/~$*
