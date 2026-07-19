@@ -23,7 +23,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <!-- build: v18.65 -->
+  <!-- build: v18.66 -->
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
   <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
@@ -1279,8 +1279,8 @@
         padding-top:max(10px, env(safe-area-inset-top));
       }
       body:not(.has-results) .header-brand {
-        justify-content:center;
-        margin:0 auto 8px;
+        justify-content:flex-start;
+        margin:0 0 8px;
       }
       .header-brand {
         margin:0 0 8px;
@@ -1468,12 +1468,12 @@
       }
       body.has-results .header-compact-brand {
         display:flex;
-        justify-content:center;
+        justify-content:flex-start;
         align-items:center;
         margin:0 0 6px;
       }
       body.has-results .header-compact-brand .header-brand {
-        justify-content:center;
+        justify-content:flex-start;
         margin:0;
       }
       body.has-results .header-compact-title,
@@ -1493,8 +1493,8 @@
         padding-bottom:8px;
       }
       body.address-entry-active:not(.has-results) .header-brand {
-        justify-content:center;
-        margin:0 auto 0;
+        justify-content:flex-start;
+        margin:0 0 0;
       }
       body.address-entry-active:not(.has-results) .header-logo {
         width:32px;
@@ -1791,7 +1791,7 @@
     let suggestTimer = null;
     let suggestRequestId = 0;
     let suppressSuggestionBlurHide = false;
-    const APP_VERSION = "18.65";
+    const APP_VERSION = "18.66";
     let bootGeneration = 0;
     const OVERVIEW_NAME_ZOOM = 14;
     const WELCOME_MAP_CENTER = [48.8566, 2.3522];
