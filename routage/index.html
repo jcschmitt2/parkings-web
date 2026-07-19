@@ -373,7 +373,7 @@
     const TDF_ZONES_URL = encodeURI("donnée/tour_de_france_2026_zones.geojson");
     const RESPIRE_ZONES_URL = encodeURI("donnée/paris_respire_secteurs.geojson");
     const ROUTE_API = "/api/route";
-    const APP_VERSION = "3.8-ors-key";
+    const APP_VERSION = "3.9-now-mobile";
     const MAX_MAPS_WAYPOINTS = 4;
     const PARIS_RESPIRE_BUFFER_MIN = 60;
     /** Dimanche d'arrivée — 15 h = max de zones Tour + Respire actives */
@@ -487,8 +487,8 @@
     }
 
     function getSelectedWhen(){
-      // iPhone : heure figée au dimanche 26 à 15 h (max de zones)
-      if(isMobileRoutageUi()) return getEventDefaultWhen();
+      // iPhone : heure du moment (sélecteur masqué)
+      if(isMobileRoutageUi()) return new Date();
       if(useNow) return new Date();
       const d = parseQuandString(whenInput.value);
       return d || getEventDefaultWhen();
@@ -499,7 +499,7 @@
       const label = pad2(p.day) + "/" + pad2(p.month) + "/" + p.year +
         " " + pad2(p.hour) + "h" + pad2(p.minute);
       const mode = isMobileRoutageUi()
-        ? "Arrivée Tour (fixe)"
+        ? "Maintenant"
         : (useNow ? "Maintenant" : "Heure choisie");
       return mode + " · " + label + " · " + nTdf + " zone(s) Tour · " + nRespire + " Paris Respire";
     }
@@ -1282,22 +1282,24 @@
 
     initMap();
 
-    // Mac : dimanche 26 à 15:00 par défaut (valeur littérale, pas l'heure courante).
-    // iPhone : même heure, verrouillée. Un ?quand= sur un autre jour est respecté sur Mac ;
-    // le 26 juillet est toujours forcé à 15:00 pour le max de zones.
+    // Mac : propose l'heure (défaut dimanche 26 à 15:00).
+    // iPhone : heure du moment (sélecteur masqué).
     const params = new URLSearchParams(location.search);
     const quandParam = params.get("quand");
     const parsedQuand = parseQuandString(quandParam);
-    applyEventDefaultWhen();
-    if(!isMobileRoutageUi() && parsedQuand){
-      const p = parisDateParts(parsedQuand);
-      const isEventDay = p.year === 2026 && p.month === 7 && p.day === 26;
-      if(!isEventDay){
-        useNow = false;
-        whenInput.value = toDatetimeLocalValue(parsedQuand);
-        btnNow.classList.remove("active");
+    if(isMobileRoutageUi()){
+      useNow = true;
+    } else {
+      applyEventDefaultWhen();
+      if(parsedQuand){
+        const p = parisDateParts(parsedQuand);
+        const isEventDay = p.year === 2026 && p.month === 7 && p.day === 26;
+        if(!isEventDay){
+          useNow = false;
+          whenInput.value = toDatetimeLocalValue(parsedQuand);
+          btnNow.classList.remove("active");
+        }
       }
-      // jour d'arrivée → déjà 15:00 via applyEventDefaultWhen()
     }
 
     loadZones()

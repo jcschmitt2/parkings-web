@@ -215,7 +215,7 @@
           "texte": "ParkEco vous permet de trouver rapidement les parkings publics les plus proches des zones Paris Respire, avec leur distance à pied, leurs tarifs et les informations utiles pour choisir la meilleure solution."
         }
       ],
-      "seo_extra_html": "<p>À noter également les <a href=\"/actu/tour-de-france-2026-paris-circulation-stationnement/\">fermetures du 26 juillet pour le Tour de France</a>.</p>"
+      "seo_extra_html": "<p><a href=\"/routage/\">Itinéraire évitant les zones fermées</a></p><p><a href=\"/actu/tour-de-france-2026-paris-circulation-stationnement/\">Rues fermées le 26 juillet : Tour de France</a></p>"
     }
   ]
 }

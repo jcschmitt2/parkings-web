@@ -26,7 +26,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <!-- build: v18.61 -->
+  <!-- build: v18.62 -->
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
   <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
@@ -198,31 +198,22 @@
     }
     .paris-respire-intro {
       display:none;
-      margin-top:14px;
-      padding-top:14px;
+      margin-top:10px;
+      padding-top:10px;
       border-top:1px solid #2b376f;
       color:#c7d2fe;
       font-size:.88rem;
-      line-height:1.55;
-    }
-    .paris-respire-intro h2 {
-      margin:0 0 10px;
-      font-size:.98rem;
-      font-weight:700;
-      color:#fff;
-      line-height:1.4;
-      letter-spacing:-0.2px;
+      line-height:1.45;
     }
     .paris-respire-intro p {
-      margin:0 0 12px;
-      color:#9aa9ff;
-    }
-    .paris-respire-intro p strong,
-    .paris-respire-intro h2 strong {
+      margin:0;
       color:#e7eaff;
       font-weight:700;
     }
-    .paris-respire-intro p:last-child { margin-bottom:0; }
+    .paris-respire-intro p strong {
+      color:#e7eaff;
+      font-weight:700;
+    }
     body.actu-app:not(.has-results) .paris-respire-intro { display:none !important; }
     body.actu-app.actu-paris-respire.has-results:not(.actu-parking-detail) .paris-respire-intro { display:block; }
     body.actu-app.actu-14-juillet .paris-respire-intro,
@@ -1705,8 +1696,7 @@
         </div>
       </form>
       <div id="paris-respire-intro" class="paris-respire-intro" aria-label="Paris Respire">
-        <h2>Pourquoi utiliser ParkEco pendant Paris Respire ?</h2>
-        <p>À Paris, le stationnement en voirie peut coûter jusqu'à <strong>18 €/h</strong>, alors que de nombreux parkings publics sécurisés sont accessibles dès <strong>3 à 6 €/h</strong>. Les zones fermées sont affichées sur la carte et, en indiquant votre destination, ParkEco vous propose les <strong>parkings publics les plus proches situés hors de la zone</strong>, pour rejoindre facilement votre destination à pied.</p>
+        <p><strong>Parkings publics hors zone fermée</strong></p>
       </div>
     </section>
 
@@ -1814,7 +1804,7 @@
     let suggestTimer = null;
     let suggestRequestId = 0;
     let suppressSuggestionBlurHide = false;
-    const APP_VERSION = "18.61";
+    const APP_VERSION = "18.62";
     let DEFAULT_SEARCH_HINT_TEXT = "Adresse, lieu, arrondissement";
     let bootGeneration = 0;
     const OVERVIEW_NAME_ZOOM = 14;
