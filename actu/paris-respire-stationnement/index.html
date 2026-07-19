@@ -26,7 +26,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <!-- build: v18.62 -->
+  <!-- build: v18.65 -->
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
   <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
@@ -848,7 +848,6 @@
     .ghost { background:transparent; border:1px dashed #2b376f; }
     .map-panel { position:relative; min-height:0; padding:0; overflow:hidden; }
     #map { width:100%; height:100%; min-height:0; }
-    .hint { font-size:.8rem; color:#9aa9ff; margin-top:6px; }
     h1.results-seo-heading {
       margin:0;
       font-size:inherit;
@@ -1466,10 +1465,6 @@
         -webkit-overflow-scrolling:touch;
         overscroll-behavior:contain;
       }
-      .address-wrap .hint {
-        grid-column:1 / -1;
-        grid-row:3;
-      }
       body.address-entry-active:not(.has-results) .header-subtitle,
       body.address-entry-active:not(.has-results) .header-intro {
         display:none;
@@ -1514,9 +1509,6 @@
       }
       body.address-entry-active:not(.has-results) header {
         padding-bottom:10px;
-      }
-      body.address-entry-active:not(.has-results) .address-wrap .hint {
-        display:none;
       }
       body.address-entry-active:not(.has-results) {
         overflow-y:hidden;
@@ -1692,7 +1684,6 @@
             <span class="sr-only" id="text-btn-search">Rechercher</span>
           </button>
           <div id="address-suggestions" role="listbox" aria-label="Suggestions d'adresse"></div>
-          <p class="hint" id="text-hint-code-postal">Adresse, lieu, arrondissement</p>
         </div>
       </form>
       <div id="paris-respire-intro" class="paris-respire-intro" aria-label="Paris Respire">
@@ -1804,8 +1795,7 @@
     let suggestTimer = null;
     let suggestRequestId = 0;
     let suppressSuggestionBlurHide = false;
-    const APP_VERSION = "18.62";
-    let DEFAULT_SEARCH_HINT_TEXT = "Adresse, lieu, arrondissement";
+    const APP_VERSION = "18.65";
     let bootGeneration = 0;
     const OVERVIEW_NAME_ZOOM = 14;
     const WELCOME_MAP_CENTER = [48.8566, 2.3522];
@@ -2612,8 +2602,6 @@
       const search = page.recherche || {};
       setTextById("text-label-address", search.label_adresse);
       setTextById("text-btn-position", search.btn_position);
-      if(search.hint_code_postal) DEFAULT_SEARCH_HINT_TEXT = search.hint_code_postal;
-      setTextById("text-hint-code-postal", DEFAULT_SEARCH_HINT_TEXT);
       const locateBtn = document.getElementById("btnLocate");
       if(locateBtn){
         if(search.btn_position_title) locateBtn.title = search.btn_position_title;
@@ -2668,10 +2656,6 @@
       const input = document.getElementById("address");
       if(!input) return;
       input.blur();
-    }
-
-    function restoreDefaultSearchHint(){
-      setTextById("text-hint-code-postal", DEFAULT_SEARCH_HINT_TEXT);
     }
 
     function getSeoLandingDefaultQuery(landing){
@@ -2748,7 +2732,6 @@
       if(!input) return;
       input.value = "";
       hideSuggestions();
-      restoreDefaultSearchHint();
     }
 
     function prepareAddressFieldForNewEntry(){
