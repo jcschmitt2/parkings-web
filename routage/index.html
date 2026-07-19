@@ -373,7 +373,7 @@
     const TDF_ZONES_URL = encodeURI("donnée/tour_de_france_2026_zones.geojson");
     const RESPIRE_ZONES_URL = encodeURI("donnée/paris_respire_secteurs.geojson");
     const ROUTE_API = "/api/route";
-    const APP_VERSION = "3.9-now-mobile";
+    const APP_VERSION = "3.10-tdf-quand";
     const MAX_MAPS_WAYPOINTS = 4;
     const PARIS_RESPIRE_BUFFER_MIN = 60;
     /** Dimanche d'arrivée — 15 h = max de zones Tour + Respire actives */
@@ -487,8 +487,8 @@
     }
 
     function getSelectedWhen(){
-      // iPhone : heure du moment (sélecteur masqué)
-      if(isMobileRoutageUi()) return new Date();
+      // iPhone sans ?quand= : heure du moment (sélecteur masqué).
+      // Avec ?quand= (ex. article TdF) : respect de la date demandée.
       if(useNow) return new Date();
       const d = parseQuandString(whenInput.value);
       return d || getEventDefaultWhen();
@@ -498,9 +498,7 @@
       const p = parisDateParts(date);
       const label = pad2(p.day) + "/" + pad2(p.month) + "/" + p.year +
         " " + pad2(p.hour) + "h" + pad2(p.minute);
-      const mode = isMobileRoutageUi()
-        ? "Maintenant"
-        : (useNow ? "Maintenant" : "Heure choisie");
+      const mode = useNow ? "Maintenant" : "Heure choisie";
       return mode + " · " + label + " · " + nTdf + " zone(s) Tour · " + nRespire + " Paris Respire";
     }
 
@@ -1282,24 +1280,19 @@
 
     initMap();
 
-    // Mac : propose l'heure (défaut dimanche 26 à 15:00).
-    // iPhone : heure du moment (sélecteur masqué).
+    // ?quand= (ex. article TdF → 26/07) : toujours respecté (Mac + iPhone).
+    // Sans ?quand= : iPhone = maintenant ; Mac = défaut dimanche 26 à 15:00.
     const params = new URLSearchParams(location.search);
     const quandParam = params.get("quand");
     const parsedQuand = parseQuandString(quandParam);
-    if(isMobileRoutageUi()){
+    if(parsedQuand){
+      useNow = false;
+      whenInput.value = toDatetimeLocalValue(parsedQuand);
+      btnNow.classList.remove("active");
+    } else if(isMobileRoutageUi()){
       useNow = true;
     } else {
       applyEventDefaultWhen();
-      if(parsedQuand){
-        const p = parisDateParts(parsedQuand);
-        const isEventDay = p.year === 2026 && p.month === 7 && p.day === 26;
-        if(!isEventDay){
-          useNow = false;
-          whenInput.value = toDatetimeLocalValue(parsedQuand);
-          btnNow.classList.remove("active");
-        }
-      }
     }
 
     loadZones()
