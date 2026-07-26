@@ -95,7 +95,7 @@ class ParkEcoRequestHandler(http.server.SimpleHTTPRequestHandler):
             self._json(400, {"error": "origin et destination {lat, lon} requis"})
             return
 
-        payload = {"coordinates": [[olon, olat], [dlon, dlat]]}
+        payload = {"coordinates": [[olon, olat], [dlon, dlat]], "radiuses": [1200, 1200]}
         avoid = features_to_multipolygon(body.get("avoid"))
         if avoid:
             payload["options"] = {"avoid_polygons": avoid}

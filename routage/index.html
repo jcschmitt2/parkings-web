@@ -373,7 +373,7 @@
     const TDF_ZONES_URL = encodeURI("donnée/tour_de_france_2026_zones.geojson");
     const RESPIRE_ZONES_URL = encodeURI("donnée/paris_respire_secteurs.geojson");
     const ROUTE_API = "/api/route";
-    const APP_VERSION = "3.10-tdf-quand";
+    const APP_VERSION = "3.11-zone-a-fix";
     const MAX_MAPS_WAYPOINTS = 4;
     const PARIS_RESPIRE_BUFFER_MIN = 60;
     /** Dimanche d'arrivée — 15 h = max de zones Tour + Respire actives */
@@ -1145,7 +1145,9 @@
         coordinates: [
           [origin.lon, origin.lat],
           [destination.lon, destination.lat]
-        ]
+        ],
+        // Aide ORS à snaper hors d'une zone avoid trop proche (défaut 350 m trop strict)
+        radiuses: [1200, 1200]
       };
       const avoidPolygons = featuresToMultiPolygon(avoid);
       if(avoidPolygons) payload.options = { avoid_polygons: avoidPolygons };
@@ -1233,21 +1235,57 @@
 
         setStatus("ok", "Calcul…");
 
-        const data = await fetchRoute(
-          { lat: origin.lat, lon: origin.lon },
-          { lat: dest.lat, lon: dest.lon },
-          active.features.length ? active : null
-        );
+        let data;
+        try {
+          data = await fetchRoute(
+            { lat: origin.lat, lon: origin.lon },
+            { lat: dest.lat, lon: dest.lon },
+            active.features.length ? active : null
+          );
+        } catch(err){
+          const msg = String(err && err.message || err || "");
+          const avoidHardFail = /routable point|unable to find a route|no route|itinéraire vide/i.test(msg);
+          if(avoidHardFail && active.features.length){
+            // 2e essai : uniquement les zones Tour (souvent plus compactes que Respire)
+            const tdfOnly = {
+              type: "FeatureCollection",
+              features: active.features.filter(f => f.properties && f.properties._layer === "tour_de_france")
+            };
+            if(tdfOnly.features.length && tdfOnly.features.length < active.features.length){
+              setStatus("ok", "Nouveau calcul (contournement simplifié)…");
+              try {
+                data = await fetchRoute(
+                  { lat: origin.lat, lon: origin.lon },
+                  { lat: dest.lat, lon: dest.lon },
+                  tdfOnly
+                );
+              } catch(_){
+                throw err;
+              }
+            } else {
+              throw err;
+            }
+          } else {
+            throw err;
+          }
+        }
 
         if(!data.coordinates || data.coordinates.length < 2){
-          setStatus("err", "Aucun itinéraire trouvé.");
+          setStatus("err", "Aucun itinéraire trouvé. Essayez des points un peu plus éloignés des zones colorées sur la carte.");
           return;
         }
 
         drawRoute(data.coordinates, origin, dest);
         clearStatus();
       } catch(err){
-        setStatus("err", escapeHtml(err.message || String(err)));
+        const msg = String(err && err.message || err || "");
+        if(/routable point/i.test(msg)){
+          setStatus("err", "Départ ou arrivée trop proche d’une zone fermée pour le calculateur. Éloignez le point de quelques rues hors de la zone colorée.");
+        } else if(/unable to find a route|no route/i.test(msg)){
+          setStatus("err", "Aucun itinéraire contournant toutes les zones fermées à cette heure. Essayez une autre heure ou des points plus éloignés des zones.");
+        } else {
+          setStatus("err", escapeHtml(msg));
+        }
       } finally {
         btnCalc.disabled = false;
       }

@@ -85,17 +85,20 @@ def buffer_polyline(points: list[tuple[float, float]], width_m: float) -> list[l
     return [to_lonlat(x, y) for x, y in ring_xy]
 
 
-# --- Zone A : Étoile / Champs-Élysées / Concorde / Madeleine / Louvre / quais ---
+# --- Zone A : Étoile / Champs-Élysées / Concorde / Madeleine / Louvre ---
+# Anneau simple, sens anti-horaire, rive droite uniquement.
+# (L'ancienne version allait jusqu'à Issy / Branly et bloquait Bac–Montalembert.)
 ZONE_A_RING = [
-    [2.2950, 48.8745],  # Place Charles-de-Gaulle (Étoile)
-    [2.3260, 48.8790],  # Boulevard Malesherbes, niveau Madeleine
-    [2.3370, 48.8660],  # Louvre / rue de Rivoli, côté nord
-    [2.3370, 48.8580],  # Louvre / quai François-Mitterrand, côté sud
-    [2.3130, 48.8560],  # Quai d'Orsay / Pont Alexandre-III
-    [2.2950, 48.8560],  # Quai Branly
-    [2.2760, 48.8420],  # Quai d'Issy-les-Moulineaux / Quai André-Citroën
-    [2.2850, 48.8620],  # Quai de Grenelle
-    [2.2950, 48.8745],  # fermeture (Étoile)
+    [2.2940, 48.8748],  # Étoile (ouest)
+    [2.2985, 48.8762],  # Étoile (nord)
+    [2.3265, 48.8795],  # Madeleine / Malesherbes
+    [2.3330, 48.8705],  # vers Opéra / Capucines
+    [2.3380, 48.8660],  # rue de Rivoli, nord Louvre
+    [2.3405, 48.8608],  # Pont des Arts (rive droite)
+    [2.3210, 48.8630],  # Concorde (sud, rive droite)
+    [2.3040, 48.8650],  # Cours la Reine / Grand Palais
+    [2.2960, 48.8698],  # Champs-Élysées (bas)
+    [2.2940, 48.8748],  # fermeture
 ]
 
 # --- Zone B : corridor Malesherbes → Courcelles → Batignolles → Clichy ---
@@ -160,9 +163,10 @@ def build_geojson() -> dict:
                     "nom": "Champs-Élysées — Concorde — Étoile — Madeleine — Louvre",
                     "horaires": "Dimanche 26 juillet 2026, 6 h à 23 h 59 (approx. — à confirmer)",
                     "description": (
-                        "Périmètre central de l'arrivée : Étoile, avenue des Champs-Élysées, "
-                        "place de la Concorde, place de la Madeleine, Louvre et quais proches. "
-                        "Circulation interdite aux véhicules motorisés."
+                        "Périmètre central de l'arrivée (rive droite) : Étoile, avenue des "
+                        "Champs-Élysées, place de la Concorde, place de la Madeleine, Louvre. "
+                        "Circulation interdite aux véhicules motorisés. Géométrie approximative "
+                        "— à ajuster dès l'arrêté officiel."
                     ),
                 },
             ),

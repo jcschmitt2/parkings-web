@@ -117,6 +117,7 @@ class Handler(SimpleHTTPRequestHandler):
 
         payload = {
             "coordinates": [[olon, olat], [dlon, dlat]],
+            "radiuses": [1200, 1200],
         }
         avoid = features_to_multipolygon(body.get("avoid"))
         if avoid:
