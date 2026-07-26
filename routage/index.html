@@ -19,6 +19,7 @@
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/polygon-clipping@0.15.7/dist/polygon-clipping.umd.js"></script>
   <!-- Clé ORS injectée au déploiement GitHub Pages (jamais commitée). En local : /api/route. -->
   <script src="/routage/ors_key.js" onerror="window.PARKECO_ORS_KEY=window.PARKECO_ORS_KEY||''"></script>
   <style>
@@ -373,7 +374,7 @@
     const TDF_ZONES_URL = encodeURI("donnée/tour_de_france_2026_zones.geojson");
     const RESPIRE_ZONES_URL = encodeURI("donnée/paris_respire_secteurs.geojson");
     const ROUTE_API = "/api/route";
-    const APP_VERSION = "3.12-arrete-2026";
+    const APP_VERSION = "3.13-dissolve-avoid";
     const MAX_MAPS_WAYPOINTS = 4;
     const PARIS_RESPIRE_BUFFER_MIN = 60;
     /** Dimanche d'arrivée — 15 h = max de zones Tour + Respire actives */
@@ -1117,6 +1118,64 @@
       return { type: "MultiPolygon", coordinates: polygons };
     }
 
+    /** Zones imbriquées dans un périmètre plus large (arrêté 2026) — évite le double envoi à ORS. */
+    const ZONE_SKIP_IF_PARENT_ACTIVE = {
+      art4_cours_la_reine_clemenceau: "art8_alma_maillot_concorde",
+      art6_champs_elysees: "art8_alma_maillot_concorde",
+      art6_marigny: "art8_alma_maillot_concorde",
+      art7_berges_ponts_concorde: "art8_alma_maillot_concorde",
+      art12_quais_ponts_ouest: "art13_rive_gauche_eiffel"
+    };
+
+    function pruneNestedAvoidFeatures(features){
+      const list = features || [];
+      const activeIds = new Set(
+        list.map(f => f && f.properties && f.properties.zone_id).filter(Boolean)
+      );
+      return list.filter(f => {
+        const id = f && f.properties && f.properties.zone_id;
+        if(!id) return true;
+        const parent = ZONE_SKIP_IF_PARENT_ACTIVE[id];
+        if(parent && activeIds.has(parent)) return false;
+        return true;
+      });
+    }
+
+    /** Fusionne les polygones qui se chevauchent → 1 MultiPolygon pour ORS. */
+    function dissolveAvoidToMultiPolygon(avoid){
+      const features = avoid && avoid.type === "FeatureCollection"
+        ? pruneNestedAvoidFeatures(avoid.features || [])
+        : avoid && avoid.type === "Feature"
+          ? [avoid]
+          : null;
+      if(features){
+        const polys = [];
+        for(const f of features){
+          const g = f && f.geometry;
+          if(!g) continue;
+          if(g.type === "Polygon") polys.push(g.coordinates);
+          else if(g.type === "MultiPolygon") polys.push(...g.coordinates);
+        }
+        if(!polys.length) return null;
+        if(polys.length === 1){
+          return { type: "MultiPolygon", coordinates: polys };
+        }
+        const clip = typeof polygonClipping !== "undefined" ? polygonClipping : null;
+        if(clip && typeof clip.union === "function"){
+          try {
+            const merged = clip.union.apply(clip, polys);
+            if(merged && merged.length){
+              return { type: "MultiPolygon", coordinates: merged };
+            }
+          } catch(err){
+            console.warn("Fusion des zones avoid échouée, envoi non fusionné", err);
+          }
+        }
+        return { type: "MultiPolygon", coordinates: polys };
+      }
+      return featuresToMultiPolygon(avoid);
+    }
+
     function getOrsClientKey(){
       const k = (typeof window.PARKECO_ORS_KEY === "string") ? window.PARKECO_ORS_KEY.trim() : "";
       return k || "";
@@ -1149,7 +1208,7 @@
         // Aide ORS à snaper hors d'une zone avoid trop proche (défaut 350 m trop strict)
         radiuses: [1200, 1200]
       };
-      const avoidPolygons = featuresToMultiPolygon(avoid);
+      const avoidPolygons = dissolveAvoidToMultiPolygon(avoid);
       if(avoidPolygons) payload.options = { avoid_polygons: avoidPolygons };
 
       const orsRes = await fetch(ORS_DIRECT_URL, {

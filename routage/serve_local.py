@@ -53,6 +53,7 @@ def features_to_multipolygon(avoid):
         features = avoid.get("features") or []
     elif avoid.get("type") == "Feature":
         features = [avoid]
+    features = prune_nested_avoid_features(features)
     polygons = []
     for f in features:
         g = (f or {}).get("geometry") or {}
@@ -62,7 +63,71 @@ def features_to_multipolygon(avoid):
             polygons.extend(g["coordinates"])
     if not polygons:
         return None
-    return {"type": "MultiPolygon", "coordinates": polygons}
+    if len(polygons) == 1:
+        return {"type": "MultiPolygon", "coordinates": polygons}
+    dissolved = dissolve_polygons(polygons)
+    return {"type": "MultiPolygon", "coordinates": dissolved}
+
+
+# Zones imbriquées dans un périmètre parent (arrêté 2026) — ne pas les renvoyer 2× à ORS.
+ZONE_SKIP_IF_PARENT_ACTIVE = {
+    "art4_cours_la_reine_clemenceau": "art8_alma_maillot_concorde",
+    "art6_champs_elysees": "art8_alma_maillot_concorde",
+    "art6_marigny": "art8_alma_maillot_concorde",
+    "art7_berges_ponts_concorde": "art8_alma_maillot_concorde",
+    "art12_quais_ponts_ouest": "art13_rive_gauche_eiffel",
+}
+
+
+def prune_nested_avoid_features(features: list) -> list:
+    active_ids = {
+        (f or {}).get("properties", {}).get("zone_id")
+        for f in features
+        if (f or {}).get("properties", {}).get("zone_id")
+    }
+    out = []
+    for f in features:
+        zid = (f or {}).get("properties", {}).get("zone_id")
+        parent = ZONE_SKIP_IF_PARENT_ACTIVE.get(zid or "")
+        if parent and parent in active_ids:
+            continue
+        out.append(f)
+    return out
+
+
+def dissolve_polygons(polygons: list) -> list:
+    """Fusionne les polygones qui se chevauchent (shapely si dispo, sinon inchangé)."""
+    try:
+        from shapely.geometry import Polygon, MultiPolygon
+        from shapely.ops import unary_union
+    except ImportError:
+        return polygons
+    shapes = []
+    for coords in polygons:
+        try:
+            if not coords:
+                continue
+            poly = Polygon(coords[0], holes=coords[1:] or None)
+            if poly.is_valid and not poly.is_empty:
+                shapes.append(poly)
+        except Exception:
+            continue
+    if not shapes:
+        return polygons
+    merged = unary_union(shapes)
+    out = []
+    if merged.geom_type == "Polygon":
+        rings = [list(merged.exterior.coords)]
+        for interior in merged.interiors:
+            rings.append(list(interior.coords))
+        out.append(rings)
+    elif merged.geom_type == "MultiPolygon":
+        for geom in merged.geoms:
+            rings = [list(geom.exterior.coords)]
+            for interior in geom.interiors:
+                rings.append(list(interior.coords))
+            out.append(rings)
+    return out or polygons
 
 
 class Handler(SimpleHTTPRequestHandler):
