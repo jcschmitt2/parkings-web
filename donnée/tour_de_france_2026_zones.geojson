@@ -2,13 +2,90 @@
   "type": "FeatureCollection",
   "name": "tour_de_france_2026_paris",
   "metadata": {
-    "source": "Périmètres approximés ParkEco, basés sur le tracé de l'arrivée du Tour de France à Paris le 27 juillet 2025 (paris.fr). Géométrie et horaires 2026 à confirmer dès publication de l'arrêté préfectoral.",
-    "event_date": "26 juillet 2026 (horaires de secteurs approximés d'après l'édition 2025 — à confirmer par arrêté)",
+    "source": "Arrêté préfectoral n°2026-00936 du 20 juillet 2026 — mesures de circulation (articles 4 à 13). Polygones approximatifs construits par ParkEco à partir de la liste des voies ; pas une numérisation des plans d'annexe.",
+    "source_url": "https://cdn.paris.fr/paris/2026/07/20/arrete-tour-de-france-2026-NUrH.pdf",
+    "event_date": "26 juillet 2026 — circulation d'après arrêté préfectoral n°2026-00936 du 20 juillet 2026 (polygones approximatifs des périmètres listés)",
     "event_day": "2026-07-26",
-    "provisoire": true,
-    "official_info": "https://www.paris.fr/pages/les-restrictions-de-circulation-et-de-stationnement-pour-le-tour-de-france-2025-31895"
+    "provisoire": false,
+    "official_info": "https://cdn.paris.fr/paris/2026/07/20/arrete-tour-de-france-2026-NUrH.pdf"
   },
   "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "circulation_interdite",
+        "exclure_recherche": true,
+        "source": "tour_de_france",
+        "active_start": "2026-07-26T00:01",
+        "active_end": "2026-07-26T23:59",
+        "tz": "Europe/Paris",
+        "arrete": "2026-00936",
+        "zone_id": "art4_cours_la_reine_clemenceau",
+        "nom": "Cours la Reine — Churchill — Clemenceau",
+        "article": "4",
+        "horaires": "26 juillet 2026, 0 h 01 à 23 h 59",
+        "description": "Art. 4 — Cours la Reine, avenue Winston Churchill, place Clemenceau."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              2.314773214842889,
+              48.86558824857858
+            ],
+            [
+              2.318773214842889,
+              48.86498824857858
+            ],
+            [
+              2.3189212079939154,
+              48.86495951355483
+            ],
+            [
+              2.3214212079939154,
+              48.86435951355483
+            ],
+            [
+              2.3208516384632936,
+              48.864402567376
+            ],
+            [
+              2.3233516384632935,
+              48.864602567376004
+            ],
+            [
+              2.323648361536707,
+              48.862997432624
+            ],
+            [
+              2.321148361536707,
+              48.86279743262399
+            ],
+            [
+              2.3205787920060845,
+              48.862840486445165
+            ],
+            [
+              2.3180787920060846,
+              48.86344048644517
+            ],
+            [
+              2.3182267851571106,
+              48.863411751421424
+            ],
+            [
+              2.3142267851571106,
+              48.86401175142142
+            ],
+            [
+              2.314773214842889,
+              48.86558824857858
+            ]
+          ]
+        ]
+      }
+    },
     {
       "type": "Feature",
       "properties": {
@@ -18,54 +95,236 @@
         "active_start": "2026-07-26T06:00",
         "active_end": "2026-07-26T23:59",
         "tz": "Europe/Paris",
-        "zone_id": "champs_elysees_concorde_louvre",
-        "nom": "Champs-Élysées — Concorde — Étoile — Madeleine — Louvre",
-        "horaires": "Dimanche 26 juillet 2026, 6 h à 23 h 59 (approx. — à confirmer)",
-        "description": "Périmètre central de l'arrivée (rive droite) : Étoile, avenue des Champs-Élysées, place de la Concorde, place de la Madeleine, Louvre. Circulation interdite aux véhicules motorisés. Géométrie approximative — à ajuster dès l'arrêté officiel."
+        "arrete": "2026-00936",
+        "zone_id": "art6_champs_elysees",
+        "nom": "Avenue des Champs-Élysées (Concorde → rond-point)",
+        "article": "6",
+        "horaires": "26 juillet 2026, 6 h à 23 h 59",
+        "description": "Art. 6 — Avenue des Champs-Élysées entre place de la Concorde et rond-point des Champs-Élysées-Marcel Dassault."
       },
       "geometry": {
         "type": "Polygon",
         "coordinates": [
           [
             [
-              2.294,
-              48.8748
+              2.3205893411196046,
+              48.86453358769551
             ],
             [
-              2.2985,
-              48.8762
+              2.3100893411196046,
+              48.86853358769552
             ],
             [
-              2.3265,
-              48.8795
+              2.310201659866207,
+              48.868498008125336
             ],
             [
-              2.333,
-              48.8705
+              2.303201659866207,
+              48.87029800812534
             ],
             [
-              2.338,
-              48.866
+              2.303175840855868,
+              48.87030498304017
             ],
             [
-              2.3405,
-              48.8608
+              2.297175840855868,
+              48.87200498304017
             ],
             [
-              2.321,
-              48.863
+              2.2978241591441324,
+              48.872995016959834
             ],
             [
-              2.304,
-              48.865
+              2.3038241591441326,
+              48.871295016959834
             ],
             [
-              2.296,
-              48.8698
+              2.3037983401337936,
+              48.87130199187467
             ],
             [
-              2.294,
-              48.8748
+              2.3107983401337933,
+              48.869501991874664
+            ],
+            [
+              2.3109106588803954,
+              48.86946641230448
+            ],
+            [
+              2.3214106588803953,
+              48.865466412304485
+            ],
+            [
+              2.3205893411196046,
+              48.86453358769551
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "circulation_interdite",
+        "exclure_recherche": true,
+        "source": "tour_de_france",
+        "active_start": "2026-07-26T06:00",
+        "active_end": "2026-07-26T23:59",
+        "tz": "Europe/Paris",
+        "arrete": "2026-00936",
+        "zone_id": "art6_marigny",
+        "nom": "Avenue de Marigny",
+        "article": "6",
+        "horaires": "26 juillet 2026, 6 h à 23 h 59",
+        "description": "Art. 6 — Avenue de Marigny entre avenue Gabriel et les Champs-Élysées."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              2.3179823539998554,
+              48.86874953504895
+            ],
+            [
+              2.3149823539998553,
+              48.86624953504895
+            ],
+            [
+              2.314937430833684,
+              48.86621607706068
+            ],
+            [
+              2.3134374308336847,
+              48.86521607706067
+            ],
+            [
+              2.312562569166316,
+              48.86578392293932
+            ],
+            [
+              2.3140625691663153,
+              48.86678392293933
+            ],
+            [
+              2.314017646000144,
+              48.86675046495105
+            ],
+            [
+              2.3170176460001444,
+              48.86925046495105
+            ],
+            [
+              2.3179823539998554,
+              48.86874953504895
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "circulation_interdite",
+        "exclure_recherche": true,
+        "source": "tour_de_france",
+        "active_start": "2026-07-26T06:00",
+        "active_end": "2026-07-26T23:59",
+        "tz": "Europe/Paris",
+        "arrete": "2026-00936",
+        "zone_id": "art7_berges_ponts_concorde",
+        "nom": "Berges et ponts (Alma → Concorde / Tuileries)",
+        "article": "7",
+        "horaires": "26 juillet 2026, 6 h à 23 h 59",
+        "description": "Art. 7 — Voie Georges Pompidou, quais Tuileries / Aimé Césaire / François Mitterrand, ponts Royal, Concorde, Alexandre III, Invalides."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              2.3015972875494857,
+              48.86421579323798
+            ],
+            [
+              2.3100972875494863,
+              48.86371579323798
+            ],
+            [
+              2.3101268654333538,
+              48.86371378606512
+            ],
+            [
+              2.3166268654333533,
+              48.863213786065124
+            ],
+            [
+              2.3163898649455232,
+              48.86321498714841
+            ],
+            [
+              2.3208898649455234,
+              48.863514987148406
+            ],
+            [
+              2.321261955976817,
+              48.86349768012629
+            ],
+            [
+              2.329261955976817,
+              48.862197680126286
+            ],
+            [
+              2.3292682724608653,
+              48.86219664054809
+            ],
+            [
+              2.335268272460865,
+              48.8611966405481
+            ],
+            [
+              2.334731727539135,
+              48.8598033594519
+            ],
+            [
+              2.328731727539135,
+              48.8608033594519
+            ],
+            [
+              2.3287380440231837,
+              48.860802319873706
+            ],
+            [
+              2.3207380440231837,
+              48.862102319873706
+            ],
+            [
+              2.321110135054477,
+              48.86208501285159
+            ],
+            [
+              2.3166101350544768,
+              48.86178501285159
+            ],
+            [
+              2.3163731345666467,
+              48.86178621393488
+            ],
+            [
+              2.309873134566647,
+              48.86228621393488
+            ],
+            [
+              2.3099027124505143,
+              48.86228420676202
+            ],
+            [
+              2.3014027124505136,
+              48.86278420676202
+            ],
+            [
+              2.3015972875494857,
+              48.86421579323798
             ]
           ]
         ]
@@ -80,66 +339,144 @@
         "active_start": "2026-07-26T09:00",
         "active_end": "2026-07-26T23:59",
         "tz": "Europe/Paris",
-        "zone_id": "malesherbes_batignolles",
-        "nom": "Corridor Malesherbes — Courcelles — Batignolles — Clichy",
-        "horaires": "Dimanche 26 juillet 2026, 9 h à 23 h 59 (approx. — à confirmer)",
-        "description": "Axe de liaison entre le secteur Madeleine et le secteur Montmartre : boulevards Malesherbes, de Courcelles, des Batignolles, jusqu'à la place de Clichy. Circulation interdite aux véhicules motorisés."
+        "arrete": "2026-00936",
+        "zone_id": "art8_alma_maillot_concorde",
+        "nom": "Périmètre Alma — Maillot — Ternes — Concorde",
+        "article": "8",
+        "horaires": "26 juillet 2026, 9 h à 23 h 59",
+        "description": "Art. 8 — Grand périmètre formé par Alma, Wilson, Victor Hugo, Maillot, Ternes, Faubourg Saint-Honoré, Carrousel, quais et Concorde (voies de contour libres sauf mention contraire)."
       },
       "geometry": {
         "type": "Polygon",
         "coordinates": [
           [
             [
-              2.3244277184551287,
-              48.87783770426223
+              2.301,
+              48.864
             ],
             [
-              2.3088277184551287,
-              48.87883770426224
+              2.298,
+              48.8665
             ],
             [
-              2.307848689328698,
-              48.880889114703756
+              2.292,
+              48.8685
             ],
             [
-              2.312848689328698,
-              48.88368911470375
+              2.287,
+              48.8705
             ],
             [
-              2.3139578192458896,
-              48.88396747503684
+              2.2825,
+              48.873
             ],
             [
-              2.3267578192458895,
-              48.88416747503685
+              2.282,
+              48.8775
             ],
             [
-              2.3268421807541104,
-              48.881832524963166
+              2.29,
+              48.8805
             ],
             [
-              2.3140421807541105,
-              48.88163252496316
+              2.298,
+              48.8785
             ],
             [
-              2.315151310671302,
-              48.88191088529625
+              2.305,
+              48.875
             ],
             [
-              2.3101513106713023,
-              48.87911088529626
+              2.318,
+              48.871
             ],
             [
-              2.3091722815448716,
-              48.881162295737774
+              2.33,
+              48.866
             ],
             [
-              2.3247722815448717,
-              48.88016229573776
+              2.3355,
+              48.8615
             ],
             [
-              2.3244277184551287,
-              48.87783770426223
+              2.329,
+              48.861
+            ],
+            [
+              2.321,
+              48.863
+            ],
+            [
+              2.314,
+              48.8645
+            ],
+            [
+              2.305,
+              48.8648
+            ],
+            [
+              2.301,
+              48.864
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "circulation_interdite",
+        "exclure_recherche": true,
+        "source": "tour_de_france",
+        "active_start": "2026-07-26T11:00",
+        "active_end": "2026-07-26T20:00",
+        "tz": "Europe/Paris",
+        "arrete": "2026-00936",
+        "zone_id": "art9_montmartre",
+        "nom": "Périmètre Montmartre",
+        "article": "9",
+        "horaires": "26 juillet 2026, 11 h à 20 h",
+        "description": "Art. 9 — Périmètre Montmartre (Caulaincourt, Clichy, Abbesses, Saint-Pierre, Lamarck…)."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              2.3275,
+              48.8835
+            ],
+            [
+              2.3335,
+              48.8838
+            ],
+            [
+              2.3385,
+              48.8845
+            ],
+            [
+              2.3435,
+              48.8855
+            ],
+            [
+              2.345,
+              48.8875
+            ],
+            [
+              2.341,
+              48.8895
+            ],
+            [
+              2.335,
+              48.89
+            ],
+            [
+              2.329,
+              48.8885
+            ],
+            [
+              2.3275,
+              48.8835
             ]
           ]
         ]
@@ -152,44 +489,314 @@
         "exclure_recherche": true,
         "source": "tour_de_france",
         "active_start": "2026-07-26T13:00",
-        "active_end": "2026-07-26T20:30",
+        "active_end": "2026-07-26T20:00",
         "tz": "Europe/Paris",
-        "zone_id": "montmartre",
-        "nom": "Boucle Montmartre — Clichy — Blanche — Butte",
-        "horaires": "Dimanche 26 juillet 2026, 13 h à 20 h 30 (approx. — à confirmer)",
-        "description": "Boucle empruntée trois fois par la course : place de Clichy, place Blanche, rues Lepic, Norvins, Coustou, Puget et la butte Montmartre. Circulation interdite aux véhicules motorisés, piétons filtrés."
+        "arrete": "2026-00936",
+        "zone_id": "art10_ternes_clichy_haussmann",
+        "nom": "Périmètre Ternes — Clichy — Haussmann",
+        "article": "10",
+        "horaires": "26 juillet 2026, 13 h à 20 h",
+        "description": "Art. 10 — Périmètre 8e / 9e / 17e (Pereire, Villiers, Clichy, Haussmann, Friedland, Ternes)."
       },
       "geometry": {
         "type": "Polygon",
         "coordinates": [
           [
             [
-              2.3268,
-              48.883
+              2.29,
+              48.8805
             ],
             [
-              2.3325,
-              48.8838
+              2.2955,
+              48.8835
             ],
             [
-              2.336,
+              2.305,
               48.885
             ],
             [
-              2.3431,
-              48.8867
-            ],
-            [
-              2.34,
-              48.8882
-            ],
-            [
-              2.33,
+              2.315,
               48.8865
             ],
             [
-              2.3268,
-              48.883
+              2.325,
+              48.89
+            ],
+            [
+              2.328,
+              48.886
+            ],
+            [
+              2.33,
+              48.884
+            ],
+            [
+              2.3335,
+              48.8835
+            ],
+            [
+              2.328,
+              48.8795
+            ],
+            [
+              2.322,
+              48.8755
+            ],
+            [
+              2.31,
+              48.874
+            ],
+            [
+              2.3,
+              48.8765
+            ],
+            [
+              2.29,
+              48.8805
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "circulation_interdite",
+        "exclure_recherche": true,
+        "source": "tour_de_france",
+        "active_start": "2026-07-26T13:00",
+        "active_end": "2026-07-26T22:00",
+        "tz": "Europe/Paris",
+        "arrete": "2026-00936",
+        "zone_id": "art11_boulevard_invalides",
+        "nom": "Boulevard des Invalides (segment)",
+        "article": "11",
+        "horaires": "26 juillet 2026, 13 h à 22 h",
+        "description": "Art. 11 — Boulevard des Invalides entre rue de Grenelle et avenue de Tourville."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              2.315028130387842,
+              48.85740854523539
+            ],
+            [
+              2.3140281303878423,
+              48.854908545235375
+            ],
+            [
+              2.314032185861817,
+              48.85491936259091
+            ],
+            [
+              2.313332185861818,
+              48.85291936259092
+            ],
+            [
+              2.3122678141381825,
+              48.853080637409086
+            ],
+            [
+              2.312967814138182,
+              48.85508063740908
+            ],
+            [
+              2.3129718696121575,
+              48.85509145476462
+            ],
+            [
+              2.313971869612157,
+              48.85759145476462
+            ],
+            [
+              2.315028130387842,
+              48.85740854523539
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "circulation_interdite",
+        "exclure_recherche": true,
+        "source": "tour_de_france",
+        "active_start": "2026-07-26T14:00",
+        "active_end": "2026-07-26T20:00",
+        "tz": "Europe/Paris",
+        "arrete": "2026-00936",
+        "zone_id": "art12_quais_ponts_ouest",
+        "nom": "Quais et ponts ouest (Issy → Alma)",
+        "article": "12",
+        "horaires": "26 juillet 2026, 14 h à 20 h",
+        "description": "Art. 12 — Quais Issy / Citroën et ponts Mirabeau, Grenelle, Bir-Hakeim, Iéna, Alma."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              2.273421780463309,
+              48.84600066443391
+            ],
+            [
+              2.2794217804633083,
+              48.84900066443391
+            ],
+            [
+              2.279335609496955,
+              48.84895200375759
+            ],
+            [
+              2.2848356094969544,
+              48.85245200375758
+            ],
+            [
+              2.284667579659107,
+              48.85230890140136
+            ],
+            [
+              2.2876675796591073,
+              48.85580890140136
+            ],
+            [
+              2.287761898868075,
+              48.855899438450635
+            ],
+            [
+              2.2927618988680747,
+              48.85989943845064
+            ],
+            [
+              2.292898221419317,
+              48.859988497091045
+            ],
+            [
+              2.300398221419317,
+              48.86398849709104
+            ],
+            [
+              2.3016017785806833,
+              48.86301150290896
+            ],
+            [
+              2.294101778580683,
+              48.859011502908956
+            ],
+            [
+              2.294238101131925,
+              48.85910056154936
+            ],
+            [
+              2.289238101131925,
+              48.855100561549364
+            ],
+            [
+              2.2893324203408922,
+              48.85519109859864
+            ],
+            [
+              2.286332420340892,
+              48.851691098598636
+            ],
+            [
+              2.286164390503045,
+              48.85154799624242
+            ],
+            [
+              2.280664390503045,
+              48.84804799624242
+            ],
+            [
+              2.2805782195366913,
+              48.8479993355661
+            ],
+            [
+              2.2745782195366915,
+              48.8449993355661
+            ],
+            [
+              2.273421780463309,
+              48.84600066443391
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "circulation_interdite",
+        "exclure_recherche": true,
+        "source": "tour_de_france",
+        "active_start": "2026-07-26T14:00",
+        "active_end": "2026-07-26T20:00",
+        "tz": "Europe/Paris",
+        "arrete": "2026-00936",
+        "zone_id": "art13_rive_gauche_eiffel",
+        "nom": "Périmètre rive gauche (Eiffel — quais)",
+        "article": "13",
+        "horaires": "26 juillet 2026, 14 h à 20 h",
+        "description": "Art. 13 — Périmètre 7e / 15e (Balard → Suffren → Université / Solférino → quais d'Orsay, Branly, Grenelle)."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              2.278,
+              48.8465
+            ],
+            [
+              2.2755,
+              48.849
+            ],
+            [
+              2.282,
+              48.8505
+            ],
+            [
+              2.288,
+              48.8515
+            ],
+            [
+              2.294,
+              48.854
+            ],
+            [
+              2.297,
+              48.857
+            ],
+            [
+              2.31,
+              48.86
+            ],
+            [
+              2.3205,
+              48.8605
+            ],
+            [
+              2.318,
+              48.8625
+            ],
+            [
+              2.305,
+              48.8628
+            ],
+            [
+              2.29,
+              48.858
+            ],
+            [
+              2.28,
+              48.852
+            ],
+            [
+              2.278,
+              48.8465
             ]
           ]
         ]
