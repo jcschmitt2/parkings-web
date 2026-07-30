@@ -26,7 +26,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <!-- build: v18.66 -->
+  <!-- build: v18.67 -->
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
   <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
@@ -1617,8 +1617,103 @@
       body.has-results:has(.app-main.view-map) .site-footer { display:none !important; }
     }
   </style>
+  <script type="application/ld+json" id="seo-parking-jsonld">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "ParkingFacility",
+      "name": "Cœur montmartre marché st-pierre",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "4 rue pierre picard 75018 paris",
+        "addressLocality": "Paris",
+        "addressCountry": "FR",
+        "postalCode": "75018"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 48.884784,
+        "longitude": 2.3466
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": "4.40",
+        "priceCurrency": "EUR",
+        "description": "Tarif 1 heure"
+      }
+    },
+    {
+      "@type": "ParkingFacility",
+      "name": "Parking montmartre garage",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "5 rue dancourt 75018 paris",
+        "addressLocality": "Paris",
+        "addressCountry": "FR",
+        "postalCode": "75018"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 48.883056,
+        "longitude": 2.341675
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": "6.00",
+        "priceCurrency": "EUR",
+        "description": "Tarif 1 heure"
+      }
+    },
+    {
+      "@type": "ParkingFacility",
+      "name": "Porte de clignancourt",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "20 ter avenue de la porte de clignancourt 75018 paris",
+        "addressLocality": "Paris",
+        "addressCountry": "FR",
+        "postalCode": "75018"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 48.899608,
+        "longitude": 2.344528
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": "4.00",
+        "priceCurrency": "EUR",
+        "description": "Tarif 1 heure"
+      }
+    },
+    {
+      "@type": "ParkingFacility",
+      "name": "Rédélé parking",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "11 rue forest 75018 paris",
+        "addressLocality": "Paris",
+        "addressCountry": "FR",
+        "postalCode": "75018"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 48.885458,
+        "longitude": 2.329025
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": "4.00",
+        "priceCurrency": "EUR",
+        "description": "Tarif 1 heure"
+      }
+    }
+  ]
+}
+  </script>
 </head>
-<body>
+<body class="has-results">
   <header>
     <div id="header-welcome" class="header-welcome">
       <a class="header-brand" href="/" aria-label="ParkEco — accueil">
@@ -1674,7 +1769,7 @@
           </button>
         </div>
         <div class="address-wrap">
-          <input id="address" type="text" placeholder="3 rue du Bac ou Bastille ou 75009" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+          <input id="address" type="text" placeholder="3 rue du Bac ou Bastille ou 75009" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"  value="75018"/>
           <button type="button" id="btn-voice" class="btn-voice" title="Dicter une adresse" aria-label="Dicter une adresse" aria-pressed="false">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19v3"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><rect x="9" y="2" width="6" height="12" rx="3"/></svg>
             <span class="sr-only" id="text-btn-voice">Dicter une adresse</span>
@@ -1701,11 +1796,59 @@
       <button type="button" id="tab-map" class="mobile-tab" aria-selected="false">Carte</button>
     </nav>
 
-    <div class="app-main view-list">
+    <div class="app-main view-map">
       <div class="panel sidebar">
         <div class="results-area">
           <div class="results-scroll" id="results-scroll">
-            <div class="list" id="results"><div class="muted results-summary" style="margin-bottom:10px;"><h1 class="results-seo-heading">Paris 18e : parkings publics</h1></div><div class="muted">Chargement de la base…</div></div>
+            <div class="list" id="results" data-seo-prerendered="1"><div class="muted results-summary" style="margin-bottom:10px;"><h1 class="results-seo-heading">Paris 18e : 4 parkings</h1></div>
+        <div class="item item-clickable" data-parking-id="pk_0175_cur-montmartre-marche-st-pierre" role="button" tabindex="0" aria-label="Voir le détail — Cœur montmartre marché st-pierre">
+          <div style="display:flex;align-items:center;gap:8px;justify-content:space-between;">
+            <strong class="result-title">
+              <span class="result-marker result-marker-alt">1</span>
+              
+            </strong>
+            
+          </div>
+          <div>Cœur montmartre marché st-pierre</div>
+          <div class="parking-info">INDIGO<span class="info-sep">·</span>236 places</div>
+          <div class="item-hint">Appuyer pour adresse, photo et avis</div>
+        </div>
+        <div class="item item-clickable" data-parking-id="pk_0172_montmartre-garage" role="button" tabindex="0" aria-label="Voir le détail — Parking montmartre garage">
+          <div style="display:flex;align-items:center;gap:8px;justify-content:space-between;">
+            <strong class="result-title">
+              <span class="result-marker result-marker-alt">2</span>
+              
+            </strong>
+            
+          </div>
+          <div>Parking montmartre garage</div>
+          <div class="parking-info">SAGS<span class="info-sep">·</span>486 places</div>
+          <div class="item-hint">Appuyer pour adresse, photo et avis</div>
+        </div>
+        <div class="item item-clickable" data-parking-id="pk_0062_porte-de-clignancourt" role="button" tabindex="0" aria-label="Voir le détail — Porte de clignancourt">
+          <div style="display:flex;align-items:center;gap:8px;justify-content:space-between;">
+            <strong class="result-title">
+              <span class="result-marker result-marker-alt">3</span>
+              
+            </strong>
+            
+          </div>
+          <div>Porte de clignancourt</div>
+          <div class="parking-info">SAGS<span class="info-sep">·</span>522 places</div>
+          <div class="item-hint">Appuyer pour adresse, photo et avis</div>
+        </div>
+        <div class="item item-clickable" data-parking-id="pk_0174_redele" role="button" tabindex="0" aria-label="Voir le détail — Rédélé parking">
+          <div style="display:flex;align-items:center;gap:8px;justify-content:space-between;">
+            <strong class="result-title">
+              <span class="result-marker result-marker-alt">4</span>
+              
+            </strong>
+            
+          </div>
+          <div>Rédélé parking</div>
+          <div class="parking-info">SAEMES<span class="info-sep">·</span>71 places</div>
+          <div class="item-hint">Appuyer pour adresse, photo et avis</div>
+        </div><noscript><p class="muted" style="margin:8px 0 0;">La carte interactive nécessite JavaScript ; la liste ci-dessus reste consultable.</p></noscript></div>
             <div id="seo-know-more-slot"><details class="seo-know-more">
   <summary class="seo-know-more-summary">En savoir plus sur le stationnement dans le 18e arrondissement</summary>
   <div class="seo-know-more-body">
@@ -1801,7 +1944,7 @@
     let suggestTimer = null;
     let suggestRequestId = 0;
     let suppressSuggestionBlurHide = false;
-    const APP_VERSION = "18.66";
+    const APP_VERSION = "18.67";
     let bootGeneration = 0;
     const OVERVIEW_NAME_ZOOM = 14;
     const WELCOME_MAP_CENTER = [48.8566, 2.3522];
@@ -2581,18 +2724,22 @@
     function applyIndexTextes(page){
       if(!page) return;
       const seo = page.seo || {};
-      if(seo.title) document.title = seo.title;
-      if(seo.description){
-        const desc = document.querySelector('meta[name="description"]');
-        if(desc) desc.setAttribute("content", seo.description);
-      }
-      if(seo.og_title){
-        const ogTitle = document.querySelector('meta[property="og:title"]');
-        if(ogTitle) ogTitle.setAttribute("content", seo.og_title);
-      }
-      if(seo.og_description){
-        const ogDesc = document.querySelector('meta[property="og:description"]');
-        if(ogDesc) ogDesc.setAttribute("content", seo.og_description);
+      const seoLanding = resolveSeoLandingConfig();
+      // Ne pas écraser title/meta des landings SEO (HTML déjà correct).
+      if(!seoLanding){
+        if(seo.title) document.title = seo.title;
+        if(seo.description){
+          const desc = document.querySelector('meta[name="description"]');
+          if(desc) desc.setAttribute("content", seo.description);
+        }
+        if(seo.og_title){
+          const ogTitle = document.querySelector('meta[property="og:title"]');
+          if(ogTitle) ogTitle.setAttribute("content", seo.og_title);
+        }
+        if(seo.og_description){
+          const ogDesc = document.querySelector('meta[property="og:description"]');
+          if(ogDesc) ogDesc.setAttribute("content", seo.og_description);
+        }
       }
       const mac = page.accueil?.mac || {};
       const iphone = page.accueil?.iphone || {};
@@ -4710,6 +4857,14 @@
       setDocumentCanonical(landing.canonical);
     }
 
+    function resultsAreSeoPrerendered(){
+      return document.getElementById("results")?.getAttribute("data-seo-prerendered") === "1";
+    }
+
+    function clearSeoPrerenderFlag(){
+      document.getElementById("results")?.removeAttribute("data-seo-prerendered");
+    }
+
     async function runSeoLandingSearchIfNeeded(){
       const landing = resolveSeoLandingConfig();
       if(!landing) return;
@@ -4717,8 +4872,10 @@
       const query = landing.searchQuery || "";
       const addrInput = document.getElementById("address");
       const currentAddr = addrInput?.value?.trim() || "";
+      const prerendered = resultsAreSeoPrerendered();
 
       if(currentAddr && !isSeoDefaultAddress(currentAddr, landing)){
+        clearSeoPrerenderFlag();
         document.getElementById("results").innerHTML = `<div class="muted">Recherche en cours…</div>`;
         setResultsLayoutActive(true);
         closeParkingDetail();
@@ -4728,6 +4885,7 @@
 
       if(addrInput && query) addrInput.value = query;
       if(landing.mode === "arrondissement" && landing.postcode){
+        clearSeoPrerenderFlag();
         document.getElementById("results").innerHTML = `<div class="muted">Recherche en cours…</div>`;
         setResultsLayoutActive(true);
         closeParkingDetail();
@@ -4735,14 +4893,19 @@
         return;
       }
       if(landing.lat != null && landing.lon != null && Number.isFinite(+landing.lat) && Number.isFinite(+landing.lon)){
-        document.getElementById("results").innerHTML = `<div class="muted">Recherche en cours…</div>`;
-        setResultsLayoutActive(true);
-        closeParkingDetail();
-        await showNearestFromOrigin({
+        const origin = {
           lat: +landing.lat,
           lon: +landing.lon,
           label: query || "Lieu recherché"
-        });
+        };
+        setResultsLayoutActive(true);
+        closeParkingDetail();
+        if(prerendered){
+          await hydratePrerenderedNearestFromOrigin(origin);
+          return;
+        }
+        document.getElementById("results").innerHTML = `<div class="muted">Recherche en cours…</div>`;
+        await showNearestFromOrigin(origin);
         return;
       }
       if(query) await findNearest();
@@ -4872,7 +5035,9 @@
           );
           return;
         }
-        document.getElementById("results").innerHTML = "";
+        if(!resultsAreSeoPrerendered()){
+          document.getElementById("results").innerHTML = "";
+        }
         const withPhoto = PARKINGS.filter(p => p.photoUrl).length;
         console.info(
           `FindParking — base chargée: ${PARKINGS.length} parkings, ${withPhoto} avec photo ` +
@@ -5236,6 +5401,7 @@
       CURRENT_ORIGIN = null;
       closeParkingDetail();
       setResultsLayoutActive(true);
+      clearSeoPrerenderFlag();
 
       const label = placeLabelOverride || arrondissementLabel(postcode);
       const inArr = PARKINGS.filter(p => parkingInPostcode(p, postcode))
@@ -5308,10 +5474,84 @@
       return fmtRadiusMeters(searchRadiusM(destinationInJuilletZone));
     }
 
+    async function hydratePrerenderedNearestFromOrigin(origin){
+      CURRENT_ORIGIN = origin;
+      const resultsEl = document.getElementById("results");
+      const ids = [...resultsEl.querySelectorAll(".item[data-parking-id]")]
+        .map(el => el.getAttribute("data-parking-id"))
+        .filter(Boolean);
+      const byId = new Map(PARKINGS.map(p => [p.id, p]));
+      const nearby = [];
+      for(const id of ids){
+        const p = byId.get(id);
+        if(!p){
+          clearSeoPrerenderFlag();
+          await showNearestFromOrigin(origin);
+          return;
+        }
+        nearby.push({
+          ...p,
+          distance_m: haversineMeters(origin.lat, origin.lon, p.lat, p.lon)
+        });
+      }
+      if(!nearby.length){
+        clearSeoPrerenderFlag();
+        await showNearestFromOrigin(origin);
+        return;
+      }
+
+      let activeRespireFeatures = [];
+      if(!isActuZoneToolPage()){
+        activeRespireFeatures = await getActiveParisRespireFeaturesCached();
+        if(activeRespireFeatures.length) await ensureParisRespireZonesLayer();
+      }
+      const closedZoneFeatures = activeRespireFeatures;
+      const bestTitle = "Parking le plus proche";
+      const best = nearby[0];
+      const alts = nearby.slice(1);
+      const bestClosed = parkingInClosedZone(best, closedZoneFeatures);
+
+      clearMarkers();
+      userMarker = L.marker([origin.lat, origin.lon], {title: origin.label || "Destination", icon: originIcon}).addTo(map);
+      bestMarker = createParkingMarker(best.lat, best.lon, {
+        title: best.name,
+        icon: buildBestMapIcon(false, best.distance_m, best.name, bestClosed)
+      }).addTo(map);
+      registerMapMarker(best.id, bestMarker, "best", "P", best.distance_m, best.name, bestClosed);
+      altMarkers = alts.map((p, i) => {
+        const label = `P${i + 1}`;
+        const inClosed = parkingInClosedZone(p, closedZoneFeatures);
+        const m = createParkingMarker(p.lat, p.lon, {
+          title: p.name,
+          icon: altIcon(label, p.distance_m, p.name, inClosed)
+        }).addTo(map);
+        registerMapMarker(p.id, m, "alt", label, p.distance_m, p.name, inClosed);
+        return m;
+      });
+      fitMapToParkings([
+        [origin.lat, origin.lon],
+        ...nearby.map(p => [p.lat, p.lon])
+      ]);
+
+      const optionsById = { [best.id]: { title: bestTitle } };
+      alts.forEach((p, i) => { if(p.id) optionsById[p.id] = { title: `P${i + 1}` }; });
+      registerResultParkings(nearby, optionsById);
+      // Ne pas réécrire #results : HTML déjà présent (évite doublon / clignotement).
+      setMobileViewAfterSearch();
+      dismissAddressKeyboard();
+      document.body.classList.remove("address-entry-active");
+      updateSeoKnowMoreAccordion(origin);
+      if(!isActuZoneToolPage()) {
+        await refreshStandardParisRespireMapIfNeeded();
+        scheduleParisRespireZonesRetry();
+      }
+    }
+
     async function showNearestFromOrigin(origin){
       CURRENT_ORIGIN = origin;
       closeParkingDetail();
       setResultsLayoutActive(true);
+      clearSeoPrerenderFlag();
       const enriched = PARKINGS.map(p => ({
         ...p,
         distance_m: haversineMeters(origin.lat, origin.lon, p.lat, p.lon)

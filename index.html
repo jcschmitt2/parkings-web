@@ -23,7 +23,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <!-- build: v18.66 -->
+  <!-- build: v18.67 -->
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
   <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
@@ -1791,7 +1791,7 @@
     let suggestTimer = null;
     let suggestRequestId = 0;
     let suppressSuggestionBlurHide = false;
-    const APP_VERSION = "18.66";
+    const APP_VERSION = "18.67";
     let bootGeneration = 0;
     const OVERVIEW_NAME_ZOOM = 14;
     const WELCOME_MAP_CENTER = [48.8566, 2.3522];
@@ -2571,18 +2571,22 @@
     function applyIndexTextes(page){
       if(!page) return;
       const seo = page.seo || {};
-      if(seo.title) document.title = seo.title;
-      if(seo.description){
-        const desc = document.querySelector('meta[name="description"]');
-        if(desc) desc.setAttribute("content", seo.description);
-      }
-      if(seo.og_title){
-        const ogTitle = document.querySelector('meta[property="og:title"]');
-        if(ogTitle) ogTitle.setAttribute("content", seo.og_title);
-      }
-      if(seo.og_description){
-        const ogDesc = document.querySelector('meta[property="og:description"]');
-        if(ogDesc) ogDesc.setAttribute("content", seo.og_description);
+      const seoLanding = resolveSeoLandingConfig();
+      // Ne pas écraser title/meta des landings SEO (HTML déjà correct).
+      if(!seoLanding){
+        if(seo.title) document.title = seo.title;
+        if(seo.description){
+          const desc = document.querySelector('meta[name="description"]');
+          if(desc) desc.setAttribute("content", seo.description);
+        }
+        if(seo.og_title){
+          const ogTitle = document.querySelector('meta[property="og:title"]');
+          if(ogTitle) ogTitle.setAttribute("content", seo.og_title);
+        }
+        if(seo.og_description){
+          const ogDesc = document.querySelector('meta[property="og:description"]');
+          if(ogDesc) ogDesc.setAttribute("content", seo.og_description);
+        }
       }
       const mac = page.accueil?.mac || {};
       const iphone = page.accueil?.iphone || {};
@@ -4700,6 +4704,14 @@
       setDocumentCanonical(landing.canonical);
     }
 
+    function resultsAreSeoPrerendered(){
+      return document.getElementById("results")?.getAttribute("data-seo-prerendered") === "1";
+    }
+
+    function clearSeoPrerenderFlag(){
+      document.getElementById("results")?.removeAttribute("data-seo-prerendered");
+    }
+
     async function runSeoLandingSearchIfNeeded(){
       const landing = resolveSeoLandingConfig();
       if(!landing) return;
@@ -4707,8 +4719,10 @@
       const query = landing.searchQuery || "";
       const addrInput = document.getElementById("address");
       const currentAddr = addrInput?.value?.trim() || "";
+      const prerendered = resultsAreSeoPrerendered();
 
       if(currentAddr && !isSeoDefaultAddress(currentAddr, landing)){
+        clearSeoPrerenderFlag();
         document.getElementById("results").innerHTML = `<div class="muted">Recherche en cours…</div>`;
         setResultsLayoutActive(true);
         closeParkingDetail();
@@ -4718,6 +4732,7 @@
 
       if(addrInput && query) addrInput.value = query;
       if(landing.mode === "arrondissement" && landing.postcode){
+        clearSeoPrerenderFlag();
         document.getElementById("results").innerHTML = `<div class="muted">Recherche en cours…</div>`;
         setResultsLayoutActive(true);
         closeParkingDetail();
@@ -4725,14 +4740,19 @@
         return;
       }
       if(landing.lat != null && landing.lon != null && Number.isFinite(+landing.lat) && Number.isFinite(+landing.lon)){
-        document.getElementById("results").innerHTML = `<div class="muted">Recherche en cours…</div>`;
-        setResultsLayoutActive(true);
-        closeParkingDetail();
-        await showNearestFromOrigin({
+        const origin = {
           lat: +landing.lat,
           lon: +landing.lon,
           label: query || "Lieu recherché"
-        });
+        };
+        setResultsLayoutActive(true);
+        closeParkingDetail();
+        if(prerendered){
+          await hydratePrerenderedNearestFromOrigin(origin);
+          return;
+        }
+        document.getElementById("results").innerHTML = `<div class="muted">Recherche en cours…</div>`;
+        await showNearestFromOrigin(origin);
         return;
       }
       if(query) await findNearest();
@@ -4862,7 +4882,9 @@
           );
           return;
         }
-        document.getElementById("results").innerHTML = "";
+        if(!resultsAreSeoPrerendered()){
+          document.getElementById("results").innerHTML = "";
+        }
         const withPhoto = PARKINGS.filter(p => p.photoUrl).length;
         console.info(
           `FindParking — base chargée: ${PARKINGS.length} parkings, ${withPhoto} avec photo ` +
@@ -5226,6 +5248,7 @@
       CURRENT_ORIGIN = null;
       closeParkingDetail();
       setResultsLayoutActive(true);
+      clearSeoPrerenderFlag();
 
       const label = placeLabelOverride || arrondissementLabel(postcode);
       const inArr = PARKINGS.filter(p => parkingInPostcode(p, postcode))
@@ -5298,10 +5321,84 @@
       return fmtRadiusMeters(searchRadiusM(destinationInJuilletZone));
     }
 
+    async function hydratePrerenderedNearestFromOrigin(origin){
+      CURRENT_ORIGIN = origin;
+      const resultsEl = document.getElementById("results");
+      const ids = [...resultsEl.querySelectorAll(".item[data-parking-id]")]
+        .map(el => el.getAttribute("data-parking-id"))
+        .filter(Boolean);
+      const byId = new Map(PARKINGS.map(p => [p.id, p]));
+      const nearby = [];
+      for(const id of ids){
+        const p = byId.get(id);
+        if(!p){
+          clearSeoPrerenderFlag();
+          await showNearestFromOrigin(origin);
+          return;
+        }
+        nearby.push({
+          ...p,
+          distance_m: haversineMeters(origin.lat, origin.lon, p.lat, p.lon)
+        });
+      }
+      if(!nearby.length){
+        clearSeoPrerenderFlag();
+        await showNearestFromOrigin(origin);
+        return;
+      }
+
+      let activeRespireFeatures = [];
+      if(!isActuZoneToolPage()){
+        activeRespireFeatures = await getActiveParisRespireFeaturesCached();
+        if(activeRespireFeatures.length) await ensureParisRespireZonesLayer();
+      }
+      const closedZoneFeatures = activeRespireFeatures;
+      const bestTitle = "Parking le plus proche";
+      const best = nearby[0];
+      const alts = nearby.slice(1);
+      const bestClosed = parkingInClosedZone(best, closedZoneFeatures);
+
+      clearMarkers();
+      userMarker = L.marker([origin.lat, origin.lon], {title: origin.label || "Destination", icon: originIcon}).addTo(map);
+      bestMarker = createParkingMarker(best.lat, best.lon, {
+        title: best.name,
+        icon: buildBestMapIcon(false, best.distance_m, best.name, bestClosed)
+      }).addTo(map);
+      registerMapMarker(best.id, bestMarker, "best", "P", best.distance_m, best.name, bestClosed);
+      altMarkers = alts.map((p, i) => {
+        const label = `P${i + 1}`;
+        const inClosed = parkingInClosedZone(p, closedZoneFeatures);
+        const m = createParkingMarker(p.lat, p.lon, {
+          title: p.name,
+          icon: altIcon(label, p.distance_m, p.name, inClosed)
+        }).addTo(map);
+        registerMapMarker(p.id, m, "alt", label, p.distance_m, p.name, inClosed);
+        return m;
+      });
+      fitMapToParkings([
+        [origin.lat, origin.lon],
+        ...nearby.map(p => [p.lat, p.lon])
+      ]);
+
+      const optionsById = { [best.id]: { title: bestTitle } };
+      alts.forEach((p, i) => { if(p.id) optionsById[p.id] = { title: `P${i + 1}` }; });
+      registerResultParkings(nearby, optionsById);
+      // Ne pas réécrire #results : HTML déjà présent (évite doublon / clignotement).
+      setMobileViewAfterSearch();
+      dismissAddressKeyboard();
+      document.body.classList.remove("address-entry-active");
+      updateSeoKnowMoreAccordion(origin);
+      if(!isActuZoneToolPage()) {
+        await refreshStandardParisRespireMapIfNeeded();
+        scheduleParisRespireZonesRetry();
+      }
+    }
+
     async function showNearestFromOrigin(origin){
       CURRENT_ORIGIN = origin;
       closeParkingDetail();
       setResultsLayoutActive(true);
+      clearSeoPrerenderFlag();
       const enriched = PARKINGS.map(p => ({
         ...p,
         distance_m: haversineMeters(origin.lat, origin.lon, p.lat, p.lon)

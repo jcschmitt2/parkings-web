@@ -2,7 +2,7 @@
 """Génère les pages SEO /parking-proche-* et met à jour sitemap.xml + index.html."""
 from __future__ import annotations
 
-import html
+import html as html_lib
 import json
 import re
 import sys
@@ -19,6 +19,11 @@ from construction_base.fab_actualites import (
     article_root_slugs,
     generate_article_pages,
     load_actualites,
+)
+from construction_base.seo_prerender_results import (
+    build_prerendered_parking_jsonld_html,
+    build_prerendered_results_inner_html,
+    should_prerender,
 )
 
 LANDINGS_JSON = DATA_DIR / "parkeco_seo_landings.json"
@@ -93,12 +98,12 @@ def build_seo_accordion_html(slug: str, accordions: dict[str, dict]) -> str:
     accordion = accordions.get(slug)
     if not accordion:
         return ""
-    title = html.escape(accordion.get("title", ""))
-    intro = html.escape(accordion.get("intro", ""))
+    title = html_lib.escape(accordion.get("title", ""))
+    intro = html_lib.escape(accordion.get("intro", ""))
     faq_parts: list[str] = []
     for item in accordion.get("faqs", []):
-        question = html.escape(item.get("question", ""))
-        answer = html.escape(item.get("answer", ""))
+        question = html_lib.escape(item.get("question", ""))
+        answer = html_lib.escape(item.get("answer", ""))
         if not question or not answer:
             continue
         faq_parts.append(
@@ -132,7 +137,7 @@ def build_zones_hub_link_items(landings: list[dict]) -> tuple[list[str], list[st
     for landing in landings:
         slug = landing["slug"]
         href = f"/{slug}/"
-        text = html.escape(landing_link_label(landing))
+        text = html_lib.escape(landing_link_label(landing))
         item = f'        <li><a href="{href}">{text}</a></li>'
         if landing.get("mode") == "arrondissement":
             arrondissements.append((landing.get("postcode", ""), item))
@@ -487,6 +492,95 @@ def inject_seo_results_heading(html: str, landing: dict) -> str:
     return html
 
 
+def inject_prerendered_seo_results(html: str, landing: dict) -> str:
+    """Remplace #results par les cartes HTML (opt-in Tour Eiffel uniquement)."""
+    if not should_prerender(landing):
+        return html
+    inner = build_prerendered_results_inner_html(landing)
+    if not inner:
+        return html
+    noscript = (
+        '<noscript><p class="muted" style="margin:8px 0 0;">'
+        "La carte interactive nécessite JavaScript ; la liste ci-dessus reste consultable."
+        "</p></noscript>"
+    )
+    replacement = (
+        f'<div class="list" id="results" data-seo-prerendered="1">{inner}{noscript}</div>'
+    )
+    marker = '<div class="list" id="results">'
+    start = html.find(marker)
+    if start < 0:
+        return html
+    depth = 0
+    i = start
+    while i < len(html):
+        if html.startswith("<div", i):
+            depth += 1
+            i = html.find(">", i) + 1
+            continue
+        if html.startswith("</div>", i):
+            depth -= 1
+            i += len("</div>")
+            if depth == 0:
+                html = html[:start] + replacement + html[i:]
+                break
+            continue
+        i += 1
+    else:
+        return html
+
+    query = html_lib.escape(landing.get("searchQuery") or "", quote=True)
+    if query:
+        html = re.sub(
+            r'(<input\s+id="address"[^>]*?)(/?>)',
+            lambda m: (
+                m.group(0)
+                if 'value="' in m.group(1)
+                else f'{m.group(1)} value="{query}"{m.group(2)}'
+            ),
+            html,
+            count=1,
+        )
+    if re.search(r"<body\b[^>]*>", html):
+        html = re.sub(
+            r"<body(\s[^>]*)?>",
+            lambda m: (
+                m.group(0)
+                if "has-results" in (m.group(0) or "")
+                else '<body class="has-results">'
+                if m.group(0) == "<body>"
+                else m.group(0).replace("<body", '<body class="has-results"', 1)
+            ),
+            html,
+            count=1,
+        )
+    # Même état mobile que setMobileViewAfterSearch() (carte active).
+    html = html.replace(
+        '<div class="app-main view-list">',
+        '<div class="app-main view-map">',
+        1,
+    )
+    return html
+
+
+def inject_prerendered_seo_jsonld(html: str, landing: dict) -> str:
+    """Injecte le JSON-LD ParkingFacility (opt-in Tour Eiffel uniquement)."""
+    block = build_prerendered_parking_jsonld_html(landing)
+    if not block:
+        return html
+    html = re.sub(
+        r'\n?\s*<script type="application/ld\+json" id="seo-parking-jsonld">.*?</script>\s*',
+        "\n",
+        html,
+        count=1,
+        flags=re.DOTALL,
+    )
+    insert_at = html.find("</head>")
+    if insert_at < 0:
+        return html
+    return html[:insert_at] + block + html[insert_at:]
+
+
 def demote_welcome_headings_for_seo(html: str) -> str:
     """Un seul H1 par landing SEO : les intros d'accueil passent en <p>."""
     pattern = r'<h1([^>]*id="copy-body"[^>]*)>(.*?)</h1>'
@@ -509,6 +603,8 @@ def build_landing_html(template: str, landing: dict, accordions: dict[str, dict]
     )
     html = replace_meta_property(html, "og:url", canonical)
     html = inject_seo_results_heading(html, landing)
+    html = inject_prerendered_seo_results(html, landing)
+    html = inject_prerendered_seo_jsonld(html, landing)
     html = demote_welcome_headings_for_seo(html)
     if SEO_KNOW_MORE_MARKER in html:
         accordion_html = build_seo_accordion_html(slug, accordions)
