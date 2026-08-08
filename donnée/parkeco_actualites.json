@@ -3,6 +3,31 @@
   "titre_section": "Actualité du stationnement à Paris",
   "articles": [
     {
+      "slug": "paris-respire-stationnement",
+      "layout": "app",
+      "type": "tool",
+      "titre": "Paris Respire : où se garer lorsque certaines rues sont fermées ?",
+      "date": "2026-07-01",
+      "articles_lies": [
+        "tour-de-france-2026-paris-circulation-stationnement",
+        "14-juillet-paris-circulation-stationnement"
+      ],
+      "resume": "Chaque week-end, Paris Respire réserve plusieurs quartiers de Paris aux piétons et aux mobilités douces. Vérifiez les restrictions de circulation et prévoyez votre stationnement avant de partir.",
+      "meta_description": "Chaque week-end, le dispositif Paris Respire transforme plusieurs quartiers de Paris en zones réservées aux piétons et aux mobilités douces. Avant de partir, il est utile de vérifier les restrictions de circulation et de prévoir votre stationnement.",
+      "contenu_html": "<p>Le dispositif Paris Respire, mis en place par la Ville de Paris, ferme temporairement à la circulation automobile plusieurs secteurs de la capitale afin de laisser davantage de place aux piétons, aux cyclistes et aux mobilités douces. Les périmètres concernés varient selon les quartiers et les dates.</p><p>Si vous devez vous rendre dans un secteur concerné, le plus simple est de stationner dans un parking public situé juste à l'extérieur de la zone fermée, puis de terminer votre trajet à pied. Vous éviterez ainsi les détours, les rues barrées et les difficultés d'accès.</p><p>Avant votre départ, consultez la carte officielle Paris Respire de la Ville de Paris pour connaître les zones et les horaires de fermeture : <a href=\"https://www.paris.fr/pages/paris-respire-2122\" target=\"_blank\" rel=\"noopener noreferrer\">Carte officielle Paris Respire – Ville de Paris</a>.</p><h2>Comment s'organiser ?</h2><ol><li>Vérifiez si votre destination est située dans une zone Paris Respire.</li><li>Consultez la carte officielle pour connaître les horaires et le périmètre des fermetures.</li><li>Choisissez un parking public à quelques minutes à pied de votre destination.</li><li>Évitez de compter sur le stationnement en voirie à l'intérieur de la zone, qui peut devenir inaccessible pendant les périodes de fermeture.</li></ol><p>À noter également les <a href=\"/actu/tour-de-france-2026-paris-circulation-stationnement/\">fermetures du 26 juillet pour le Tour de France</a>.</p>",
+      "encadres": [
+        {
+          "kind": "savoir",
+          "texte": "Les secteurs Paris Respire peuvent évoluer selon les week-ends, les événements et les décisions de la Ville de Paris. Pensez à consulter la carte officielle avant chaque déplacement."
+        },
+        {
+          "kind": "parker",
+          "texte": "ParkEco vous permet de trouver rapidement les parkings publics les plus proches des zones Paris Respire, avec leur distance à pied, leurs tarifs et les informations utiles pour choisir la meilleure solution."
+        }
+      ],
+      "seo_extra_html": "<p><a href=\"/routage/\">Itinéraire évitant les zones fermées</a></p><p><a href=\"/actu/tour-de-france-2026-paris-circulation-stationnement/\">Rues fermées le 26 juillet : Tour de France</a></p>"
+    },
+    {
       "slug": "ou-garer-suv-paris-moins-cher",
       "type": "guide",
       "titre": "Où garer un SUV à Paris sans payer 18 €/h ?",
@@ -30,6 +55,32 @@
         "label": "Trouver un parking public moins cher",
         "href": "/"
       }
+    },
+    {
+      "slug": "tour-de-france-paris-circulation-stationnement-carte",
+      "path": "/tour-de-france-paris-circulation-stationnement/carte",
+      "layout": "app",
+      "type": "tool",
+      "liste_accueil": false,
+      "titre": "Tour de France 2026 à Paris : trouver un parking près des zones fermées",
+      "date": "2026-07-18",
+      "resume": "Indiquez votre destination : ParkEco affiche les zones Tour de France et Paris Respire, et liste les parkings publics dans 1 km en signalant ceux situés en zone fermée.",
+      "contenu_html": "<p>Dimanche 26 juillet, l'arrivée du Tour de France ferme Montmartre, l'Étoile et les Champs-Élysées, en plus des zones Paris Respire du dimanche.</p><p>Sur cette page, la carte montre les périmètres concernés. Saisissez votre destination pour obtenir les parkings publics dans un rayon de 1 km : ceux situés dans une zone fermée sont clairement signalés.</p>",
+      "encadres": [
+        {
+          "kind": "retenir",
+          "texte": "Tous les parkings dans 1 km sont listés. Un message d'attention apparaît si le parking est dans une zone Tour de France ou Paris Respire."
+        },
+        {
+          "kind": "parker",
+          "texte": "Pour un trajet voiture qui contourne les fermetures, utilisez aussi le calculateur d'itinéraire ParkEco."
+        }
+      ],
+      "cta": {
+        "label": "Lire l'article complet sur le Tour de France",
+        "href": "/actu/tour-de-france-2026-paris-circulation-stationnement/"
+      },
+      "date_modified": "2026-07-18"
     },
     {
       "slug": "tour-de-france-2026-paris-circulation-stationnement",
@@ -72,30 +123,29 @@
       }
     },
     {
-      "slug": "tour-de-france-paris-circulation-stationnement-carte",
-      "path": "/tour-de-france-paris-circulation-stationnement/carte",
+      "slug": "14-juillet-paris-circulation-stationnement-carte",
+      "path": "/14-juillet-paris-circulation-stationnement/carte",
       "layout": "app",
       "type": "tool",
       "liste_accueil": false,
-      "titre": "Tour de France 2026 à Paris : trouver un parking près des zones fermées",
-      "date": "2026-07-18",
-      "resume": "Indiquez votre destination : ParkEco affiche les zones Tour de France et Paris Respire, et liste les parkings publics dans 1 km en signalant ceux situés en zone fermée.",
-      "contenu_html": "<p>Dimanche 26 juillet, l'arrivée du Tour de France ferme Montmartre, l'Étoile et les Champs-Élysées, en plus des zones Paris Respire du dimanche.</p><p>Sur cette page, la carte montre les périmètres concernés. Saisissez votre destination pour obtenir les parkings publics dans un rayon de 1 km : ceux situés dans une zone fermée sont clairement signalés.</p>",
+      "titre": "14 juillet 2026 à Paris : carte des zones fermées",
+      "date": "2026-07-12",
+      "resume": "Indiquez votre destination : ParkEco affiche le périmètre fermé à la circulation le 14 juillet et vous propose le parking public le plus proche hors zone.",
+      "contenu_html": "<p>Le mardi 14 juillet, le défilé militaire entraîne d'importantes restrictions de circulation et de stationnement à Paris. Si vous prévoyez de vous déplacer en voiture, il est fortement recommandé de préparer votre itinéraire avant votre départ.</p><p>Les principales restrictions concernent les secteurs des Champs-Élysées, de la place Charles-de-Gaulle, de la place de la Concorde, de l'avenue Foch ainsi qu'une partie des 7e, 8e, 16e et 17e arrondissements.</p><h2>Circulation interdite</h2><p>La circulation est interdite le mardi 14 juillet de 6 h à 15 h dans le périmètre de sécurité mis en place pour le défilé militaire.</p><h2>Stationnement interdit</h2><p>Le stationnement est interdit sur de nombreuses voies situées dans le périmètre du défilé, dès la veille sur certains secteurs. Les véhicules stationnés dans ces zones peuvent être verbalisés et mis en fourrière.</p><h2>Où stationner ?</h2><p>Choisissez un parking public à l'extérieur du périmètre de sécurité, puis terminez à pied ou en transports. ParkEco localise les parkings accessibles et compare leurs tarifs.</p>",
       "encadres": [
         {
           "kind": "retenir",
-          "texte": "Tous les parkings dans 1 km sont listés. Un message d'attention apparaît si le parking est dans une zone Tour de France ou Paris Respire."
+          "texte": "Le 14 juillet, circulation interdite de 6 h à 15 h dans le périmètre du défilé. Stationnement interdit dès la veille sur de nombreuses voies : véhicules laissés sur place = verbalisation et fourrière possibles."
         },
         {
           "kind": "parker",
-          "texte": "Pour un trajet voiture qui contourne les fermetures, utilisez aussi le calculateur d'itinéraire ParkEco."
+          "texte": "Sur cette page, la carte rouge indique le périmètre fermé à la circulation. Saisissez votre destination pour obtenir le parking public le plus proche hors zone."
         }
       ],
       "cta": {
-        "label": "Lire l'article complet sur le Tour de France",
-        "href": "/actu/tour-de-france-2026-paris-circulation-stationnement/"
-      },
-      "date_modified": "2026-07-18"
+        "label": "Lire l'article complet sur le 14 juillet",
+        "href": "/14-juillet-paris-circulation-stationnement/"
+      }
     },
     {
       "slug": "14-juillet-paris-circulation-stationnement",
@@ -131,31 +181,6 @@
       "date_modified": "2026-07-12"
     },
     {
-      "slug": "14-juillet-paris-circulation-stationnement-carte",
-      "path": "/14-juillet-paris-circulation-stationnement/carte",
-      "layout": "app",
-      "type": "tool",
-      "liste_accueil": false,
-      "titre": "14 juillet 2026 à Paris : carte des zones fermées",
-      "date": "2026-07-12",
-      "resume": "Indiquez votre destination : ParkEco affiche le périmètre fermé à la circulation le 14 juillet et vous propose le parking public le plus proche hors zone.",
-      "contenu_html": "<p>Le mardi 14 juillet, le défilé militaire entraîne d'importantes restrictions de circulation et de stationnement à Paris. Si vous prévoyez de vous déplacer en voiture, il est fortement recommandé de préparer votre itinéraire avant votre départ.</p><p>Les principales restrictions concernent les secteurs des Champs-Élysées, de la place Charles-de-Gaulle, de la place de la Concorde, de l'avenue Foch ainsi qu'une partie des 7e, 8e, 16e et 17e arrondissements.</p><h2>Circulation interdite</h2><p>La circulation est interdite le mardi 14 juillet de 6 h à 15 h dans le périmètre de sécurité mis en place pour le défilé militaire.</p><h2>Stationnement interdit</h2><p>Le stationnement est interdit sur de nombreuses voies situées dans le périmètre du défilé, dès la veille sur certains secteurs. Les véhicules stationnés dans ces zones peuvent être verbalisés et mis en fourrière.</p><h2>Où stationner ?</h2><p>Choisissez un parking public à l'extérieur du périmètre de sécurité, puis terminez à pied ou en transports. ParkEco localise les parkings accessibles et compare leurs tarifs.</p>",
-      "encadres": [
-        {
-          "kind": "retenir",
-          "texte": "Le 14 juillet, circulation interdite de 6 h à 15 h dans le périmètre du défilé. Stationnement interdit dès la veille sur de nombreuses voies : véhicules laissés sur place = verbalisation et fourrière possibles."
-        },
-        {
-          "kind": "parker",
-          "texte": "Sur cette page, la carte rouge indique le périmètre fermé à la circulation. Saisissez votre destination pour obtenir le parking public le plus proche hors zone."
-        }
-      ],
-      "cta": {
-        "label": "Lire l'article complet sur le 14 juillet",
-        "href": "/14-juillet-paris-circulation-stationnement/"
-      }
-    },
-    {
       "slug": "stationnement-pas-gratuit-aout-paris",
       "type": "news",
       "titre": "Stationnement à Paris : non, il n'est plus gratuit au mois d'août",
@@ -174,28 +199,6 @@
       ],
       "cta": {
         "label": "Trouver un parking public à Paris",
-        "href": "/"
-      }
-    },
-    {
-      "slug": "canicule-stationnement-gratuit-paris",
-      "type": "news",
-      "titre": "Canicule : stationnement résidentiel gratuit à Paris",
-      "date": "2026-06-27",
-      "resume": "Face à l'épisode de chaleur et au dépassement du seuil d'information concernant l'ozone, la Ville de Paris prolonge la gratuité du stationnement résidentiel.",
-      "contenu_html": "<p>Lors des épisodes de canicule, la qualité de l'air peut se dégrader, notamment avec une augmentation de la concentration d'ozone. À la suite des prévisions d'Airparif, la Ville de Paris peut décider de rendre le <strong>stationnement résidentiel gratuit</strong> afin d'inciter les habitants à limiter leurs déplacements en voiture.</p><p>Cette mesure s'inscrit dans les actions mises en place lors des épisodes de pollution et de fortes chaleurs. Selon l'évolution des conditions météorologiques, de nouvelles prolongations ou mesures de circulation peuvent être décidées.</p><p><em>Cette page est mise à jour à chaque nouvel épisode de canicule ou de pollution annoncé par la Ville de Paris.</em></p>",
-      "encadres": [
-        {
-          "kind": "retenir",
-          "texte": "En cas de canicule et de risque de pollution à l'ozone, la Ville de Paris peut rendre le stationnement résidentiel gratuit. Consultez les annonces officielles le jour même pour connaître les dates en vigueur."
-        },
-        {
-          "kind": "savoir",
-          "texte": "Les épisodes de canicule peuvent entraîner : la gratuité temporaire du stationnement résidentiel ; des recommandations pour limiter les déplacements ; des mesures liées à la qualité de l'air (ozone) annoncées par Airparif et les autorités."
-        }
-      ],
-      "cta": {
-        "label": "Trouver un parking proche",
         "href": "/"
       }
     },
@@ -222,29 +225,26 @@
       }
     },
     {
-      "slug": "paris-respire-stationnement",
-      "layout": "app",
-      "type": "tool",
-      "titre": "Paris Respire : où se garer lorsque certaines rues sont fermées ?",
-      "date": "2026-07-01",
-      "articles_lies": [
-        "tour-de-france-2026-paris-circulation-stationnement",
-        "14-juillet-paris-circulation-stationnement"
-      ],
-      "resume": "Chaque week-end, Paris Respire réserve plusieurs quartiers de Paris aux piétons et aux mobilités douces. Vérifiez les restrictions de circulation et prévoyez votre stationnement avant de partir.",
-      "meta_description": "Chaque week-end, le dispositif Paris Respire transforme plusieurs quartiers de Paris en zones réservées aux piétons et aux mobilités douces. Avant de partir, il est utile de vérifier les restrictions de circulation et de prévoir votre stationnement.",
-      "contenu_html": "<p>Le dispositif Paris Respire, mis en place par la Ville de Paris, ferme temporairement à la circulation automobile plusieurs secteurs de la capitale afin de laisser davantage de place aux piétons, aux cyclistes et aux mobilités douces. Les périmètres concernés varient selon les quartiers et les dates.</p><p>Si vous devez vous rendre dans un secteur concerné, le plus simple est de stationner dans un parking public situé juste à l'extérieur de la zone fermée, puis de terminer votre trajet à pied. Vous éviterez ainsi les détours, les rues barrées et les difficultés d'accès.</p><p>Avant votre départ, consultez la carte officielle Paris Respire de la Ville de Paris pour connaître les zones et les horaires de fermeture : <a href=\"https://www.paris.fr/pages/paris-respire-2122\" target=\"_blank\" rel=\"noopener noreferrer\">Carte officielle Paris Respire – Ville de Paris</a>.</p><h2>Comment s'organiser ?</h2><ol><li>Vérifiez si votre destination est située dans une zone Paris Respire.</li><li>Consultez la carte officielle pour connaître les horaires et le périmètre des fermetures.</li><li>Choisissez un parking public à quelques minutes à pied de votre destination.</li><li>Évitez de compter sur le stationnement en voirie à l'intérieur de la zone, qui peut devenir inaccessible pendant les périodes de fermeture.</li></ol><p>À noter également les <a href=\"/actu/tour-de-france-2026-paris-circulation-stationnement/\">fermetures du 26 juillet pour le Tour de France</a>.</p>",
+      "slug": "canicule-stationnement-gratuit-paris",
+      "type": "news",
+      "titre": "Canicule : stationnement résidentiel gratuit à Paris",
+      "date": "2026-06-27",
+      "resume": "Face à l'épisode de chaleur et au dépassement du seuil d'information concernant l'ozone, la Ville de Paris prolonge la gratuité du stationnement résidentiel.",
+      "contenu_html": "<p>Lors des épisodes de canicule, la qualité de l'air peut se dégrader, notamment avec une augmentation de la concentration d'ozone. À la suite des prévisions d'Airparif, la Ville de Paris peut décider de rendre le <strong>stationnement résidentiel gratuit</strong> afin d'inciter les habitants à limiter leurs déplacements en voiture.</p><p>Cette mesure s'inscrit dans les actions mises en place lors des épisodes de pollution et de fortes chaleurs. Selon l'évolution des conditions météorologiques, de nouvelles prolongations ou mesures de circulation peuvent être décidées.</p><p><em>Cette page est mise à jour à chaque nouvel épisode de canicule ou de pollution annoncé par la Ville de Paris.</em></p>",
       "encadres": [
         {
-          "kind": "savoir",
-          "texte": "Les secteurs Paris Respire peuvent évoluer selon les week-ends, les événements et les décisions de la Ville de Paris. Pensez à consulter la carte officielle avant chaque déplacement."
+          "kind": "retenir",
+          "texte": "En cas de canicule et de risque de pollution à l'ozone, la Ville de Paris peut rendre le stationnement résidentiel gratuit. Consultez les annonces officielles le jour même pour connaître les dates en vigueur."
         },
         {
-          "kind": "parker",
-          "texte": "ParkEco vous permet de trouver rapidement les parkings publics les plus proches des zones Paris Respire, avec leur distance à pied, leurs tarifs et les informations utiles pour choisir la meilleure solution."
+          "kind": "savoir",
+          "texte": "Les épisodes de canicule peuvent entraîner : la gratuité temporaire du stationnement résidentiel ; des recommandations pour limiter les déplacements ; des mesures liées à la qualité de l'air (ozone) annoncées par Airparif et les autorités."
         }
       ],
-      "seo_extra_html": "<p><a href=\"/routage/\">Itinéraire évitant les zones fermées</a></p><p><a href=\"/actu/tour-de-france-2026-paris-circulation-stationnement/\">Rues fermées le 26 juillet : Tour de France</a></p>"
+      "cta": {
+        "label": "Trouver un parking proche",
+        "href": "/"
+      }
     }
   ]
 }

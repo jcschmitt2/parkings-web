@@ -1943,7 +1943,7 @@
     let suggestTimer = null;
     let suggestRequestId = 0;
     let suppressSuggestionBlurHide = false;
-    const APP_VERSION = "18.67";
+    const APP_VERSION = "18.68";
     let bootGeneration = 0;
     const OVERVIEW_NAME_ZOOM = 14;
     const WELCOME_MAP_CENTER = [48.8566, 2.3522];
@@ -6360,17 +6360,11 @@
       };
       const NEWS_TYPE_ALIASES = { alerte: "news", tarifs: "guide" };
       const PARIS_RESPIRE_NEWS_SLUG = "paris-respire-stationnement";
-      const JUILLET_14_NEWS_SLUG = "14-juillet-paris-circulation-stationnement";
-      const TOUR_DE_FRANCE_NEWS_SLUG = "tour-de-france-2026-paris-circulation-stationnement";
       const NEWS_MONTHS = ["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];
       function newsListSortRank(article){
-        const rawType = article.type || "guide";
-        const type = NEWS_TYPE_ALIASES[rawType] || rawType;
-        if(article.slug === TOUR_DE_FRANCE_NEWS_SLUG) return -1;
-        if(article.slug === PARIS_RESPIRE_NEWS_SLUG) return 0;
-        if(article.slug === JUILLET_14_NEWS_SLUG) return 99;
-        if(type === "tool") return 1;
-        return 1;
+        // Paris Respire reste épinglé en tête ; le reste suit par date.
+        if(article.slug === PARIS_RESPIRE_NEWS_SLUG) return -1;
+        return 0;
       }
       function newsArticleHref(article){
         const custom = String(article.path || "").replace(/^\/+|\/+$/g, "");
