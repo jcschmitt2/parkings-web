@@ -2575,18 +2575,22 @@
     function applyIndexTextes(page){
       if(!page) return;
       const seo = page.seo || {};
-      if(seo.title) document.title = seo.title;
-      if(seo.description){
-        const desc = document.querySelector('meta[name="description"]');
-        if(desc) desc.setAttribute("content", seo.description);
-      }
-      if(seo.og_title){
-        const ogTitle = document.querySelector('meta[property="og:title"]');
-        if(ogTitle) ogTitle.setAttribute("content", seo.og_title);
-      }
-      if(seo.og_description){
-        const ogDesc = document.querySelector('meta[property="og:description"]');
-        if(ogDesc) ogDesc.setAttribute("content", seo.og_description);
+      const seoLanding = resolveSeoLandingConfig();
+      // Ne pas écraser title/meta des landings SEO (HTML déjà correct).
+      if(!seoLanding){
+        if(seo.title) document.title = seo.title;
+        if(seo.description){
+          const desc = document.querySelector('meta[name="description"]');
+          if(desc) desc.setAttribute("content", seo.description);
+        }
+        if(seo.og_title){
+          const ogTitle = document.querySelector('meta[property="og:title"]');
+          if(ogTitle) ogTitle.setAttribute("content", seo.og_title);
+        }
+        if(seo.og_description){
+          const ogDesc = document.querySelector('meta[property="og:description"]');
+          if(ogDesc) ogDesc.setAttribute("content", seo.og_description);
+        }
       }
       const mac = page.accueil?.mac || {};
       const iphone = page.accueil?.iphone || {};
@@ -5386,6 +5390,7 @@
       // Ne pas réécrire #results : HTML déjà présent (évite doublon / clignotement).
       setMobileViewAfterSearch();
       dismissAddressKeyboard();
+      document.body.classList.remove("address-entry-active");
       updateSeoKnowMoreAccordion(origin);
       if(!isActuZoneToolPage()) {
         await refreshStandardParisRespireMapIfNeeded();
