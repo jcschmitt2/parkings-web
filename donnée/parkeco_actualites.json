@@ -3,12 +3,77 @@
   "titre_section": "Actualité du stationnement à Paris",
   "articles": [
     {
+      "slug": "visite-pape-paris-circulation-stationnement",
+      "path": "/visite-pape-paris-circulation-stationnement",
+      "type": "news",
+      "titre": "Visite du pape à Paris : rues fermées et stationnement les 25 et 26 septembre",
+      "date": "2026-09-21",
+      "date_modified": "2026-09-21",
+      "meta_title": "Visite du pape à Paris : rues fermées les 25 et 26 septembre, où se garer | ParkEco",
+      "meta_description": "Léon XIV à Paris les 25 et 26 septembre : Notre-Dame, Concorde, UNESCO. Stationnement interdit, rues fermées. Trouvez un parking public hors des zones fermées.",
+      "resume": "Vendredi 25 et samedi 26 septembre, la visite du pape Léon XIV ferme Notre-Dame, Saint-Michel, l'UNESCO et la place de la Concorde. Garez-vous dans un parking public hors des périmètres fermés.",
+      "contenu_html": "<p>Le pape Léon XIV est à Paris le <strong>vendredi 25</strong> et le <strong>samedi 26 septembre 2026</strong> : UNESCO, déambulation en papamobile de Notre-Dame-des-Champs à Saint-Michel, vêpres à Notre-Dame, veillée au Stade de France (Saint-Denis, hors Paris), puis messe en plein air place de la Concorde. Des périmètres de protection ferment la circulation et le stationnement dans les 5e, 6e, 7e, 8e et 14e arrondissements, et sur l'île de la Cité. Pour trouver un <a href=\"/\">parking public à Paris</a> accessible ces deux jours, anticipez votre stationnement.</p><h2>Circulation interdite</h2><p>Les fermetures varient selon les sites. Source : <a href=\"https://www.prefecturedepolice.interieur.gouv.fr/actualites-et-presse/actualites/evenement/voyage-apostolique-les-perimetres\" target=\"_blank\" rel=\"noopener noreferrer\">cartes officielles de la Préfecture de police</a>.</p><p><strong>Vendredi 25 septembre</strong> — déambulation Notre-Dame-des-Champs → Saint-Michel (5e, 6e, 14e) : circulation interdite de <strong>6 h à 20 h</strong>, périmètre de 10 h à 20 h. Île de la Cité, une partie de l'île Saint-Louis et les quais (pont des Arts, Tournelle, Marie) : circulation de <strong>6 h à 20 h</strong> ; dès la veille 21 h sur le quai du Marché-Neuf, le pont Saint-Michel et le Petit-Pont. Abords de l'UNESCO (7e et rues limitrophes du 15e) : circulation notamment de <strong>13 h à 18 h</strong>, et de 14 h 30 à 16 h 30 sur un second périmètre (Invalides, Vauban, Ségur).</p><p><strong>Samedi 26 septembre</strong> — messe place de la Concorde : périmètre élargi du vendredi 22 h au samedi 20 h. Selon les zones (rose, verte, jaune sur la carte préfectorale), la circulation peut être interdite jusqu'à 20 h. Dans le 7e, de nombreux quais, ponts (Alma, Invalides, Alexandre III, Concorde) et rues entre Invalides et Seine sont fermés de <strong>8 h à 20 h</strong>. Le bas des Champs-Élysées et les abords de la Concorde sont déjà restreints depuis le 16 septembre, jusqu'au 28 septembre à midi ; le démontage se poursuit jusqu'au 10 octobre.</p><p><em>L'outil parking signale les parkings situés dans une zone fermée.</em></p><h2>Stationnement</h2><p>Le stationnement est interdit bien avant les cérémonies. Véhicules laissés sur place : verbalisation et fourrière possibles.</p><ul><li>Parcours papamobile et Notre-Dame : du <strong>jeudi 24 septembre à 11 h</strong> au vendredi 25 à 20 h ;</li><li>UNESCO / 7e : du jeudi 24 à 11 h (ou 22 h selon les voies) au vendredi 25 après-midi ;</li><li>Concorde et Champs-Élysées : du <strong>vendredi 25 septembre à 14 h</strong> au samedi 26 à 20 h.</li></ul><p>Les riverains et ayants droit accèdent aux périmètres sur présentation d'un justificatif. Plusieurs stations de métro ferment (dont Saint-Michel Notre-Dame, Cité, Concorde, Champs-Élysées – Clemenceau, Étoile le samedi ; Varenne, Ségur, École Militaire, Duroc le vendredi après-midi).</p><h2>Trouver un parking près des zones fermées</h2><p>Le périmètre de fermeture est très complexe. Grâce à l'IA, l'appli ParkEco vous guide pour trouver un parking hors des zones fermées.</p><div class=\"article-cta-stack\"><p class=\"article-cta\"><a href=\"/visite-pape-paris-circulation-stationnement/carte/\">Trouver un parking près des zones fermées</a></p></div>",
+      "cta_hauts": [
+        {
+          "label": "Trouver un parking près des zones fermées",
+          "href": "/visite-pape-paris-circulation-stationnement/carte/"
+        }
+      ],
+      "articles_lies": [
+        "tour-de-france-2026-paris-circulation-stationnement",
+        "14-juillet-paris-circulation-stationnement",
+        "paris-respire-stationnement"
+      ],
+      "encadres": [
+        {
+          "kind": "retenir",
+          "texte": "Vendredi 25 et samedi 26 septembre, visite du pape Léon XIV : Notre-Dame, Saint-Michel, UNESCO et Concorde. Stationnement interdit dès le 24 septembre sur plusieurs axes : verbalisation et fourrière possibles."
+        },
+        {
+          "kind": "parker",
+          "texte": "ParkEco localise les parkings près des zones fermées, signale ceux qui sont dedans et compare les tarifs. Choisissez le 24, 25 ou 26 septembre pour voir les périmètres du jour."
+        }
+      ],
+      "cta": {
+        "label": "Trouver un parking public à Paris",
+        "href": "/"
+      }
+    },
+    {
+      "slug": "visite-pape-paris-circulation-stationnement-carte",
+      "path": "/visite-pape-paris-circulation-stationnement/carte",
+      "layout": "app",
+      "type": "tool",
+      "liste_accueil": false,
+      "titre": "Visite du pape à Paris : trouver un parking hors des zones fermées",
+      "date": "2026-09-21",
+      "date_modified": "2026-09-21",
+      "resume": "Choisissez le jour (24, 25 ou 26 septembre) : ParkEco affiche les périmètres fermés et vous propose un parking public hors zone.",
+      "contenu_html": "<p>Le périmètre de fermeture est très complexe. Grâce à l'IA, l'appli ParkEco vous guide pour trouver un parking hors des zones fermées.</p><p>Choisissez le 24, 25 ou 26 septembre, indiquez votre destination : la carte montre les périmètres du jour et liste les parkings publics accessibles à proximité.</p>",
+      "encadres": [
+        {
+          "kind": "retenir",
+          "texte": "Les fermetures varient selon le jour : stationnement dès le 24 septembre, cérémonies le 25, messe à la Concorde le 26. Les véhicules dans le périmètre peuvent être mis en fourrière."
+        },
+        {
+          "kind": "parker",
+          "texte": "Sur cette page, choisissez la date puis saisissez votre destination pour obtenir un parking public hors zone fermée."
+        }
+      ],
+      "cta": {
+        "label": "Lire l'article complet sur la visite du pape",
+        "href": "/visite-pape-paris-circulation-stationnement/"
+      },
+      "seo_extra_html": "<p><a href=\"/visite-pape-paris-circulation-stationnement/\">Article : où se garer pendant la visite du pape</a></p>"
+    },
+    {
       "slug": "paris-respire-stationnement",
       "layout": "app",
       "type": "tool",
       "titre": "Paris Respire : où se garer lorsque certaines rues sont fermées ?",
       "date": "2026-07-01",
       "articles_lies": [
+        "visite-pape-paris-circulation-stationnement",
         "tour-de-france-2026-paris-circulation-stationnement",
         "14-juillet-paris-circulation-stationnement"
       ],
@@ -25,7 +90,7 @@
           "texte": "ParkEco vous permet de trouver rapidement les parkings publics les plus proches des zones Paris Respire, avec leur distance à pied, leurs tarifs et les informations utiles pour choisir la meilleure solution."
         }
       ],
-      "seo_extra_html": "<p><a href=\"/routage/\">Itinéraire évitant les zones fermées</a></p><p><a href=\"/actu/tour-de-france-2026-paris-circulation-stationnement/\">Rues fermées le 26 juillet : Tour de France</a></p>"
+      "seo_extra_html": "<p><a href=\"/routage/\">Itinéraire évitant les zones fermées</a></p><p><a href=\"/actu/tour-de-france-2026-paris-circulation-stationnement/\">Rues fermées le 26 juillet : Tour de France</a></p><p><a href=\"/visite-pape-paris-circulation-stationnement/\">Rues fermées les 25 et 26 septembre : visite du pape</a></p>"
     },
     {
       "slug": "ou-garer-suv-paris-moins-cher",
@@ -103,6 +168,7 @@
         }
       ],
       "articles_lies": [
+        "visite-pape-paris-circulation-stationnement",
         "14-juillet-paris-circulation-stationnement",
         "paris-respire-stationnement",
         "tarifs-stationnement-paris-2026"
@@ -160,6 +226,7 @@
         "href": "/14-juillet-paris-circulation-stationnement/carte/"
       },
       "articles_lies": [
+        "visite-pape-paris-circulation-stationnement",
         "tour-de-france-2026-paris-circulation-stationnement",
         "paris-respire-stationnement",
         "stationnement-pas-gratuit-aout-paris"

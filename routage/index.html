@@ -113,6 +113,16 @@
       border-color:#d97706;
       opacity:.85;
     }
+    .swatch.pape {
+      background:#dc2626;
+      border-color:#b91c1c;
+      opacity:.85;
+    }
+    .swatch.pape-park {
+      background:#fb923c;
+      border-color:#c2410c;
+      opacity:.85;
+    }
     .when-row {
       margin:0 0 10px;
       padding:8px 10px;
@@ -333,14 +343,14 @@
   <div class="shell">
     <div class="sheet">
       <h1>Itinéraire pour éviter les zones fermées</h1>
-      <p class="tool-intro">Calculez un trajet voiture qui contourne les zones fermées à Paris (Tour de France et Paris Respire), puis ouvrez-le dans Google Maps.</p>
+      <p class="tool-intro">Calculez un trajet voiture qui contourne les zones fermées à Paris, puis ouvrez-le dans Google Maps.</p>
       <div class="when-row">
         <label for="when">Quand</label>
         <div class="when-controls">
           <button type="button" class="chip" id="btn-now">Maintenant</button>
           <input id="when" type="datetime-local" step="900" value="2026-07-26T15:00" />
         </div>
-        <p class="when-hint" id="when-hint">Zones Tour de France + Paris Respire actives à cette heure.</p>
+        <p class="when-hint" id="when-hint">Zones fermées actives à cette heure.</p>
       </div>
       <div class="fields">
         <div class="field">
@@ -362,7 +372,7 @@
     <div class="map-wrap">
       <div id="map" aria-label="Carte des zones fermées et de l’itinéraire"></div>
       <div class="legend">
-        <span class="swatch" aria-hidden="true"></span>Tour
+        <span class="swatch pape" aria-hidden="true"></span>Pape
         · <span class="swatch respire" aria-hidden="true"></span>Respire
         · <span class="swatch route" aria-hidden="true"></span>Itinéraire
       </div>
@@ -373,8 +383,9 @@
   (function(){
     const TDF_ZONES_URL = encodeURI("donnée/tour_de_france_2026_zones.geojson");
     const RESPIRE_ZONES_URL = encodeURI("donnée/paris_respire_secteurs.geojson");
+    const PAPE_ZONES_URL = encodeURI("donnée/visite_pape_2026_zones.geojson");
     const ROUTE_API = "/api/route";
-    const APP_VERSION = "3.13-dissolve-avoid";
+    const APP_VERSION = "3.15-avoid-through";
     const MAX_MAPS_WAYPOINTS = 4;
     const PARIS_RESPIRE_BUFFER_MIN = 60;
     /** Dimanche d'arrivée — 15 h = max de zones Tour + Respire actives */
@@ -385,6 +396,7 @@
     let map, zonesLayer, routeLayer;
     let zonesTdf = null;
     let zonesRespire = null;
+    let zonesPape = null;
     let originPoint = null;
     let destPoint = null;
     let lastCoords = null;
@@ -495,12 +507,16 @@
       return d || getEventDefaultWhen();
     }
 
-    function formatWhenHint(date, nTdf, nRespire){
+    function formatWhenHint(date, nTdf, nRespire, nPape){
       const p = parisDateParts(date);
       const label = pad2(p.day) + "/" + pad2(p.month) + "/" + p.year +
         " " + pad2(p.hour) + "h" + pad2(p.minute);
       const mode = useNow ? "Maintenant" : "Heure choisie";
-      return mode + " · " + label + " · " + nTdf + " zone(s) Tour · " + nRespire + " Paris Respire";
+      const bits = [];
+      if(nPape) bits.push(nPape + " zone(s) visite du pape");
+      if(nTdf) bits.push(nTdf + " zone(s) Tour");
+      bits.push(nRespire + " Paris Respire");
+      return mode + " · " + label + " · " + bits.join(" · ");
     }
 
     function parisWeekdayOn(year, month, day){
@@ -639,6 +655,54 @@
       return t >= start.getTime() && t <= end.getTime();
     }
 
+    function isPapeCirculationActive(props, when){
+      if(!props || props.type === "stationnement_interdit") return false;
+      const start = parseQuandString(props.circulation_start || props.active_start);
+      const end = parseQuandString(props.circulation_end || props.active_end);
+      if(!start || !end) return false;
+      const t = when.getTime();
+      return t >= start.getTime() && t <= end.getTime();
+    }
+
+    function layerKindLabel(layer){
+      if(layer === "paris_respire") return "Paris Respire";
+      if(layer === "visite_pape") return "Visite du pape";
+      return "Tour de France";
+    }
+
+    function syncEventChrome(nTdf, nPape, nRes){
+      const intro = document.querySelector(".tool-intro");
+      const back = document.querySelector(".back-link");
+      const legend = document.querySelector(".legend");
+      if(nPape && !nTdf){
+        if(intro) intro.textContent = "Calculez un trajet voiture qui contourne les périmètres fermés de la visite du pape, puis ouvrez-le dans Google Maps.";
+        if(back){
+          back.href = "/visite-pape-paris-circulation-stationnement/";
+          back.textContent = "Article visite du pape";
+        }
+      } else if(nTdf){
+        if(intro) intro.textContent = "Calculez un trajet voiture qui contourne les zones fermées à Paris (Tour de France et Paris Respire), puis ouvrez-le dans Google Maps.";
+        if(back){
+          back.href = "/actu/tour-de-france-2026-paris-circulation-stationnement/";
+          back.textContent = "Article Tour de France";
+        }
+      } else {
+        if(intro) intro.textContent = "Calculez un trajet voiture qui contourne les zones fermées à Paris, puis ouvrez-le dans Google Maps.";
+        if(back){
+          back.href = "/";
+          back.textContent = "Accueil ParkEco";
+        }
+      }
+      if(legend){
+        const parts = [];
+        if(nTdf) parts.push('<span class="swatch" aria-hidden="true"></span>Tour');
+        if(nPape) parts.push('<span class="swatch pape" aria-hidden="true"></span>Pape');
+        if(nRes) parts.push('<span class="swatch respire" aria-hidden="true"></span>Respire');
+        parts.push('<span class="swatch route" aria-hidden="true"></span>Itinéraire');
+        legend.innerHTML = parts.join(" · ");
+      }
+    }
+
     function getActiveZonesCollection(when){
       const features = [];
       for(const f of (zonesTdf && zonesTdf.features) || []){
@@ -646,6 +710,14 @@
           features.push({
             ...f,
             properties: { ...(f.properties || {}), _layer: "tour_de_france" }
+          });
+        }
+      }
+      for(const f of (zonesPape && zonesPape.features) || []){
+        if(isTourZoneActive(f.properties || {}, when)){
+          features.push({
+            ...f,
+            properties: { ...(f.properties || {}), _layer: "visite_pape" }
           });
         }
       }
@@ -663,6 +735,18 @@
         }
       }
       return { type: "FeatureCollection", features };
+    }
+
+    function getAvoidZonesCollection(when){
+      const active = getActiveZonesCollection(when);
+      return {
+        type: "FeatureCollection",
+        features: (active.features || []).filter(f => {
+          const p = f.properties || {};
+          if(p._layer === "visite_pape") return isPapeCirculationActive(p, when);
+          return true;
+        })
+      };
     }
 
     function applyEventDefaultWhen(){
@@ -686,7 +770,9 @@
       const active = getActiveZonesCollection(when);
       const nTdf = active.features.filter(f => f.properties._layer === "tour_de_france").length;
       const nRes = active.features.filter(f => f.properties._layer === "paris_respire").length;
-      whenHint.textContent = formatWhenHint(when, nTdf, nRes);
+      const nPape = active.features.filter(f => f.properties._layer === "visite_pape").length;
+      whenHint.textContent = formatWhenHint(when, nTdf, nRes, nPape);
+      syncEventChrome(nTdf, nPape, nRes);
       paintZones(active);
       try {
         const url = new URL(location.href);
@@ -726,8 +812,8 @@
     }
 
     function pointInZones(lat, lon, when){
-      const active = getActiveZonesCollection(when || getSelectedWhen());
-      for(const f of active.features || []){
+      const avoid = getAvoidZonesCollection(when || getSelectedWhen());
+      for(const f of avoid.features || []){
         const g = f.geometry;
         if(!g) continue;
         if(g.type === "Polygon"){
@@ -773,6 +859,7 @@
         if(idx <= 0 || idx >= pts.length - 1) return;
         const dist = cum[idx];
         if(picked.some(j => Math.abs(cum[j] - dist) < MIN_GAP_M)) return;
+        if(pointInZones(pts[idx].lat, pts[idx].lon)) return;
         picked.push(idx);
       }
 
@@ -849,14 +936,17 @@
     }
 
     async function loadZones(){
-      const [tdfRes, respRes] = await Promise.all([
+      const [tdfRes, respRes, papeRes] = await Promise.all([
         fetch(TDF_ZONES_URL + "?v=" + APP_VERSION),
-        fetch(RESPIRE_ZONES_URL + "?v=" + APP_VERSION)
+        fetch(RESPIRE_ZONES_URL + "?v=" + APP_VERSION),
+        fetch(PAPE_ZONES_URL + "?v=" + APP_VERSION)
       ]);
       if(!tdfRes.ok) throw new Error("Zones Tour HTTP " + tdfRes.status);
       if(!respRes.ok) throw new Error("Zones Respire HTTP " + respRes.status);
+      if(!papeRes.ok) throw new Error("Zones visite du pape HTTP " + papeRes.status);
       zonesTdf = await tdfRes.json();
       zonesRespire = await respRes.json();
+      zonesPape = await papeRes.json();
       return true;
     }
 
@@ -866,13 +956,33 @@
       if(zonesLayer) map.removeLayer(zonesLayer);
       zonesLayer = L.geoJSON(active, {
         style(feature){
-          const layer = (feature.properties || {})._layer;
+          const p = feature.properties || {};
+          const layer = p._layer;
           if(layer === "paris_respire"){
             return {
               color: "#d97706",
               weight: 2,
               opacity: 0.95,
               fillColor: "#f59e0b",
+              fillOpacity: 0.28
+            };
+          }
+          if(layer === "visite_pape" && p.type === "stationnement_interdit"){
+            return {
+              color: "#c2410c",
+              weight: 2,
+              opacity: 0.95,
+              fillColor: "#fb923c",
+              fillOpacity: 0.22,
+              dashArray: "6 4"
+            };
+          }
+          if(layer === "visite_pape"){
+            return {
+              color: "#b91c1c",
+              weight: 2,
+              opacity: 0.95,
+              fillColor: "#dc2626",
               fillOpacity: 0.28
             };
           }
@@ -886,7 +996,7 @@
         },
         onEachFeature(feature, layer){
           const p = feature.properties || {};
-          const kind = p._layer === "paris_respire" ? "Paris Respire" : "Tour de France";
+          const kind = layerKindLabel(p._layer);
           const lines = [
             "<strong>" + escapeHtml(p.nom || "Zone fermée") + "</strong>",
             "<em>" + kind + "</em>"
@@ -927,7 +1037,11 @@
       { keys: ["chatelet"], label: "Place du Châtelet, Paris", lat: 48.8580, lon: 2.3470 },
       { keys: ["tour eiffel", "eiffel"], label: "Tour Eiffel, Paris", lat: 48.8584, lon: 2.2945 },
       { keys: ["opera"], label: "Opéra Garnier, Paris", lat: 48.8720, lon: 2.3316 },
-      { keys: ["louvre"], label: "Musée du Louvre, Paris", lat: 48.8606, lon: 2.3376 }
+      { keys: ["louvre"], label: "Musée du Louvre, Paris", lat: 48.8606, lon: 2.3376 },
+      { keys: ["concorde"], label: "Place de la Concorde, Paris", lat: 48.8656, lon: 2.3211 },
+      { keys: ["notre dame", "notre-dame"], label: "Notre-Dame de Paris", lat: 48.8530, lon: 2.3499 },
+      { keys: ["unesco"], label: "UNESCO, Paris", lat: 48.8493, lon: 2.3064 },
+      { keys: ["saint michel", "saint-michel"], label: "Place Saint-Michel, Paris", lat: 48.8534, lon: 2.3440 },
     ];
 
     function normalizePlace(text){
@@ -1176,23 +1290,120 @@
       return featuresToMultiPolygon(avoid);
     }
 
+    function closeLonLatRing(ring){
+      if(!ring || ring.length < 3) return ring || [];
+      const a = ring[0];
+      const b = ring[ring.length - 1];
+      if(a[0] === b[0] && a[1] === b[1]) return ring.slice();
+      return ring.concat([ring[0]]);
+    }
+
+    function ringSignedAreaLonLat(ring){
+      const closed = closeLonLatRing(ring);
+      let s = 0;
+      for(let i = 0; i < closed.length - 1; i++){
+        s += closed[i][0] * closed[i + 1][1] - closed[i + 1][0] * closed[i][1];
+      }
+      return s / 2;
+    }
+
+    function bufferRingMeters(ring, meters){
+      const closed = closeLonLatRing(ring);
+      if(closed.length < 4 || !meters) return closed;
+      const lat0 = closed.reduce((s, p) => s + p[1], 0) / closed.length;
+      const mLat = 111320;
+      const mLon = 111320 * Math.cos(lat0 * Math.PI / 180);
+      const xy = closed.map(([lon, lat]) => [lon * mLon, lat * mLat]);
+      const ccw = ringSignedAreaLonLat(closed) > 0;
+      const n = xy.length - 1;
+      const out = [];
+      for(let i = 0; i < n; i++){
+        const prev = xy[(i - 1 + n) % n];
+        const cur = xy[i];
+        const next = xy[(i + 1) % n];
+        const e1x = cur[0] - prev[0], e1y = cur[1] - prev[1];
+        const e2x = next[0] - cur[0], e2y = next[1] - cur[1];
+        const l1 = Math.hypot(e1x, e1y) || 1;
+        const l2 = Math.hypot(e2x, e2y) || 1;
+        let n1x, n1y, n2x, n2y;
+        if(ccw){
+          n1x = e1y / l1; n1y = -e1x / l1;
+          n2x = e2y / l2; n2y = -e2x / l2;
+        } else {
+          n1x = -e1y / l1; n1y = e1x / l1;
+          n2x = -e2y / l2; n2y = e2x / l2;
+        }
+        const nx = n1x + n2x, ny = n1y + n2y;
+        const nl = Math.hypot(nx, ny) || 1;
+        out.push([cur[0] + nx / nl * meters, cur[1] + ny / nl * meters]);
+      }
+      out.push(out[0]);
+      return out.map(([x, y]) => [x / mLon, y / mLat]);
+    }
+
+    function bufferAvoidMultiPolygon(mp, meters){
+      if(!mp || !meters) return mp;
+      return {
+        type: "MultiPolygon",
+        coordinates: (mp.coordinates || []).map(poly => {
+          if(!poly || !poly[0]) return poly;
+          return [bufferRingMeters(poly[0], meters)].concat(poly.slice(1));
+        })
+      };
+    }
+
+    function featureContainsLatLon(feature, lat, lon){
+      const g = feature && feature.geometry;
+      if(!g) return false;
+      if(g.type === "Polygon") return pointInRing(lat, lon, g.coordinates[0]);
+      if(g.type === "MultiPolygon"){
+        return (g.coordinates || []).some(poly => poly && poly[0] && pointInRing(lat, lon, poly[0]));
+      }
+      return false;
+    }
+
+    function routeHitsAvoid(coordsLonLat, features){
+      const list = features || [];
+      if(!coordsLonLat || coordsLonLat.length < 2 || !list.length) return false;
+      const sample = [];
+      for(let i = 0; i < coordsLonLat.length - 1; i++){
+        const a = coordsLonLat[i];
+        const b = coordsLonLat[i + 1];
+        sample.push(a);
+        const dist = haversineM({ lon: a[0], lat: a[1] }, { lon: b[0], lat: b[1] });
+        const steps = Math.min(8, Math.max(1, Math.ceil(dist / 40)));
+        for(let s = 1; s < steps; s++){
+          const t = s / steps;
+          sample.push([a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]);
+        }
+      }
+      sample.push(coordsLonLat[coordsLonLat.length - 1]);
+      for(const c of sample){
+        const lon = c[0], lat = c[1];
+        for(const f of list){
+          if(featureContainsLatLon(f, lat, lon)) return true;
+        }
+      }
+      return false;
+    }
+
     function getOrsClientKey(){
       const k = (typeof window.PARKECO_ORS_KEY === "string") ? window.PARKECO_ORS_KEY.trim() : "";
       return k || "";
     }
 
-    async function fetchRouteViaProxy(origin, destination, avoid){
+    async function fetchRouteViaProxy(origin, destination, avoid, bufferMeters){
       const res = await fetch(ROUTE_API, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ origin, destination, avoid })
+        body: JSON.stringify({ origin, destination, avoid, bufferMeters })
       });
       let data = {};
       try { data = await res.json(); } catch(_){ data = {}; }
       return { res, data };
     }
 
-    async function fetchRouteDirectOrs(origin, destination, avoid){
+    async function fetchRouteDirectOrs(origin, destination, avoid, bufferMeters){
       const key = getOrsClientKey();
       if(!key){
         throw new Error(
@@ -1205,10 +1416,13 @@
           [origin.lon, origin.lat],
           [destination.lon, destination.lat]
         ],
-        // Aide ORS à snaper hors d'une zone avoid trop proche (défaut 350 m trop strict)
-        radiuses: [1200, 1200]
+        // Snap proche du réseau, sans sauter dans une zone fermée (1200 m était trop large)
+        radiuses: [450, 450]
       };
-      const avoidPolygons = dissolveAvoidToMultiPolygon(avoid);
+      const avoidPolygons = bufferAvoidMultiPolygon(
+        dissolveAvoidToMultiPolygon(avoid),
+        bufferMeters || 0
+      );
       if(avoidPolygons) payload.options = { avoid_polygons: avoidPolygons };
 
       const orsRes = await fetch(ORS_DIRECT_URL, {
@@ -1241,20 +1455,20 @@
     }
 
     /** Local : /api/route (Python). Prod GitHub Pages : ORS direct (POST interdit → 405). */
-    async function fetchRoute(origin, destination, avoid){
+    async function fetchRoute(origin, destination, avoid, bufferMeters){
       try {
-        const { res, data } = await fetchRouteViaProxy(origin, destination, avoid);
+        const { res, data } = await fetchRouteViaProxy(origin, destination, avoid, bufferMeters);
         if(res.ok && data.coordinates) return data;
         // GitHub Pages / hébergeur statique
         if(res.status === 405 || res.status === 404 || res.status === 501){
-          return fetchRouteDirectOrs(origin, destination, avoid);
+          return fetchRouteDirectOrs(origin, destination, avoid, bufferMeters);
         }
         throw new Error(data.error || ("Erreur " + res.status));
       } catch(err){
         // Proxy absent / réseau : tenter ORS direct
         if(getOrsClientKey()){
           try {
-            return await fetchRouteDirectOrs(origin, destination, avoid);
+            return await fetchRouteDirectOrs(origin, destination, avoid, bufferMeters);
           } catch(err2){
             throw err2;
           }
@@ -1287,55 +1501,59 @@
           return;
         }
 
-        const active = getActiveZonesCollection(when);
-        if(!active.features.length){
-          setStatus("warn", "Aucune zone fermée à cette heure — l’itinéraire direct sera calculé.");
+        const avoid = getAvoidZonesCollection(when);
+        if(!avoid.features.length){
+          setStatus("warn", "Aucune zone de circulation fermée à cette heure — l’itinéraire direct sera calculé.");
         }
 
         setStatus("ok", "Calcul…");
 
-        let data;
-        try {
-          data = await fetchRoute(
-            { lat: origin.lat, lon: origin.lon },
-            { lat: dest.lat, lon: dest.lon },
-            active.features.length ? active : null
-          );
-        } catch(err){
-          const msg = String(err && err.message || err || "");
-          const avoidHardFail = /routable point|unable to find a route|no route|itinéraire vide/i.test(msg);
-          if(avoidHardFail && active.features.length){
-            // 2e essai : uniquement les zones Tour (souvent plus compactes que Respire)
-            const tdfOnly = {
-              type: "FeatureCollection",
-              features: active.features.filter(f => f.properties && f.properties._layer === "tour_de_france")
-            };
-            if(tdfOnly.features.length && tdfOnly.features.length < active.features.length){
-              setStatus("ok", "Nouveau calcul (contournement simplifié)…");
-              try {
-                data = await fetchRoute(
-                  { lat: origin.lat, lon: origin.lon },
-                  { lat: dest.lat, lon: dest.lon },
-                  tdfOnly
-                );
-              } catch(_){
-                throw err;
+        const o = { lat: origin.lat, lon: origin.lon };
+        const dpt = { lat: dest.lat, lon: dest.lon };
+        const avoidFc = avoid.features.length ? avoid : null;
+        const buffers = avoidFc ? [160, 280, 420] : [0];
+        let data = null;
+        let lastErr = null;
+        let stillThrough = false;
+
+        for(let i = 0; i < buffers.length; i++){
+          if(i > 0) setStatus("ok", "Nouveau calcul pour rester hors des zones fermées…");
+          try {
+            data = await fetchRoute(o, dpt, avoidFc, buffers[i]);
+            stillThrough = !!(avoidFc && routeHitsAvoid(data.coordinates, avoidFc.features));
+            if(!stillThrough) break;
+          } catch(err){
+            lastErr = err;
+            const msg = String(err && err.message || err || "");
+            const avoidHardFail = /routable point|unable to find a route|no route|itinéraire vide/i.test(msg);
+            if(avoidHardFail && avoidFc){
+              const eventOnly = {
+                type: "FeatureCollection",
+                features: avoid.features.filter(f => f.properties && f.properties._layer !== "paris_respire")
+              };
+              if(eventOnly.features.length && eventOnly.features.length < avoid.features.length){
+                try {
+                  data = await fetchRoute(o, dpt, eventOnly, buffers[i]);
+                  stillThrough = routeHitsAvoid(data.coordinates, avoidFc.features);
+                  if(!stillThrough) break;
+                } catch(_){ /* garder lastErr */ }
               }
-            } else {
-              throw err;
             }
-          } else {
-            throw err;
           }
         }
 
-        if(!data.coordinates || data.coordinates.length < 2){
+        if(!data || !data.coordinates || data.coordinates.length < 2){
+          if(lastErr) throw lastErr;
           setStatus("err", "Aucun itinéraire trouvé. Essayez des points un peu plus éloignés des zones colorées sur la carte.");
           return;
         }
 
         drawRoute(data.coordinates, origin, dest);
-        clearStatus();
+        if(stillThrough){
+          setStatus("warn", "L’itinéraire frôle encore une zone fermée. Vérifiez le tracé avant de partir.");
+        } else {
+          clearStatus();
+        }
       } catch(err){
         const msg = String(err && err.message || err || "");
         if(/routable point/i.test(msg)){
@@ -1377,7 +1595,7 @@
 
     initMap();
 
-    // ?quand= (ex. article TdF → 26/07) : toujours respecté (Mac + iPhone).
+    // ?quand= (article TdF ou visite du pape) : toujours respecté (Mac + iPhone).
     // Sans ?quand= : iPhone = maintenant ; Mac = défaut dimanche 26 à 15:00.
     const params = new URLSearchParams(location.search);
     const quandParam = params.get("quand");

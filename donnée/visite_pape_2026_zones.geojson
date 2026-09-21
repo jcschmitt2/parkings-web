@@ -1,0 +1,465 @@
+{
+  "type": "FeatureCollection",
+  "name": "visite_pape_2026_paris",
+  "metadata": {
+    "source": "Préfecture de police — Voyage apostolique Léon XIV, 25-26 septembre 2026. Polygones approximatifs ParkEco des périmètres officiels.",
+    "source_url": "https://www.prefecturedepolice.interieur.gouv.fr/actualites-et-presse/actualites/evenement/voyage-apostolique-les-perimetres",
+    "event_days": [
+      "2026-09-24",
+      "2026-09-25",
+      "2026-09-26"
+    ],
+    "official_info": "https://www.prefecturedepolice.interieur.gouv.fr/actualites-et-presse/actualites/evenement/voyage-apostolique-les-perimetres"
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "source": "visite_pape",
+        "type": "circulation_interdite",
+        "exclure_recherche": true,
+        "zone_id": "papamobile_nd_des_champs_saint_michel",
+        "nom": "Déambulation papamobile — Notre-Dame-des-Champs → Saint-Michel",
+        "horaires": "Stationnement : 24 sept. 11 h – 25 sept. 20 h. Circulation : 25 sept. 6 h – 20 h.",
+        "description": "Périmètre de la déambulation (5e, 6e, 14e). Accès riverains sur justificatif.",
+        "jours": [
+          "2026-09-24",
+          "2026-09-25"
+        ],
+        "tz": "Europe/Paris",
+        "active_start": "2026-09-24T00:00",
+        "active_end": "2026-09-25T23:59",
+        "circulation_start": "2026-09-25T06:00",
+        "circulation_end": "2026-09-25T20:00"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              2.3275859622368724,
+              48.84458652169461
+            ],
+            [
+              2.327414037763128,
+              48.842613478305395
+            ],
+            [
+              2.332714037763128,
+              48.8424134783054
+            ],
+            [
+              2.3325306328185045,
+              48.84242788757435
+            ],
+            [
+              2.3375306328185044,
+              48.84182788757434
+            ],
+            [
+              2.339187197128677,
+              48.84242175221217
+            ],
+            [
+              2.340887197128677,
+              48.84512175221217
+            ],
+            [
+              2.340996059679613,
+              48.8454154924725
+            ],
+            [
+              2.3412960596796126,
+              48.847715492472496
+            ],
+            [
+              2.3408527630341873,
+              48.84709540440838
+            ],
+            [
+              2.3442527630341874,
+              48.84929540440838
+            ],
+            [
+              2.3446838776288437,
+              48.84984879637065
+            ],
+            [
+              2.3454838776288436,
+              48.85324879637065
+            ],
+            [
+              2.3425161223711557,
+              48.853551203629344
+            ],
+            [
+              2.341716122371156,
+              48.850151203629345
+            ],
+            [
+              2.3421472369658125,
+              48.85070459559162
+            ],
+            [
+              2.3387472369658124,
+              48.84850459559162
+            ],
+            [
+              2.338303940320387,
+              48.8478845075275
+            ],
+            [
+              2.3380039403203874,
+              48.84558450752751
+            ],
+            [
+              2.338112802871324,
+              48.84587824778784
+            ],
+            [
+              2.336412802871324,
+              48.843178247787826
+            ],
+            [
+              2.3380693671814963,
+              48.84377211242565
+            ],
+            [
+              2.3330693671814964,
+              48.84437211242566
+            ],
+            [
+              2.3328859622368725,
+              48.84438652169461
+            ],
+            [
+              2.3275859622368724,
+              48.84458652169461
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "source": "visite_pape",
+        "type": "circulation_interdite",
+        "exclure_recherche": true,
+        "zone_id": "notre_dame_ile_de_la_cite",
+        "nom": "Notre-Dame — île de la Cité et quais",
+        "horaires": "Stationnement : 24 sept. 11 h – 25 sept. 20 h. Circulation : 25 sept. 6 h – 20 h.",
+        "description": "Île de la Cité, une partie de l'île Saint-Louis et les quais jusqu'aux ponts des Arts, de la Tournelle et Marie.",
+        "jours": [
+          "2026-09-24",
+          "2026-09-25"
+        ],
+        "tz": "Europe/Paris",
+        "active_start": "2026-09-24T00:00",
+        "active_end": "2026-09-25T23:59",
+        "circulation_start": "2026-09-25T06:00",
+        "circulation_end": "2026-09-25T20:00"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              2.3372,
+              48.8586
+            ],
+            [
+              2.3388,
+              48.8566
+            ],
+            [
+              2.3408,
+              48.8546
+            ],
+            [
+              2.3442,
+              48.8528
+            ],
+            [
+              2.3478,
+              48.8504
+            ],
+            [
+              2.3548,
+              48.8498
+            ],
+            [
+              2.3586,
+              48.8515
+            ],
+            [
+              2.3574,
+              48.8528
+            ],
+            [
+              2.3518,
+              48.8554
+            ],
+            [
+              2.3465,
+              48.8578
+            ],
+            [
+              2.3418,
+              48.8592
+            ],
+            [
+              2.3372,
+              48.8586
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "source": "visite_pape",
+        "type": "circulation_interdite",
+        "exclure_recherche": true,
+        "zone_id": "unesco_fontenoy_segur",
+        "nom": "UNESCO — Fontenoy / Suffren / Ségur",
+        "horaires": "Stationnement dès le 24 sept. 11 h ou 22 h. Circulation le 25 sept. 13 h – 18 h.",
+        "description": "Abords de l'UNESCO dans le 7e et rues limitrophes du 15e.",
+        "jours": [
+          "2026-09-24",
+          "2026-09-25"
+        ],
+        "tz": "Europe/Paris",
+        "active_start": "2026-09-24T00:00",
+        "active_end": "2026-09-25T23:59",
+        "circulation_start": "2026-09-25T13:00",
+        "circulation_end": "2026-09-25T18:00"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              2.3004,
+              48.8522
+            ],
+            [
+              2.301,
+              48.8472
+            ],
+            [
+              2.3062,
+              48.8466
+            ],
+            [
+              2.3136,
+              48.8474
+            ],
+            [
+              2.3142,
+              48.8506
+            ],
+            [
+              2.3098,
+              48.8526
+            ],
+            [
+              2.3004,
+              48.8522
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "source": "visite_pape",
+        "type": "circulation_interdite",
+        "exclure_recherche": true,
+        "zone_id": "unesco_invalides_vauban",
+        "nom": "UNESCO — Invalides / Vauban / Ségur",
+        "horaires": "Stationnement : 24 sept. 11 h – 25 sept. 16 h 30. Circulation : 25 sept. 14 h 30 – 16 h 30.",
+        "description": "Second périmètre autour des Invalides, de la place Vauban et de l'avenue de Ségur.",
+        "jours": [
+          "2026-09-24",
+          "2026-09-25"
+        ],
+        "tz": "Europe/Paris",
+        "active_start": "2026-09-24T00:00",
+        "active_end": "2026-09-25T23:59",
+        "circulation_start": "2026-09-25T14:30",
+        "circulation_end": "2026-09-25T16:30"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              2.3118,
+              48.8582
+            ],
+            [
+              2.3126,
+              48.8534
+            ],
+            [
+              2.3172,
+              48.8516
+            ],
+            [
+              2.3206,
+              48.8532
+            ],
+            [
+              2.3184,
+              48.8568
+            ],
+            [
+              2.3118,
+              48.8582
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "source": "visite_pape",
+        "type": "stationnement_interdit",
+        "exclure_recherche": true,
+        "zone_id": "concorde_montage",
+        "nom": "Place de la Concorde — montage de la scène",
+        "horaires": "Restrictions dès le 16 septembre ; bas des Champs-Élysées et Concorde encore fermés le 24 septembre.",
+        "description": "Place de la Concorde, rue Royale et bas de l'avenue des Champs-Élysées (Clemenceau → Concorde).",
+        "jours": [
+          "2026-09-24"
+        ],
+        "tz": "Europe/Paris",
+        "active_start": "2026-09-24T00:00",
+        "active_end": "2026-09-24T23:59"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              2.3196,
+              48.8674
+            ],
+            [
+              2.3116,
+              48.87
+            ],
+            [
+              2.3102,
+              48.8682
+            ],
+            [
+              2.3178,
+              48.8646
+            ],
+            [
+              2.3212,
+              48.8636
+            ],
+            [
+              2.3238,
+              48.8654
+            ],
+            [
+              2.3232,
+              48.8668
+            ],
+            [
+              2.3196,
+              48.8674
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "source": "visite_pape",
+        "type": "circulation_interdite",
+        "exclure_recherche": true,
+        "zone_id": "concorde_messe",
+        "nom": "Messe place de la Concorde et Champs-Élysées",
+        "horaires": "Stationnement : 25 sept. 14 h – 26 sept. 20 h. Circulation élargie : 25 sept. 22 h – 26 sept. 20 h.",
+        "description": "Périmètre de la messe en plein air : Concorde, Champs-Élysées, 8e, quais et ponts du 7e.",
+        "jours": [
+          "2026-09-25",
+          "2026-09-26"
+        ],
+        "tz": "Europe/Paris",
+        "active_start": "2026-09-25T00:00",
+        "active_end": "2026-09-26T23:59",
+        "circulation_start": "2026-09-25T22:00",
+        "circulation_end": "2026-09-26T20:00"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              2.2936,
+              48.8762
+            ],
+            [
+              2.2922,
+              48.8738
+            ],
+            [
+              2.2926,
+              48.8696
+            ],
+            [
+              2.2976,
+              48.8636
+            ],
+            [
+              2.3048,
+              48.8598
+            ],
+            [
+              2.318,
+              48.8576
+            ],
+            [
+              2.3232,
+              48.8604
+            ],
+            [
+              2.3254,
+              48.8638
+            ],
+            [
+              2.3272,
+              48.8682
+            ],
+            [
+              2.3252,
+              48.8724
+            ],
+            [
+              2.315,
+              48.8738
+            ],
+            [
+              2.304,
+              48.8752
+            ],
+            [
+              2.2936,
+              48.8762
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

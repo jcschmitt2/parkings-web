@@ -26,7 +26,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <!-- build: v18.67 -->
+  <!-- build: v18.73 -->
   <link rel="icon" href="/favicon.ico" sizes="48x48" />
   <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
   <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
@@ -217,7 +217,8 @@
     body.actu-app:not(.has-results) .paris-respire-intro { display:none !important; }
     body.actu-app.actu-paris-respire.has-results:not(.actu-parking-detail) .paris-respire-intro { display:block; }
     body.actu-app.actu-14-juillet .paris-respire-intro,
-    body.actu-app.actu-tour-de-france .paris-respire-intro { display:none !important; }
+    body.actu-app.actu-tour-de-france .paris-respire-intro,
+    body.actu-app.actu-visite-pape .paris-respire-intro { display:none !important; }
     .actu-tool-seo {
       margin:0 22px 14px;
       padding:12px 14px;
@@ -296,6 +297,34 @@
     .tdf-legend-swatch-respire {
       border-color:#d97706;
       background:rgba(245,158,11,.4);
+    }
+    .visite-pape-date-bar { display:none; margin-top:10px; }
+    body.actu-visite-pape .visite-pape-date-bar { display:block; }
+    .visite-pape-date-label {
+      margin:0 0 6px;
+      font-size:.82rem;
+      color:#c7d2fe;
+      font-weight:600;
+    }
+    .visite-pape-date-choices {
+      display:flex;
+      gap:8px;
+    }
+    .visite-pape-date-btn {
+      flex:1;
+      padding:8px 10px;
+      border-radius:10px;
+      border:1px solid #2b376f;
+      background:#0e1440;
+      color:#e7eaff;
+      font-weight:600;
+      font-size:.88rem;
+      cursor:pointer;
+    }
+    .visite-pape-date-btn[aria-pressed="true"] {
+      background:#2563eb;
+      border-color:#60a5fa;
+      color:#fff;
     }
     .paris-respire-legend a { color:#7dd3fc; }
     .paris-respire-legend-short { display:none; }
@@ -645,7 +674,24 @@
     .gain-result-gain { font-size:.95rem; font-weight:800; }
     .gain-result-gain.is-positive { color:#4ade80; }
     .gain-result-gain.is-negative { color:#f87171; }
-    .detail-name { font-size:1.02rem; font-weight:700; color:#fff; margin-bottom:4px; }
+    .detail-name {
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-size:1.02rem;
+      font-weight:700;
+      color:#fff;
+      margin-bottom:4px;
+    }
+    .detail-name.is-closed-zone { color:#f87171; }
+    .detail-name.is-open-zone { color:#fff; }
+    .detail-lock {
+      width:1.15em;
+      height:1.15em;
+      flex-shrink:0;
+    }
+    .detail-name.is-closed-zone .detail-lock { color:#ef4444; }
+    .detail-name.is-open-zone .detail-lock { color:#22c55e; }
     .detail-meta { margin-bottom:8px; }
     .detail-entrance { font-size:.8rem; color:#7d8fd6; margin-top:4px; }
     .detail-website {
@@ -1033,6 +1079,19 @@
       animation:none;
       box-shadow:0 2px 10px rgba(220,38,38,.45);
     }
+    .marker.marker-overview-dot.marker-closed-zone,
+    .marker.marker-overview-dot.marker-closed-zone.marker-selected {
+      background:#dc2626;
+      background-image:none;
+      animation:none;
+      box-shadow:0 2px 10px rgba(220,38,38,.45);
+    }
+    .marker.marker-overview-dot.marker-selected:not(.marker-closed-zone) {
+      background:#7c3aed;
+      box-shadow:
+        0 0 0 5px rgba(124,58,237,.22),
+        0 2px 10px rgba(124,58,237,.45);
+    }
     .marker-wrap-best:has(.marker-closed-zone)::before {
       background:radial-gradient(circle, rgba(252,165,165,.55) 0%, rgba(220,38,38,.22) 42%, transparent 72%);
       animation:none;
@@ -1322,6 +1381,14 @@
       body.actu-app #copy-lead.header-intro--lead {
         font-size:.84rem;
         margin:0 0 8px;
+      }
+      body.actu-visite-pape #copy-lead.header-intro--lead,
+      body.actu-visite-pape .visite-pape-date-label,
+      body.actu-visite-pape .actu-tool-seo {
+        display:none !important;
+      }
+      body.actu-visite-pape .visite-pape-date-bar {
+        margin-top:8px;
       }
       body.actu-app.actu-parking-detail .paris-respire-intro,
       body.actu-app.actu-parking-detail #copy-lead,
@@ -1686,6 +1753,14 @@
           <div id="address-suggestions" role="listbox" aria-label="Suggestions d'adresse"></div>
         </div>
       </form>
+      <div id="visite-pape-date-bar" class="visite-pape-date-bar" hidden>
+        <p class="visite-pape-date-label" id="visite-pape-date-label">Jour des fermetures</p>
+        <div class="visite-pape-date-choices" role="radiogroup" aria-labelledby="visite-pape-date-label">
+          <button type="button" class="visite-pape-date-btn" data-day="2026-09-24" aria-pressed="false">24 sept.</button>
+          <button type="button" class="visite-pape-date-btn" data-day="2026-09-25" aria-pressed="false">25 sept.</button>
+          <button type="button" class="visite-pape-date-btn" data-day="2026-09-26" aria-pressed="false">26 sept.</button>
+        </div>
+      </div>
       <div id="paris-respire-intro" class="paris-respire-intro" aria-label="Paris Respire">
         <p><strong>Parkings publics hors zone fermée</strong></p>
       </div>
@@ -1777,6 +1852,7 @@
     let parisRespireGeoJson = null;
     let juillet14GeoJson = null;
     let tourDeFranceGeoJson = null;
+    let visitePapeGeoJson = null;
     let parisRespireOverviewGen = 0;
     let mapEpoch = 0;
     let parisRespireZonesPromise = null;
@@ -1785,6 +1861,7 @@
     let SELECTED_PARKING_ID = "";
     let CURRENT_GAIN_PARKING = null;
     let CURRENT_ORIGIN = null;
+    let showNearestFromOriginGen = 0;
     let CURRENT_GPS_POSITION = null;
     let MARKERS_BY_PARKING_ID = new Map();
     let lastParkingMarkerClickAt = 0;
@@ -1795,7 +1872,7 @@
     let suggestTimer = null;
     let suggestRequestId = 0;
     let suppressSuggestionBlurHide = false;
-    const APP_VERSION = "18.68";
+    const APP_VERSION = "18.73";
     let bootGeneration = 0;
     const OVERVIEW_NAME_ZOOM = 14;
     const WELCOME_MAP_CENTER = [48.8566, 2.3522];
@@ -1803,6 +1880,15 @@
     const PARIS_RESPIRE_DATA_URL = encodeURI("donnée/paris_respire_secteurs.geojson");
     const JUILLET_14_DATA_URL = encodeURI("donnée/14_juillet_2026_zones.geojson");
     const TOUR_DE_FRANCE_DATA_URL = encodeURI("donnée/tour_de_france_2026_zones.geojson");
+    const VISITE_PAPE_DATA_URL = encodeURI("donnée/visite_pape_2026_zones.geojson");
+    const VISITE_PAPE_DAYS = ["2026-09-24", "2026-09-25", "2026-09-26"];
+    const VISITE_PAPE_DAY_LABELS = {
+      "2026-09-24": "24 septembre",
+      "2026-09-25": "25 septembre",
+      "2026-09-26": "26 septembre"
+    };
+    const VISITE_PAPE_SEARCH_RADIUS_M = 2000;
+    let visitePapeSelectedDay = "2026-09-25";
     const PARIS_RESPIRE_JOURS = {
       "01": "Dimanche",
       "03": "Mercredi",
@@ -1821,6 +1907,7 @@
     const PARIS_WEEKDAY_IDX = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
     let parisRespireActiveCache = { at: 0, key: "", features: [] };
     let parisRespireLayerMode = "";
+    let closedZoneFeaturesCache = [];
 
     function normalizeRespireNowParam(raw){
       if(!raw) return "";
@@ -2543,6 +2630,7 @@
         if(shouldRefit && LAST_MAP_FIT_LATLNGS?.length) scheduleMapFit();
         else if(is14JuilletActuPage()) ensure14JuilletZonesLayer();
         else if(isTourDeFranceActuPage()) ensureTourDeFranceZonesLayer();
+        else if(isVisitePapeActuPage()) ensureVisitePapeZonesLayer();
         else if(isParisRespireActuPage()) ensureParisRespireZonesLayer();
         else if(!resolveSeoLandingConfig()) scheduleWelcomeOverviewMap();
         if(!isActuZoneToolPage()) scheduleStandardParisRespireRefresh();
@@ -2769,11 +2857,15 @@
       parisRespireGeoJson = null;
       juillet14GeoJson = null;
       tourDeFranceGeoJson = null;
+      visitePapeGeoJson = null;
       parisRespireActiveCache = { at: 0, key: "", features: [] };
+      closedZoneFeaturesCache = [];
       parisRespireOverviewGen++;
       parisRespireZonesPromise = null;
       juillet14ZonesPromise = null;
       tourDeFranceZonesPromise = null;
+      visitePapeZonesPromise = null;
+      visitePapePaintDay = "";
     }
 
     function destroyMapCompletely(){
@@ -2782,6 +2874,7 @@
       hideParisRespireMapLegend();
       hide14JuilletMapLegend();
       hideTourDeFranceMapLegend();
+      hideVisitePapeMapLegend();
       if(map){
         try { map.remove(); } catch (err) { /* déjà détachée */ }
         map = null;
@@ -2830,6 +2923,7 @@
             refreshMapAfterLayoutChange(false);
             if(is14JuilletActuPage()) schedule14JuilletOverviewMap();
             else if(isTourDeFranceActuPage()) scheduleTourDeFranceOverviewMap();
+            else if(isVisitePapeActuPage()) scheduleVisitePapeOverviewMap();
             else if(isParisRespireActuPage()) scheduleParisRespireOverviewMap();
             else scheduleWelcomeOverviewMap();
           }, 120);
@@ -2857,8 +2951,9 @@
       return false;
     }
 
-    function buildOverviewMapIcon(selected, showName, parkingName){
+    function buildOverviewMapIcon(selected, showName, parkingName, inClosedZone = false){
       const selectedClass = selected ? " marker-selected" : "";
+      const closedClass = inClosedZone ? " marker-closed-zone" : "";
       const dotSize = selected ? 16 : 12;
       const pinClass = selected ? "marker-pin-wrap is-selected marker-overview" : "marker-pin-wrap marker-overview";
       const name = showName ? markerNameHtml(parkingName) : "";
@@ -2869,7 +2964,7 @@
       const totalW = Math.max(hitMin, dotSize + 8, name ? nameMaxW : 0);
       const totalH = Math.max(hitMin, nameH + dotSize + gapExtra);
       const anchorY = name ? (nameH + gapExtra / 2 + dotSize / 2) : (totalH / 2);
-      const visual = `${name}<div class="marker marker-overview-dot marker-alt${selectedClass}" aria-hidden="true"></div>`;
+      const visual = `${name}<div class="marker marker-overview-dot marker-alt${selectedClass}${closedClass}" aria-hidden="true"></div>`;
       return L.divIcon({
         className: parkingMapMarkerClass(selected),
         html: buildMarkerPinHtml(pinClass, totalW, totalH, visual),
@@ -2884,11 +2979,11 @@
         const meta = marker._parkingMeta;
         if(!meta || meta.type !== "overview") return;
         const selected = id === SELECTED_PARKING_ID;
-        marker.setIcon(buildOverviewMapIcon(selected, shouldShowOverviewMarkerName(selected), meta.parkingName));
+        marker.setIcon(buildOverviewMapIcon(selected, shouldShowOverviewMarkerName(selected), meta.parkingName, meta.inClosedZone));
       });
     }
 
-    function showOverviewParkingMarkers(){
+    async function showOverviewParkingMarkers(){
       if(!map || !PARKINGS.length) return;
       clearMarkers();
       const optionsById = {};
@@ -2897,12 +2992,22 @@
       });
       registerResultParkings(PARKINGS, optionsById);
       const showNames = shouldShowOverviewMarkerName(false);
+      let closedFeatures = [];
+      if(isActuZoneToolPage()){
+        try {
+          closedFeatures = await getActuClosedZoneFeatures();
+        } catch (err) {
+          closedFeatures = [];
+        }
+      }
+      closedZoneFeaturesCache = closedFeatures;
       altMarkers = PARKINGS.filter(p => p.lat != null && p.lon != null).map(p => {
+        const inClosed = parkingInClosedZone(p, closedFeatures);
         const m = createParkingMarker(p.lat, p.lon, {
           title: p.name,
-          icon: buildOverviewMapIcon(false, showNames, p.name)
+          icon: buildOverviewMapIcon(false, showNames, p.name, inClosed)
         }).addTo(map);
-        registerMapMarker(p.id, m, "overview", "", null, p.name);
+        registerMapMarker(p.id, m, "overview", "", null, p.name, inClosed);
         return m;
       });
       map.invalidateSize({ animate:false });
@@ -2918,7 +3023,7 @@
         const active = await getActiveParisRespireFeaturesCached();
         if(active.length) await ensureParisRespireZonesLayer();
       }
-      showOverviewParkingMarkers();
+      await showOverviewParkingMarkers();
     }
 
     function scheduleWelcomeOverviewMap(attempt = 0){
@@ -2928,6 +3033,10 @@
       }
       if(isTourDeFranceActuPage()){
         scheduleTourDeFranceOverviewMap(attempt);
+        return;
+      }
+      if(isVisitePapeActuPage()){
+        scheduleVisitePapeOverviewMap(attempt);
         return;
       }
       if(isParisRespireActuPage()){
@@ -2982,6 +3091,10 @@
               });
             } else if(isTourDeFranceActuPage()){
               ensureTourDeFranceZonesLayer().then(() => {
+                if(LAST_MAP_FIT_LATLNGS?.length) scheduleMapFit();
+              });
+            } else if(isVisitePapeActuPage()){
+              ensureVisitePapeZonesLayer().then(() => {
                 if(LAST_MAP_FIT_LATLNGS?.length) scheduleMapFit();
               });
             } else if(isParisRespireActuPage()){
@@ -3455,7 +3568,7 @@
         if(meta.type === "best"){
           marker.setIcon(buildBestMapIcon(selected, meta.distanceM, meta.parkingName, meta.inClosedZone));
         } else if(meta.type === "overview"){
-          marker.setIcon(buildOverviewMapIcon(selected, shouldShowOverviewMarkerName(selected), meta.parkingName));
+          marker.setIcon(buildOverviewMapIcon(selected, shouldShowOverviewMarkerName(selected), meta.parkingName, meta.inClosedZone));
         } else {
           marker.setIcon(buildAltMapIcon(meta.label, selected, meta.distanceM, meta.parkingName, meta.inClosedZone));
         }
@@ -3616,7 +3729,7 @@
         : "";
 
       body.innerHTML = `
-        <div class="detail-name">${escapeHtml(displayParkingName(p.name))}</div>
+        ${parkingDetailNameHtml(p)}
         ${distBlock}
         ${parkingPhotoHtml(p, "detail-photo")}
         <div class="detail-meta">
@@ -3896,11 +4009,14 @@
       if(isMapPanelVisible() && LAST_MAP_FIT_LATLNGS?.length) scheduleMapFit();
       else if(is14JuilletActuPage()) schedule14JuilletOverviewMap();
       else if(isTourDeFranceActuPage()) scheduleTourDeFranceOverviewMap();
+      else if(isVisitePapeActuPage()) scheduleVisitePapeOverviewMap();
       else if(isParisRespireActuPage()) scheduleParisRespireOverviewMap();
       else scheduleWelcomeOverviewMap();
     });
     document.getElementById("tab-list")?.addEventListener("click", () => setMobileView("list"));
     document.getElementById("tab-map")?.addEventListener("click", () => setMobileView("map"));
+    visitePapeSelectedDay = defaultVisitePapeDay();
+    bindVisitePapeDateBar();
 
     const originIcon = L.divIcon({
       className: "",
@@ -3939,11 +4055,13 @@
       document.body.classList.toggle("actu-paris-respire", actu.slug === "paris-respire-stationnement");
       document.body.classList.toggle("actu-14-juillet", actu.slug === "14-juillet-paris-circulation-stationnement-carte");
       document.body.classList.toggle("actu-tour-de-france", actu.slug === "tour-de-france-paris-circulation-stationnement-carte");
+      document.body.classList.toggle("actu-visite-pape", actu.slug === "visite-pape-paris-circulation-stationnement-carte");
       setTextById("copy-subtitle", "");
       setTextById("copy-lead", actu.resume || "");
       setTextById("copy-body", actu.h1 || actu.titre || "");
       setTextById("copy-trust", "");
       setTextById("text-label-address", "Votre destination");
+      syncVisitePapeDateBar();
     }
 
     function applyActuAppResultsHeader(actu){
@@ -3966,8 +4084,46 @@
       return resolveActuAppConfig()?.slug === "tour-de-france-paris-circulation-stationnement-carte";
     }
 
+    function isVisitePapeActuPage(){
+      return resolveActuAppConfig()?.slug === "visite-pape-paris-circulation-stationnement-carte";
+    }
+
     function isActuZoneToolPage(){
-      return isParisRespireActuPage() || is14JuilletActuPage() || isTourDeFranceActuPage();
+      return isParisRespireActuPage() || is14JuilletActuPage() || isTourDeFranceActuPage() || isVisitePapeActuPage();
+    }
+
+    async function getActuClosedZoneFeatures(){
+      if(isVisitePapeActuPage()) return getVisitePapeMapFeatures();
+      if(isTourDeFranceActuPage()) return getTourDeFranceParkingZoneFeatures();
+      if(is14JuilletActuPage()) return get14JuilletMapFeatures();
+      if(isParisRespireActuPage()) return getParisRespireUrbanFeatures();
+      return [];
+    }
+
+    function parkingLockIconHtml(closed){
+      if(closed){
+        return `<svg class="detail-lock" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="5" y="11" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`;
+      }
+      return `<svg class="detail-lock" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="5" y="11" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 11V7a4 4 0 0 1 7.8-1.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`;
+    }
+
+    function parkingIsInClosedZone(parking){
+      const marker = MARKERS_BY_PARKING_ID.get(parking?.id);
+      if(marker?._parkingMeta && "inClosedZone" in marker._parkingMeta){
+        return !!marker._parkingMeta.inClosedZone;
+      }
+      return parkingInClosedZone(parking, closedZoneFeaturesCache);
+    }
+
+    function parkingDetailNameHtml(parking){
+      const name = escapeHtml(displayParkingName(parking.name));
+      if(!isActuZoneToolPage()){
+        return `<div class="detail-name">${name}</div>`;
+      }
+      const closed = parkingIsInClosedZone(parking);
+      const cls = closed ? "detail-name is-closed-zone" : "detail-name is-open-zone";
+      const label = closed ? "Parking dans une zone fermée" : "Parking hors zone fermée";
+      return `<div class="${cls}" title="${label}">${parkingLockIconHtml(closed)}<span>${name}</span></div>`;
     }
 
     async function load14JuilletGeoJson(){
@@ -4059,6 +4215,7 @@
         hideParisRespireMapLegend();
         hide14JuilletMapLegend();
         hideTourDeFranceMapLegend();
+      hideVisitePapeMapLegend();
         ensureParisRespireMapPane();
         parisRespireLayer = L.geoJSON(
           { type: "FeatureCollection", features },
@@ -4102,7 +4259,7 @@
       const gen = ++parisRespireOverviewGen;
       const ok = await ensure14JuilletZonesLayer();
       if(gen !== parisRespireOverviewGen || !map || !ok) return;
-      showOverviewParkingMarkers();
+      await showOverviewParkingMarkers();
       map.invalidateSize({ animate:false });
       const padOpts = juillet14OverviewFitPadding();
       const fitted = fitMapToLayerBounds(parisRespireLayer, padOpts);
@@ -4246,6 +4403,7 @@
         hideParisRespireMapLegend();
         hide14JuilletMapLegend();
         hideTourDeFranceMapLegend();
+      hideVisitePapeMapLegend();
         ensureParisRespireMapPane();
         parisRespireLayer = L.geoJSON(
           { type: "FeatureCollection", features },
@@ -4289,7 +4447,7 @@
       const gen = ++parisRespireOverviewGen;
       const ok = await ensureTourDeFranceZonesLayer();
       if(gen !== parisRespireOverviewGen || !map || !ok) return;
-      showOverviewParkingMarkers();
+      await showOverviewParkingMarkers();
       map.invalidateSize({ animate:false });
       const padOpts = juillet14OverviewFitPadding();
       const fitted = fitMapToLayerBounds(parisRespireLayer, padOpts);
@@ -4325,6 +4483,259 @@
         return;
       }
       void showTourDeFranceOverviewMap();
+    }
+
+    function defaultVisitePapeDay(){
+      const q = new URLSearchParams(window.location.search).get("jour");
+      if(VISITE_PAPE_DAYS.includes(q)) return q;
+      const now = new Date();
+      const iso = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+      if(VISITE_PAPE_DAYS.includes(iso)) return iso;
+      return "2026-09-25";
+    }
+
+    function visitePapeDayLabel(day){
+      return VISITE_PAPE_DAY_LABELS[day] || day;
+    }
+
+    function syncVisitePapeDateBar(){
+      const bar = document.getElementById("visite-pape-date-bar");
+      if(!bar) return;
+      const on = isVisitePapeActuPage();
+      bar.hidden = !on;
+      if(!on) return;
+      if(!VISITE_PAPE_DAYS.includes(visitePapeSelectedDay)){
+        visitePapeSelectedDay = defaultVisitePapeDay();
+      }
+      bar.querySelectorAll(".visite-pape-date-btn").forEach((btn) => {
+        btn.setAttribute("aria-pressed", btn.getAttribute("data-day") === visitePapeSelectedDay ? "true" : "false");
+      });
+    }
+
+    function setVisitePapeDay(day, { refresh = true } = {}){
+      if(!VISITE_PAPE_DAYS.includes(day) || day === visitePapeSelectedDay){
+        syncVisitePapeDateBar();
+        return;
+      }
+      visitePapeSelectedDay = day;
+      syncVisitePapeDateBar();
+      const url = new URL(window.location.href);
+      url.searchParams.set("jour", day);
+      history.replaceState({}, "", url.pathname + url.search + url.hash);
+      if(!refresh || !isVisitePapeActuPage()) return;
+      clearParisRespireLayer();
+      hideVisitePapeMapLegend();
+      if(CURRENT_ORIGIN && document.body.classList.contains("has-results")){
+        void showNearestFromOrigin(CURRENT_ORIGIN);
+      } else {
+        void showVisitePapeOverviewMap();
+      }
+    }
+
+    function bindVisitePapeDateBar(){
+      const bar = document.getElementById("visite-pape-date-bar");
+      if(!bar || bar.dataset.bound === "1") return;
+      bar.dataset.bound = "1";
+      bar.addEventListener("click", (event) => {
+        const btn = event.target.closest(".visite-pape-date-btn");
+        if(!btn) return;
+        setVisitePapeDay(btn.getAttribute("data-day"));
+      });
+    }
+
+    async function loadVisitePapeGeoJson(){
+      if(visitePapeGeoJson) return visitePapeGeoJson;
+      const res = await fetch(`${VISITE_PAPE_DATA_URL}?v=${APP_VERSION}`);
+      if(!res.ok) throw new Error(`visite_pape_2026_zones.geojson HTTP ${res.status}`);
+      visitePapeGeoJson = await res.json();
+      return visitePapeGeoJson;
+    }
+
+    function visitePapeFeatureOnDay(feature, day = visitePapeSelectedDay){
+      const jours = feature?.properties?.jours;
+      if(Array.isArray(jours) && jours.length){
+        return jours.includes(day);
+      }
+      const start = String(feature?.properties?.active_start || "").slice(0, 10);
+      const end = String(feature?.properties?.active_end || "").slice(0, 10);
+      if(!start) return true;
+      return start <= day && (!end || day <= end);
+    }
+
+    async function getVisitePapeMapFeatures(day = visitePapeSelectedDay){
+      const raw = await loadVisitePapeGeoJson();
+      return (raw.features || [])
+        .filter(f => visitePapeFeatureOnDay(f, day))
+        .map(f => ({
+          ...f,
+          properties: {
+            ...(f.properties || {}),
+            nom: (f.properties || {}).nom || "Visite du pape"
+          }
+        }));
+    }
+
+    function formatVisitePapePopup(props){
+      const lines = [];
+      lines.push(`<strong>${escapeHtml(props.nom || "Visite du pape")}</strong>`);
+      lines.push(`Jour affiché : ${escapeHtml(visitePapeDayLabel(visitePapeSelectedDay))}`);
+      if(props.horaires) lines.push(`Horaires : ${escapeHtml(props.horaires)}`);
+      if(props.description) lines.push(escapeHtml(props.description));
+      lines.push(
+        '<a href="https://www.prefecturedepolice.interieur.gouv.fr/actualites-et-presse/actualites/evenement/voyage-apostolique-les-perimetres" target="_blank" rel="noopener noreferrer">' +
+        "Cartes officielles — Préfecture de police</a>"
+      );
+      return `<div class="paris-respire-popup">${lines.join("<br>")}</div>`;
+    }
+
+    function visitePapeZoneStyle(feature){
+      if(feature?.properties?.type === "stationnement_interdit"){
+        return {
+          color: "#c2410c",
+          weight: 2,
+          opacity: 0.95,
+          fillColor: "#fb923c",
+          fillOpacity: 0.22,
+          dashArray: "6 4"
+        };
+      }
+      return {
+        color: "#b91c1c",
+        weight: 2.5,
+        opacity: 0.95,
+        fillColor: "#ef4444",
+        fillOpacity: 0.28
+      };
+    }
+
+    function ensureVisitePapeMapLegend(){
+      let el = document.getElementById("visite-pape-legend");
+      const dayLabel = visitePapeDayLabel(visitePapeSelectedDay);
+      const html =
+        "<strong>" +
+        '<span class="paris-respire-legend-swatch juillet-14-legend-swatch" aria-hidden="true"></span>' +
+        `<span class="paris-respire-legend-long">Visite du pape — zones fermées (${dayLabel})</span>` +
+        `<span class="paris-respire-legend-short">${dayLabel.replace("septembre", "sept.")} · zone fermée</span></strong>` +
+        '<span class="paris-respire-legend-detail">Périmètres d\'après la Préfecture de police. ' +
+        "ParkEco propose un parking hors zone.</span>";
+      if(!el){
+        el = document.createElement("div");
+        el.id = "visite-pape-legend";
+        el.className = "paris-respire-legend";
+        document.querySelector(".map-panel")?.appendChild(el);
+      }
+      el.innerHTML = html;
+      el.hidden = false;
+    }
+
+    function hideVisitePapeMapLegend(){
+      const el = document.getElementById("visite-pape-legend");
+      if(el) el.hidden = true;
+    }
+
+    let visitePapeZonesPromise = null;
+
+    async function paintVisitePapeZonesLayer(day){
+      const mapRef = map;
+      if(!mapRef || !isVisitePapeActuPage()) return false;
+      const epoch = mapEpoch;
+      const paintDay = day || visitePapeSelectedDay;
+      const mode = `visitepape:${paintDay}`;
+      try {
+        const features = await getVisitePapeMapFeatures(paintDay);
+        if(!map || map !== mapRef || mapEpoch !== epoch) return false;
+        if(visitePapeSelectedDay !== paintDay) return false;
+        if(parisRespireLayer && parisRespireLayerMode === mode && map.hasLayer(parisRespireLayer)){
+          ensureVisitePapeMapLegend();
+          return true;
+        }
+        clearParisRespireLayer();
+        hideParisRespireMapLegend();
+        hide14JuilletMapLegend();
+        hideTourDeFranceMapLegend();
+        hideVisitePapeMapLegend();
+        if(visitePapeSelectedDay !== paintDay || mapEpoch !== epoch) return false;
+        ensureParisRespireMapPane();
+        parisRespireLayer = L.geoJSON(
+          { type: "FeatureCollection", features },
+          {
+            pane: "parisRespirePane",
+            style: visitePapeZoneStyle,
+            onEachFeature(feature, layer){
+              const props = feature.properties || {};
+              layer.bindPopup(() => formatVisitePapePopup(props), { maxWidth: 320 });
+              layer.on({
+                mouseover: (event) => event.target.setStyle({ weight: 3, fillOpacity: 0.42 }),
+                mouseout: (event) => { if(parisRespireLayer) parisRespireLayer.resetStyle(event.target); }
+              });
+            }
+          }
+        ).addTo(mapRef);
+        parisRespireLayerMode = mode;
+        ensureVisitePapeMapLegend();
+        return true;
+      } catch(err){
+        console.warn("Zones visite du pape non chargées", err);
+        return false;
+      }
+    }
+
+    let visitePapePaintDay = "";
+
+    async function ensureVisitePapeZonesLayer(){
+      if(!map) return false;
+      const day = visitePapeSelectedDay;
+      if(visitePapeZonesPromise && visitePapePaintDay === day) return visitePapeZonesPromise;
+      visitePapePaintDay = day;
+      visitePapeZonesPromise = paintVisitePapeZonesLayer(day).finally(() => {
+        if(visitePapePaintDay === day) visitePapeZonesPromise = null;
+      });
+      return visitePapeZonesPromise;
+    }
+
+    async function showVisitePapeOverviewMap(){
+      if(!isVisitePapeActuPage() || !map) return;
+      if(document.body.classList.contains("has-results")) return;
+      if(!isWelcomeOverviewMode()) return;
+      const gen = ++parisRespireOverviewGen;
+      const ok = await ensureVisitePapeZonesLayer();
+      if(gen !== parisRespireOverviewGen || !map || !ok) return;
+      await showOverviewParkingMarkers();
+      map.invalidateSize({ animate:false });
+      const padOpts = juillet14OverviewFitPadding();
+      const fitted = fitMapToLayerBounds(parisRespireLayer, padOpts);
+      if(!fitted){
+        map.setView(WELCOME_MAP_CENTER, WELCOME_MAP_ZOOM, { animate:false });
+      }
+      const refit = () => {
+        if(gen !== parisRespireOverviewGen || !map || !isVisitePapeActuPage()) return;
+        if(document.body.classList.contains("has-results")) return;
+        map.invalidateSize({ animate:false });
+        fitMapToLayerBounds(parisRespireLayer, padOpts);
+      };
+      requestAnimationFrame(() => requestAnimationFrame(refit));
+      setTimeout(refit, 150);
+    }
+
+    function scheduleVisitePapeOverviewMap(attempt = 0){
+      if(!isVisitePapeActuPage() || document.body.classList.contains("has-results")) return;
+      if(!isWelcomeOverviewMode() || !PARKINGS.length){
+        if(!PARKINGS.length && attempt < 60){
+          setTimeout(() => scheduleVisitePapeOverviewMap(attempt + 1), 80);
+        }
+        return;
+      }
+      const mapEl = document.getElementById("map");
+      if(!mapEl || mapEl.offsetWidth < 20 || mapEl.offsetHeight < 20){
+        if(attempt < 24) setTimeout(() => scheduleVisitePapeOverviewMap(attempt + 1), 80);
+        return;
+      }
+      if(!map) initMap();
+      if(!map){
+        if(attempt < 24) setTimeout(() => scheduleVisitePapeOverviewMap(attempt + 1), 80);
+        return;
+      }
+      void showVisitePapeOverviewMap();
     }
 
     function eventZoneKey(feature){
@@ -4585,6 +4996,7 @@
             hideParisRespireMapLegend();
             hide14JuilletMapLegend();
             hideTourDeFranceMapLegend();
+      hideVisitePapeMapLegend();
             return false;
           }
           if(parisRespireLayerOnMap() && parisRespireLayerMode === "standard"){
@@ -4596,6 +5008,7 @@
         clearParisRespireLayer();
         hide14JuilletMapLegend();
         hideTourDeFranceMapLegend();
+      hideVisitePapeMapLegend();
         ensureParisRespireMapPane();
         parisRespireLayer = L.geoJSON(
           { type: "FeatureCollection", features: featureList },
@@ -4631,7 +5044,7 @@
       const gen = ++parisRespireOverviewGen;
       const ok = await ensureParisRespireZonesLayer();
       if(gen !== parisRespireOverviewGen || !map || !ok) return;
-      showOverviewParkingMarkers();
+      await showOverviewParkingMarkers();
       map.setView(WELCOME_MAP_CENTER, WELCOME_MAP_ZOOM, { animate:false });
       map.invalidateSize({ animate:false });
     }
@@ -4897,6 +5310,7 @@
         if(resolveSeoLandingConfig()) await runSeoLandingSearchIfNeeded();
         else if(is14JuilletActuPage()) schedule14JuilletOverviewMap();
         else if(isTourDeFranceActuPage()) scheduleTourDeFranceOverviewMap();
+        else if(isVisitePapeActuPage()) scheduleVisitePapeOverviewMap();
         else if(isParisRespireActuPage()) scheduleParisRespireOverviewMap();
         else if(!resolveActuAppConfig()) scheduleWelcomeOverviewMap();
         if(!isActuZoneToolPage()) {
@@ -5125,6 +5539,9 @@
         }
         return "Attention : parking dans une zone fermée (Tour de France)";
       }
+      if(isVisitePapeActuPage()){
+        return "Attention : parking dans une zone fermée (visite du pape)";
+      }
       return "Attention : parking en zone bloquée Paris Respire";
     }
 
@@ -5272,6 +5689,7 @@
         if(activeRespireFeatures.length) await ensureParisRespireZonesLayer();
       }
       const closedZoneFeatures = activeRespireFeatures;
+      closedZoneFeaturesCache = closedZoneFeatures;
       const sorted = sortParkingsAccessibleFirst(inArr, closedZoneFeatures);
       const respireWarningFor = (p) => (
         parkingInClosedZone(p, closedZoneFeatures)
@@ -5314,15 +5732,15 @@
     const SEARCH_RADIUS_M = 1000;
     const JUILLET_14_SEARCH_RADIUS_M = 2000;
 
-    function searchRadiusM(destinationInJuilletZone = false){
-      if(is14JuilletActuPage()){
-        return destinationInJuilletZone ? JUILLET_14_SEARCH_RADIUS_M : SEARCH_RADIUS_M;
+    function searchRadiusM(destinationInClosedZone = false){
+      if(is14JuilletActuPage() || isVisitePapeActuPage()){
+        return destinationInClosedZone ? JUILLET_14_SEARCH_RADIUS_M : SEARCH_RADIUS_M;
       }
       return SEARCH_RADIUS_M;
     }
 
-    function fmtSearchRadius(destinationInJuilletZone = false){
-      return fmtRadiusMeters(searchRadiusM(destinationInJuilletZone));
+    function fmtSearchRadius(destinationInClosedZone = false){
+      return fmtRadiusMeters(searchRadiusM(destinationInClosedZone));
     }
 
     async function hydratePrerenderedNearestFromOrigin(origin){
@@ -5357,6 +5775,7 @@
         if(activeRespireFeatures.length) await ensureParisRespireZonesLayer();
       }
       const closedZoneFeatures = activeRespireFeatures;
+      closedZoneFeaturesCache = closedZoneFeatures;
       const bestTitle = "Parking le plus proche";
       const best = nearby[0];
       const alts = nearby.slice(1);
@@ -5399,6 +5818,7 @@
     }
 
     async function showNearestFromOrigin(origin){
+      const gen = ++showNearestFromOriginGen;
       CURRENT_ORIGIN = origin;
       closeParkingDetail();
       setResultsLayoutActive(true);
@@ -5418,6 +5838,7 @@
       let bestTitle = "Parking le plus proche";
       let activeRespireFeatures = [];
       let actuToolZoneFeatures = [];
+      const papeDay = visitePapeSelectedDay;
 
       if(is14JuilletActuPage()){
         await ensure14JuilletZonesLayer();
@@ -5436,6 +5857,16 @@
         if(eventZone){
           highlightEventZone(eventZone);
         }
+      } else if(isVisitePapeActuPage()){
+        await ensureVisitePapeZonesLayer();
+        if(gen !== showNearestFromOriginGen) return;
+        actuToolZoneFeatures = await getVisitePapeMapFeatures(papeDay);
+        if(gen !== showNearestFromOriginGen) return;
+        eventZone = findParisRespireZoneAt(origin.lat, origin.lon, actuToolZoneFeatures);
+        if(eventZone){
+          bestTitle = "Parking le plus proche hors zone";
+          highlightEventZone(eventZone);
+        }
       } else if(isParisRespireActuPage()){
         await ensureParisRespireZonesLayer();
         const features = await getParisRespireUrbanFeatures();
@@ -5451,6 +5882,8 @@
       }
 
       const closedZoneFeatures = isActuZoneToolPage() ? actuToolZoneFeatures : activeRespireFeatures;
+      if(gen !== showNearestFromOriginGen) return;
+      closedZoneFeaturesCache = closedZoneFeatures;
 
       const zoneWarningFor = (p) => {
         if(isActuZoneToolPage()) return eventZoneWarningText(p, actuToolZoneFeatures);
@@ -5460,8 +5893,8 @@
         return "";
       };
 
-      const juilletDestInZone = is14JuilletActuPage() && !!eventZone;
-      const baseRadiusM = searchRadiusM(juilletDestInZone);
+      const destInClosedEventZone = (is14JuilletActuPage() || isVisitePapeActuPage()) && !!eventZone;
+      const baseRadiusM = searchRadiusM(destInClosedEventZone);
       const {
         nearby,
         radiusM: effectiveRadiusM,
