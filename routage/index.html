@@ -19,6 +19,10 @@
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <link href="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.css" rel="stylesheet" />
+  <script src="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.js"></script>
+  <script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet@0.1.3/leaflet-maplibre-gl.js"></script>
+  <style>.leaflet-gl-layer{pointer-events:none}</style>
   <script src="https://unpkg.com/polygon-clipping@0.15.7/dist/polygon-clipping.umd.js"></script>
   <!-- Clé ORS injectée au déploiement GitHub Pages (jamais commitée). En local : /api/route. -->
   <script src="/routage/ors_key.js" onerror="window.PARKECO_ORS_KEY=window.PARKECO_ORS_KEY||''"></script>
@@ -1570,9 +1574,8 @@
 
     function initMap(){
       map = L.map("map", { zoomControl: true }).setView([48.86, 2.34], 12);
-      L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
-        attribution: "&copy; OSM &copy; CARTO",
-        maxZoom: 19
+      L.maplibreGL({
+        style: "https://tiles.openfreemap.org/styles/bright"
       }).addTo(map);
       window.addEventListener("resize", () => map && map.invalidateSize());
     }
